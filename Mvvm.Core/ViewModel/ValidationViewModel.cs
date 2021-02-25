@@ -14,19 +14,23 @@ namespace Mvvm.Core
     /// <summary>
     /// Implements <see cref="IDataErrorInfo"/> to the view model.
     /// </summary>
-    public abstract class ValidationViewModel : BaseViewModel, IDataErrorInfo
+    public abstract class ValidationViewModel : BaseViewModel, INotifyDataErrorInfo
     {
-        private readonly IDictionary<string, string> errorMessages = new Dictionary<string, string>();
+        private readonly IDictionary<string, bool> propertyHasErrors = new Dictionary<string, bool>();
         private IEnumerable<PropertyInfo>? properties;
         private bool validateOnPropertyChanged;
 
         /// <inheritdoc/>
+        public event System.EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
+
+        /// <inheritdoc/>
         [NoValidation]
-        public string Error => string.Empty;
+        public bool HasErrors => this.propertyHasErrors.Values.Any();
 
         /// <summary>
         /// Gets or sets a value indicating whether properties gets validated on <see cref="INotifyPropertyChanged.PropertyChanged"/> event.
         /// </summary>
+        [NoValidation]
         protected bool ValidateOnPropertyChanged
         {
             get => this.validateOnPropertyChanged;
@@ -48,6 +52,7 @@ namespace Mvvm.Core
         /// <summary>
         /// Gets the names of all public properties.
         /// </summary>
+        [NoValidation]
         protected IEnumerable<string> PropertyNames
         {
             get
@@ -64,21 +69,6 @@ namespace Mvvm.Core
             }
         }
 
-        /// <inheritdoc/>
-        [NoValidation]
-        public string this[string columnName]
-        {
-            get
-            {
-                if (this.errorMessages.TryGetValue(columnName, out var result))
-                {
-                    return result;
-                }
-
-                return string.Empty;
-            }
-        }
-
         /// <summary>
         /// This method will validate all public properties.
         /// </summary>
@@ -87,19 +77,72 @@ namespace Mvvm.Core
         {
             foreach (var propertyName in this.PropertyNames)
             {
-                this.errorMessages[propertyName] = this.ValidateProperty(propertyName);
+                this.ValidateProperty(propertyName);
             }
 
-            return this.errorMessages.Values.All(string.IsNullOrWhiteSpace);
+            return this.HasErrors;
         }
 
+        /// <inheritdoc/>
+        IEnumerable INotifyDataErrorInfo.GetErrors(string propertyName)
+            => this.GetAllErrors(propertyName);
+
         /// <summary>
-        /// Validates a single property.
-        /// <see cref="ValidationAttribute"/> annotations will be validated by default.
+        /// Validates the property and returns the error as string.
         /// </summary>
-        /// <param name="propertyName">The property to validate.</param>
-        /// <returns>string.Empty if valid.</returns>
-        protected virtual string ValidateProperty(string propertyName)
+        /// <param name="propertyName">Property to validate.</param>
+        /// <returns>All errors of this property as string.</returns>
+        protected abstract IEnumerable<string> GetErrors(string propertyName);
+
+        /// <summary>
+        /// Checks for errors for the changed property.
+        /// </summary>
+        /// <param name="sender">Sender of the event.</param>
+        /// <param name="e">Event arguments.</param>
+        private void ValidateChangedProperty(object sender, PropertyChangedEventArgs e)
+        {
+            if (this.PropertyNames.Contains(e.PropertyName))
+            {
+                this.ValidateProperty(e.PropertyName);
+            }
+        }
+
+        private void ValidateProperty(string propertyName)
+        {
+            // backup has errors value.
+            var viewModelHadErrors = this.HasErrors;
+
+            var propertyHasErrors = this.GetAllErrors(propertyName).Any();
+
+            if (propertyHasErrors)
+            {
+                this.ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+            }
+            else if (this.propertyHasErrors.TryGetValue(propertyName, out var propertyHadErrors))
+            {
+                // if old errors get cleared.
+                if (propertyHadErrors)
+                {
+                    this.ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+                }
+            }
+
+            this.propertyHasErrors[propertyName] = propertyHasErrors;
+
+            // notify if property was changed.
+            if (viewModelHadErrors != this.HasErrors)
+            {
+                this.OnPropertyChanged(nameof(this.HasErrors), viewModelHadErrors, this.HasErrors);
+            }
+        }
+
+        private IEnumerable<string> GetAllErrors(string propertyName)
+        {
+            var validationAttributeErrors = this.GetValidationAttributeErrors(propertyName);
+            return this.GetErrors(propertyName).Concat(validationAttributeErrors);
+        }
+
+        private IEnumerable<string> GetValidationAttributeErrors(string propertyName)
         {
             PropertyInfo? propertyInfo = this.properties.FirstOrDefault(o => o.Name == propertyName)
                 ?? this.GetType().GetProperty(propertyName);
@@ -110,7 +153,7 @@ namespace Mvvm.Core
                     .OfType<ValidationAttribute>()
                     .ToArray();
 
-                if (attributes.Any())
+                foreach (var valAttr in attributes)
                 {
                     var value = propertyInfo.GetValue(this);
                     var displayName = propertyInfo.GetCustomAttribute<DisplayNameAttribute>();
@@ -124,19 +167,12 @@ namespace Mvvm.Core
 
                     if (!Validator.TryValidateValue(value, context, results, attributes))
                     {
-                        return results[0].ErrorMessage;
+                        foreach (var result in results)
+                        {
+                            yield return result.ErrorMessage;
+                        }
                     }
                 }
-            }
-
-            return string.Empty;
-        }
-
-        private void ValidateChangedProperty(object sender, PropertyChangedEventArgs e)
-        {
-            if (this.PropertyNames.Contains(e.PropertyName))
-            {
-                this.errorMessages[e.PropertyName] = this.ValidateProperty(e.PropertyName);
             }
         }
     }

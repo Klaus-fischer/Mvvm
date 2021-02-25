@@ -1,6 +1,7 @@
 ﻿namespace Mvvm.VisualTest
 {
     using Mvvm.Core;
+    using System.Collections.Generic;
     using System.ComponentModel;
     using System.ComponentModel.DataAnnotations;
 
@@ -22,21 +23,32 @@
         [StringLength(12, MinimumLength = 8, ErrorMessage = "{0} must have at least 8 and less than 12 character.")]
         public string Password { get; set; }
 
-        protected override string ValidateProperty(string propertyName)
+        protected override IEnumerable<string> GetErrors(string propertyName)
         {
             if (propertyName == nameof(Username))
             {
-                if (Username?.Length > 5)
+                if (this.Username is null || Username.Length < 5)
                 {
-                    return string.Empty;
-                }
-                else
-                {
-                    return "Username must have at least 5 character.";
+                    yield return "Username must have at least 5 character.";
                 }
             }
-
-            return base.ValidateProperty(propertyName);
         }
+
+        //protected override string ValidateProperty(string propertyName)
+        //{
+        //    if (propertyName == nameof(Username))
+        //    {
+        //        if (Username?.Length > 5)
+        //        {
+        //            return string.Empty;
+        //        }
+        //        else
+        //        {
+        //            return "Username must have at least 5 character.";
+        //        }
+        //    }
+
+        //    return base.ValidateProperty(propertyName);
+        //}
     }
 }

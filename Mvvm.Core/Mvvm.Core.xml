@@ -412,6 +412,7 @@
             <summary>
             This method will validate all public properties.
             </summary>
+            <returns>True if any error.</returns>
         </member>
         <member name="M:Mvvm.Core.ValidationViewModel.ValidateProperty(System.String)">
             <summary>
@@ -420,6 +421,50 @@
             </summary>
             <param name="propertyName">The property to validate.</param>
             <returns>string.Empty if valid.</returns>
+        </member>
+        <member name="T:Mvvm.Core.ValidationViewModel_neu">
+            <summary>
+            Implements <see cref="T:System.ComponentModel.IDataErrorInfo"/> to the view model.
+            </summary>
+        </member>
+        <member name="E:Mvvm.Core.ValidationViewModel_neu.ErrorsChanged">
+            <inheritdoc/>
+        </member>
+        <member name="P:Mvvm.Core.ValidationViewModel_neu.HasErrors">
+            <inheritdoc/>
+        </member>
+        <member name="P:Mvvm.Core.ValidationViewModel_neu.ValidateOnPropertyChanged">
+            <summary>
+            Gets or sets a value indicating whether properties gets validated on <see cref="E:System.ComponentModel.INotifyPropertyChanged.PropertyChanged"/> event.
+            </summary>
+        </member>
+        <member name="P:Mvvm.Core.ValidationViewModel_neu.PropertyNames">
+            <summary>
+            Gets the names of all public properties.
+            </summary>
+        </member>
+        <member name="M:Mvvm.Core.ValidationViewModel_neu.Validate">
+            <summary>
+            This method will validate all public properties.
+            </summary>
+            <returns>True if any error.</returns>
+        </member>
+        <member name="M:Mvvm.Core.ValidationViewModel_neu.System#ComponentModel#INotifyDataErrorInfo#GetErrors(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Mvvm.Core.ValidationViewModel_neu.GetErrors(System.String)">
+            <summary>
+            Validates the property and returns the error as string.
+            </summary>
+            <param name="propertyName">Property to validate.</param>
+            <returns>All errors of this property as string.</returns>
+        </member>
+        <member name="M:Mvvm.Core.ValidationViewModel_neu.ValidateChangedProperty(System.Object,System.ComponentModel.PropertyChangedEventArgs)">
+            <summary>
+            Checks for errors for the changed property.
+            </summary>
+            <param name="sender">Sender of the event.</param>
+            <param name="e">Event arguments.</param>
         </member>
     </members>
 </doc>
