@@ -14,13 +14,11 @@ namespace Mvvm.Core
     /// <summary>
     /// Implements <see cref="IDataErrorInfo"/> to the view model.
     /// </summary>
-    public abstract class ValidationViewModel : BaseViewModel, IDataErrorInfo, INotifyDataErrorInfo
+    public abstract class ValidationViewModel : BaseViewModel, IDataErrorInfo
     {
         private readonly IDictionary<string, string> errorMessages = new Dictionary<string, string>();
         private IEnumerable<PropertyInfo>? properties;
         private bool validateOnPropertyChanged;
-
-        public event System.EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
         /// <inheritdoc/>
         [NoValidation]
@@ -65,8 +63,6 @@ namespace Mvvm.Core
                 return this.properties.Select(o => o.Name);
             }
         }
-
-        public bool HasErrors => throw new System.NotImplementedException();
 
         /// <inheritdoc/>
         [NoValidation]
@@ -142,11 +138,6 @@ namespace Mvvm.Core
             {
                 this.errorMessages[e.PropertyName] = this.ValidateProperty(e.PropertyName);
             }
-        }
-
-        public IEnumerable GetErrors(string propertyName)
-        {
-            throw new System.NotImplementedException();
         }
     }
 }
