@@ -12,13 +12,19 @@
     </Window.DataContext>
     <Window.Resources>
         <ControlTemplate x:Key="errorTemplate">
-            <Border BorderBrush="OrangeRed" BorderThickness="2">
-                <Grid>
+            <Border x:Name="border" BorderBrush="OrangeRed" BorderThickness="2">
+                <Grid >
                     <AdornedElementPlaceholder/>
-                    <TextBlock Text="{Binding [0].ErrorContent}" Foreground="OrangeRed"
+                    <TextBlock x:Name="tb" Text="{Binding [0].ErrorContent}" Foreground="OrangeRed"
                                VerticalAlignment="Center" HorizontalAlignment="Right"/>
                 </Grid>
             </Border>
+            <ControlTemplate.Triggers>
+                <DataTrigger Binding="{Binding [0].ErrorContent.IsHint}" Value="True">
+                    <Setter TargetName="border" Property="BorderBrush" Value="SteelBlue"/>
+                    <Setter TargetName="tb" Property="Foreground" Value="SteelBlue"/>
+                </DataTrigger>
+            </ControlTemplate.Triggers>
         </ControlTemplate>
     </Window.Resources>
     <StackPanel>
