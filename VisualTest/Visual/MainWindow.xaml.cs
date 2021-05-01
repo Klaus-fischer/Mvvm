@@ -29,7 +29,10 @@
 
         private void Click(object sender, RoutedEventArgs e)
         {
-            this.ViewModel.Validate();
+            var code = new GenerateMapedProperty
+            {
+                Herkunft = 10
+            };
         }
     }
 }

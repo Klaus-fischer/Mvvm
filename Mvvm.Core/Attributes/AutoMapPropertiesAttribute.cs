@@ -17,6 +17,15 @@ namespace Mvvm.Core.CodeGeneration
         {
         }
 
-        public string[] Except { get; }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AutoMapPropertiesAttribute"/> class.
+        /// </summary>
+        /// <param name="excludedPropertyNames">Collection of property names that are excluded from source generation.</param>
+        public AutoMapPropertiesAttribute(params string[] excludedPropertyNames)
+        {
+            this.Except = excludedPropertyNames;
+        }
+
+        public string[] Except { get; set; }
     }
 }

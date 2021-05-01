@@ -81,7 +81,7 @@
             remove => this.validator.ErrorsChanged -= value;
         }
 
-        public IEnumerable GetErrors(string propertyName)
+        public IEnumerable GetErrors(string? propertyName)
             => this.validator.GetErrors(propertyName);
 
         public bool Validate() => this.validator.Validate();

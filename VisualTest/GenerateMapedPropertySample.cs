@@ -1,20 +1,20 @@
 ﻿namespace Mvvm.VisualTest
 {
     using Mvvm.Core;
+    using Mvvm.Core.CodeGeneration;
 
-    //public partial class GenerateMapedPropertySample : BaseViewModel
-    //{
-    //    public GenerateMapedPropertySample()
-    //    {
-    //        this.AdvancedPropertyChanged += this.GenerateMapedPropertySample_AdvancedPropertyChanged;
-    //        this.Herkunft = 5;
-    //    }
+    public partial class GenerateMapedProperty : BaseViewModel
+    {
+        public GenerateMapedProperty()
+        {
+            this.AdvancedPropertyChanged += this.GenerateMapedPropertySample_AdvancedPropertyChanged;
+        }
 
-    //    private void GenerateMapedPropertySample_AdvancedPropertyChanged(object sender, AdvancedPropertyChangedEventArgs e)
-    //    {
-    //    }
+        private void GenerateMapedPropertySample_AdvancedPropertyChanged(object? sender, AdvancedPropertyChangedEventArgs e)
+        {
+        }
 
-    //    [AutoMapProperties]
-    //    public Data DataObject { get; set; }
-    //}
+        [AutoMapProperties]
+        public Data DataObject { get; set; } = new Data();
+    }
 }

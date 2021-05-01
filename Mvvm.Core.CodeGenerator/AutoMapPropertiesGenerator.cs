@@ -179,7 +179,7 @@ namespace {namespaceName}
         public {fieldType} {propertyName} 
         {{
             get => this.{fieldName}.{propertyName};
-            set => this.SetPropertyValue(this.{fieldName}, {indicator} => {indicator}.{propertyName}, value);
+            set => this.SetPropertyValue(() => this.{fieldName}.{propertyName}, value);
         }}
 ");
         }
