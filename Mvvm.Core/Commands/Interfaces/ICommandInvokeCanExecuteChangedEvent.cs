@@ -4,6 +4,7 @@
 
 namespace Mvvm.Core
 {
+    using System;
     using System.Windows.Input;
 
     /// <summary>
@@ -14,6 +15,8 @@ namespace Mvvm.Core
         /// <summary>
         /// Raises the <see cref="ICommand.CanExecuteChanged"/> event.
         /// </summary>
-        void RaiseCanExecuteChanged();
+        /// <param name="sender">Sender of the event, must be the command itself.</param>
+        /// <param name="args">EventArgs to submit.</param>
+        void InvokeCanExecuteChanged(object sender, EventArgs args);
     }
 }

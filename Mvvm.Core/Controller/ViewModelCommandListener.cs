@@ -4,6 +4,7 @@
 
 namespace Mvvm.Core
 {
+    using System;
     using System.ComponentModel;
     using System.Linq;
     using System.Windows.Input;
@@ -37,7 +38,7 @@ namespace Mvvm.Core
         {
             if (this.dependencies.Contains(e.PropertyName))
             {
-                this.command.RaiseCanExecuteChanged();
+                this.command.InvokeCanExecuteChanged(this.command, new EventArgs());
             }
         }
     }

@@ -4,4 +4,4 @@
 
 using System.Runtime.CompilerServices;
 
-[assembly:InternalsVisibleTo("Mvvm.Test")]
+[assembly:InternalsVisibleTo("Mvvm.Core.Test")]

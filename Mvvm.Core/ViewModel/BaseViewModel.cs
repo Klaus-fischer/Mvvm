@@ -6,6 +6,7 @@ namespace Mvvm.Core
 {
     using System;
     using System.ComponentModel;
+    using System.Linq.Expressions;
     using System.Runtime.CompilerServices;
 
     /// <summary>
@@ -53,7 +54,7 @@ namespace Mvvm.Core
         /// private int _property;
         /// public int Property
         /// {
-        ///     get => _property;
+        ///     get => this._property;
         ///     set => this.SetPropertyValue(ref _property, value);
         /// }
         /// ...
@@ -63,16 +64,114 @@ namespace Mvvm.Core
             T? newValue,
             [CallerMemberName] string propertyName = "")
         {
-            var valueEquals = ReferenceEquals(property, newValue);
-            valueEquals |= property is null ^ newValue is null;
-            valueEquals |= property?.Equals(newValue) ?? false;
-
-            if (!valueEquals)
+            if (!Equals(property, newValue))
             {
-                T oldValue = property;
+                T? oldValue = property;
                 property = newValue;
                 this.OnPropertyChanged(propertyName, oldValue, newValue);
             }
+        }
+
+        /// <summary>
+        /// Compares the new and the old value.
+        /// If values are different, the <see cref="OnPropertyChanged"/> method will be called.
+        /// The return value is always the new property.
+        /// </summary>
+        /// <typeparam name="T">Type of the Property.</typeparam>
+        /// <param name="expression">The expression that maps to the current value.</param>
+        /// <param name="newValue">The value from the setter.</param>
+        /// <param name="propertyName">The name of the property that was changed.</param>
+        /// <example>
+        /// private Model _propertyModel;
+        /// public int Property
+        /// {
+        ///     get => this._propertyModel.Property;
+        ///     set => this.SetPropertyValue(() => this._propertyModel.Property, value);
+        /// }
+        /// ...
+        /// </example>
+        protected void SetPropertyValue<T>(
+            Expression<Func<T>> expression,
+            T? newValue,
+            [CallerMemberName] string propertyName = "")
+        {
+            T oldValue = expression.Compile().Invoke();
+
+            if (!Equals(oldValue, newValue))
+            {
+                if (expression.Body is MemberExpression me)
+                {
+                    var value = Expression.Constant(newValue);
+                    var assign = Expression.Assign(me, value);
+                    var lambda = Expression.Lambda<Action>(assign);
+                    lambda.Compile().Invoke();
+                }
+                else
+                {
+                    throw new InvalidOperationException("Expression should point direct to target property. '() => this.Data.Property'");
+                }
+
+                this.OnPropertyChanged(propertyName, oldValue, newValue);
+            }
+        }
+
+        ///// <summary>
+        ///// Compares the new and the old value.
+        ///// If values are different, the <see cref="OnPropertyChanged"/> method will be called.
+        ///// The return value is always the new property.
+        ///// </summary>
+        ///// <typeparam name="TModel">Type of the mapped model.</typeparam>
+        ///// <typeparam name="TParam">Type of the model property.</typeparam>
+        ///// <param name="model">The model to change toe property.</param>
+        ///// <param name="expression">The expression that maps to the current value of the Model.</param>
+        ///// <param name="newValue">The value from the setter.</param>
+        ///// <param name="propertyName">The name of the property that was changed.</param>
+        ///// <example>
+        ///// private Model _propertyModel;
+        ///// public int Property
+        ///// {
+        /////     get => this._propertyModel.Property;
+        /////     set => this.SetPropertyValue(this._propertyModel, m => m.Property, value);
+        ///// }
+        ///// ...
+        ///// </example>
+        //protected void SetPropertyValue<TModel, TParam>(
+        //    TModel model,
+        //    Expression<Func<TModel, TParam>> expression,
+        //    TParam newValue,
+        //    [CallerMemberName] string propertyName = "")
+        //{
+        //    TParam oldValue = expression.Compile().Invoke(model);
+
+        //    if (!Equals(oldValue, newValue))
+        //    {
+        //        var param = Expression.Parameter(expression.Body.Type);
+        //        var assign = Expression.Lambda<Action<TModel, TParam>>(
+        //            Expression.Assign(expression.Body, param),
+        //            expression.Parameters[0],
+        //            param);
+
+        //        assign.Compile().Invoke(model, newValue);
+        //        this.OnPropertyChanged(propertyName, oldValue, newValue);
+        //    }
+        //}
+
+        private static bool Equals<T>(T? property, T? newValue)
+        {
+            // true if property and newValue is null
+            if (ReferenceEquals(property, newValue))
+            {
+                return true;
+            }
+
+            // true if property or newValue is true
+            if (property is null || newValue is null)
+            {
+                return false;
+            }
+
+            // true if both values are equal.
+            return property.Equals(newValue);
         }
     }
 }

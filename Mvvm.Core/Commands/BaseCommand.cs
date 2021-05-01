@@ -22,9 +22,9 @@ namespace Mvvm.Core
         public abstract void Execute(object parameter);
 
         /// <inheritdoc/>
-        void ICommandInvokeCanExecuteChangedEvent.RaiseCanExecuteChanged()
+        public void InvokeCanExecuteChanged(object? sender, EventArgs e)
         {
-            this.CanExecuteChanged?.Invoke(this, new EventArgs());
+            this.CanExecuteChanged?.Invoke(sender, e);
         }
     }
 }
