@@ -20,7 +20,7 @@ namespace Mvvm.Core
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the event can be executed of not.
+        /// Gets or sets a value indicating whether the event can be executed or not.
         /// Default is true.
         /// </summary>
         public bool CanExecute { get; set; } = true;

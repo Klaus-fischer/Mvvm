@@ -1,6 +1,7 @@
 ﻿namespace Mvvm.VisualTest
 {
     using Mvvm.Core;
+    using Mvvm.Validation;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.Linq;
@@ -24,6 +25,14 @@
                 if (this.Model.Username is not null && this.Model.Username.Length > 10)
                 {
                     yield return new HintValidationResult($"{propertyName} should have not more than 10 characters.");
+                }
+            }
+
+            if (propertyName == nameof(SimpleErrorViewModel.DataObject))
+            {
+                if (Model.DataObject.Alter< 18)
+                {
+                    yield return new ValidationResult("Mindestalter ist 18 Jahre");
                 }
             }
         }

@@ -24,29 +24,17 @@ namespace Mvvm.Core
             }
         }
 
-        /// <inheritdoc/>
-        bool IParameterCommand<T>.CanExecute(T parameter) => this.CanExecute(parameter);
-
-        /// <inheritdoc/>
-        void IParameterCommand<T>.Execute(T parameter)
-        {
-            if (this.CanExecute(parameter))
-            {
-                this.Execute(parameter);
-            }
-        }
-
         /// <summary>
         /// Elevates if the command can be executed (<see cref="CanExecute(object?)"/>).
         /// </summary>
         /// <param name="parameter">Converted parameter.</param>
         /// <returns>True if command is able to run.</returns>
-        protected abstract bool CanExecute(T parameter);
+        public abstract bool CanExecute(T parameter);
 
         /// <summary>
         /// Runs the command (<see cref="Execute(object?)"/>).
         /// </summary>
         /// <param name="parameter">Converted parameter.</param>
-        protected abstract void Execute(T parameter);
+        public abstract void Execute(T parameter);
     }
 }

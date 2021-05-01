@@ -31,16 +31,34 @@
         <TextBlock Text="Username:"/>
         <TextBox Text="{Binding Username, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
                  Validation.ErrorTemplate="{StaticResource errorTemplate}"/>
-        
+
         <TextBlock Text="Email:"/>
         <TextBox Text="{Binding Email, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
                  Validation.ErrorTemplate="{StaticResource errorTemplate}"/>
-        
+
         <TextBlock Text="Password:"/>
         <TextBox Text="{Binding Password, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
                  Validation.ErrorTemplate="{StaticResource errorTemplate}"/>
 
-        <Button Content="Submit" Click="Click"/>
+        <TextBlock Text="Name:"/>
+        <TextBox Text="{Binding DataObject.Name, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                 Validation.ErrorTemplate="{StaticResource errorTemplate}"/>
+
+        <TextBlock Text="Alter:"/>
+        <TextBox Text="{Binding DataObject.Alter, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                 Validation.ErrorTemplate="{StaticResource errorTemplate}"/>
+
+        <TextBlock Text="Herkunft:"/>
+        <TextBox Text="{Binding Herkunft, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                 Validation.ErrorTemplate="{StaticResource errorTemplate}"/>
+
+
+        <UniformGrid Rows="1">
+            <Button Content="Submit" Click="Click"/>
+            <Button Content="Cancel" Command="{Binding Cancel}"/>
+            <Button Content="Command" Command="{Binding Cmd}"/>
+
+        </UniformGrid>
 
     </StackPanel>
 </Window>

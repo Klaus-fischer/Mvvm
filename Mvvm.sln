@@ -3,11 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31005.135
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mvvm.Test", "Mvvm.Test\Mvvm.Test.csproj", "{11E10082-37A8-453B-A914-9E052BDA5850}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mvvm.Core", "Mvvm.Core\Mvvm.Core.csproj", "{A55705AF-44EA-47F4-BAF5-3A8C8CC5C180}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualTest", "VisualTest\VisualTest.csproj", "{DA487907-4157-4798-8C78-2333A728F952}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisualTest", "VisualTest\VisualTest.csproj", "{DA487907-4157-4798-8C78-2333A728F952}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mvvm.Core.CodeGenerator", "Mvvm.Core.CodeGenerator\Mvvm.Core.CodeGenerator.csproj", "{736E0826-CCD1-4F4E-ADEF-C2E2139778EA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MVVM.Validation", "MVVM.Validation\MVVM.Validation.csproj", "{6F96368D-6D2B-4C62-8499-3733EFE59010}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mvvm.Core.Test", "Mvvm.Core.Test\Mvvm.Core.Test.csproj", "{ABB00320-F180-40AB-A2E3-8BA47460259C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,10 +19,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{11E10082-37A8-453B-A914-9E052BDA5850}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{11E10082-37A8-453B-A914-9E052BDA5850}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{11E10082-37A8-453B-A914-9E052BDA5850}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{11E10082-37A8-453B-A914-9E052BDA5850}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A55705AF-44EA-47F4-BAF5-3A8C8CC5C180}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A55705AF-44EA-47F4-BAF5-3A8C8CC5C180}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A55705AF-44EA-47F4-BAF5-3A8C8CC5C180}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -27,6 +27,18 @@ Global
 		{DA487907-4157-4798-8C78-2333A728F952}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA487907-4157-4798-8C78-2333A728F952}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA487907-4157-4798-8C78-2333A728F952}.Release|Any CPU.Build.0 = Release|Any CPU
+		{736E0826-CCD1-4F4E-ADEF-C2E2139778EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{736E0826-CCD1-4F4E-ADEF-C2E2139778EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{736E0826-CCD1-4F4E-ADEF-C2E2139778EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{736E0826-CCD1-4F4E-ADEF-C2E2139778EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F96368D-6D2B-4C62-8499-3733EFE59010}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F96368D-6D2B-4C62-8499-3733EFE59010}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F96368D-6D2B-4C62-8499-3733EFE59010}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F96368D-6D2B-4C62-8499-3733EFE59010}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABB00320-F180-40AB-A2E3-8BA47460259C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABB00320-F180-40AB-A2E3-8BA47460259C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABB00320-F180-40AB-A2E3-8BA47460259C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABB00320-F180-40AB-A2E3-8BA47460259C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

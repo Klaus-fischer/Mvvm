@@ -6,7 +6,7 @@
     {
         public bool IsHint { get; set; }
 
-        public HintValidationResult(string?errorMessage)
+        public HintValidationResult(string? errorMessage)
             : base(errorMessage)
         {
             this.IsHint = true;

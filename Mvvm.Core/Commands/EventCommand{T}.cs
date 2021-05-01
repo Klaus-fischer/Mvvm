@@ -19,7 +19,7 @@ namespace Mvvm.Core
         public event EventHandler<T>? OnExecute;
 
         /// <inheritdoc/>
-        protected override sealed bool CanExecute(T parameter)
+        public override bool CanExecute(T parameter)
         {
             if (this.OnExecute is null)
             {
@@ -33,7 +33,7 @@ namespace Mvvm.Core
         }
 
         /// <inheritdoc/>
-        protected override sealed void Execute(T parameter)
+        public override void Execute(T parameter)
         {
             if (this.CanExecute(parameter))
             {

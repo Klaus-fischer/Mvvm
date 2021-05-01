@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="SourceGenerator\AutoMapPropertiesGenerator.cs" />
+    <Compile Remove="SourceGenerator\ModelProperty.cs" />
+    <Compile Remove="SourceGenerator\ModelViewViewModel.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="SourceGenerator\AutoMapPropertiesGenerator.cs" />
+    <None Include="SourceGenerator\ModelProperty.cs" />
+    <None Include="SourceGenerator\ModelViewViewModel.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.2" PrivateAssets="all" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Mvvm.Core\Mvvm.Core.csproj" />
+  </ItemGroup>
+
+</Project>

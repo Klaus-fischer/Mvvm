@@ -1,19 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>9.0</LangVersion>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>D:\Source\MVVM\Mvvm.Core\Mvvm.Core.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="Attributes\AutoMapPropertiesAttribute.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <None Remove="stylecop.json" />
@@ -31,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Attributes\AutoMapPropertiesAttribute.cs" />
+    <ProjectReference Include="..\Mvvm.Core\Mvvm.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -3,16 +3,20 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
+    <LangVersion>preview</LangVersion>
     <UseWPF>true</UseWPF>
     <RootNamespace>Mvvm.VisualTest</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="PropertyChanged.Fody" Version="3.3.2" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Mvvm.Core\Mvvm.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Note that this is not a "normal" ProjectReference.
+         It needs the additional 'OutputItemType' and 'ReferenceOutputAssmbly' attributes. -->
+    <ProjectReference Include="..\Mvvm.Core.CodeGenerator\Mvvm.Core.CodeGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\MVVM.Validation\MVVM.Validation.csproj" />
 
-</Project>
+  </ItemGroup>
+</Project> 
+

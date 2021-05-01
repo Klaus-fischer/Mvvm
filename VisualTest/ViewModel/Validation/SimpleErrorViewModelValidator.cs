@@ -1,6 +1,7 @@
 ﻿namespace Mvvm.VisualTest
 {
     using Mvvm.Core;
+    using Mvvm.Validation;
     using System.Collections.Generic;
 
     public class SimpleErrorViewModelValidator : StringErrorValidator<SimpleErrorViewModel>
