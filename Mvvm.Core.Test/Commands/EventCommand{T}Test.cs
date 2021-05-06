@@ -132,5 +132,23 @@ namespace Mvvm.Test.Commands
 
             rc.Execute(param);
         }
+
+        [TestMethod]
+        public void ParamConversationTest()
+        {
+            bool invoked = false;
+            var ec = new EventCommand<string>();
+            ec.OnExecute += (s, a) => invoked = true;
+
+            // type will be checked 
+            ec.Execute((object)null);
+
+            Assert.IsFalse(invoked);
+
+            // on explizit conversation type will not be checked.
+            ec.Execute((string)null);
+
+            Assert.IsTrue(invoked);
+        }
     }
 }
