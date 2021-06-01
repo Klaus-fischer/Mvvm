@@ -7,7 +7,9 @@ namespace Mvvm.Core
     using System;
     using System.ComponentModel;
     using System.Linq.Expressions;
+    using System.Reflection;
     using System.Runtime.CompilerServices;
+    using System.Windows.Input;
 
     /// <summary>
     /// The base view model.
@@ -112,6 +114,33 @@ namespace Mvvm.Core
                 }
 
                 this.OnPropertyChanged(propertyName, oldValue, newValue);
+            }
+        }
+
+        /// <summary>
+        /// Register all property dependencies marked with the <see cref="DependsOnAttribute"/>,
+        /// to a <see cref="ICommand"/> that implements <see cref="ICommandInvokeCanExecuteChangedEvent"/>.
+        /// </summary>
+        protected void RegisterDependencies()
+        {
+            foreach (var property in this.GetType().GetProperties())
+            {
+                if (property.GetCustomAttribute<DependsOnAttribute>() is not DependsOnAttribute dependsOn)
+                {
+                    continue;
+                }
+
+                if (typeof(ICommand).IsAssignableFrom(property.PropertyType))
+                {
+                    if (property.GetValue(this) is ICommandInvokeCanExecuteChangedEvent command)
+                    {
+                        command.RegisterPropertyDependency(this, dependsOn.PropertyNames);
+                    }
+                }
+                else
+                {
+                    this.RegisterDependencies(this, property.Name, dependsOn.PropertyNames);
+                }
             }
         }
 

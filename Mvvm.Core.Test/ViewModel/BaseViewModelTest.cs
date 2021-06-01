@@ -4,6 +4,7 @@
     using Moq;
     using Mvvm.Core;
     using System;
+    using System.Collections.Generic;
 
     [TestClass]
     public class BaseViewModelTest
@@ -34,6 +35,28 @@
 
             Assert.IsTrue(propertChangedWasRised);
             Assert.IsTrue(advPropertChangedWasRised);
+        }
+
+        [TestMethod]
+        public void DependsOnTest()
+        {
+            List<string> changedProperties = new List<string>();
+            var vm = new ViewModelMock();
+            vm.PropertyChanged += (s, a) => changedProperties.Add(a.PropertyName);
+
+            vm.Name = "Klaus";
+
+            Assert.IsTrue(changedProperties.Contains(nameof(vm.Name)));
+            Assert.IsTrue(changedProperties.Contains(nameof(vm.AgedName)));
+
+            changedProperties.Clear();
+
+            vm.Age = 35;
+
+            Assert.IsTrue(changedProperties.Contains(nameof(vm.Age)));
+            Assert.IsTrue(changedProperties.Contains(nameof(vm.AgedName)));
+
+            Assert.AreEqual("Klaus (35)", vm.AgedName);
         }
 
         [TestMethod]
@@ -169,8 +192,8 @@
         {
             public ViewModelMock RegisterCounter()
             {
-                base.AdvancedPropertyChanged += (s, a) => AdvancedPropertyChangedRaisedCount++;
-                base.PropertyChanged += (s, a) => PropertyChangedRaisedCount++;
+                base.AdvancedPropertyChanged += (s, a) => this.AdvancedPropertyChangedRaisedCount++;
+                base.PropertyChanged += (s, a) => this.PropertyChangedRaisedCount++;
 
                 return this;
             }
@@ -213,6 +236,32 @@
                 get => this.model.FirstValue;
                 set => this.SetPropertyValue(() => new object(), value);
             }
+
+            private int age;
+
+            public int Age
+            {
+                get => this.age;
+                set => this.SetPropertyValue(ref this.age, value);
+            }
+
+
+
+            public ViewModelMock()
+            {
+                this.RegisterDependencies();
+            }
+
+            private string name;
+            public string Name
+            {
+                get => this.name;
+                set => this.SetPropertyValue(ref this.name, value);
+            }
+
+            [DependsOn(nameof(Name), nameof(Age))]
+            public string AgedName => $"{this.Name} ({this.Age})";
+
 
             internal class Model
             {

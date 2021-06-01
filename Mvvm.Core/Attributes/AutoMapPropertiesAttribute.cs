@@ -13,8 +13,12 @@ namespace Mvvm.Core.CodeGeneration
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
     public class AutoMapPropertiesAttribute : Attribute
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AutoMapPropertiesAttribute"/> class.
+        /// </summary>
         public AutoMapPropertiesAttribute()
         {
+            this.Except = Array.Empty<string>();
         }
 
         /// <summary>

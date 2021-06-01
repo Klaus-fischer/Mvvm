@@ -23,7 +23,6 @@ namespace Mvvm.Core
         /// <param name="mainViewModel">The view model to notify.</param>
         /// <param name="mainPropertyName">The name that get fired, if a dependency was changed.</param>
         /// <param name="dependencies">The dependencies are properties of the view model.</param>
-        /// <returns>The monitored view model for chaining.</returns>
         /// public class MyViewModel : IViewModel
         /// {
         ///     public int Property => MySubViewModel.Property1 + MySubViewModel.Property2;
@@ -34,7 +33,7 @@ namespace Mvvm.Core
         ///         MySubViewModel = subViewModel.RegisterDependencies(this, nameof(Property), "Property1", "Property2"));
         ///     }
         /// }
-        public static T RegisterDependencies<T>(
+        public static void RegisterDependencies<T>(
             this T viewModel,
             IViewModel mainViewModel,
             string mainPropertyName,
@@ -51,8 +50,6 @@ namespace Mvvm.Core
                 mainViewModel ?? throw new ArgumentNullException(nameof(mainViewModel)),
                 mainPropertyName ?? throw new ArgumentNullException(nameof(mainPropertyName)),
                 dependencies);
-
-            return viewModel;
         }
     }
 }

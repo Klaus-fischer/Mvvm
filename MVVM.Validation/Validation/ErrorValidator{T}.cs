@@ -21,6 +21,7 @@ namespace Mvvm.Validation
         where T : IViewModel
     {
         private readonly IDictionary<string, bool> propertyHasErrors = new Dictionary<string, bool>();
+        private readonly Lazy<PropertyInfo[]> propertyInfos;
         private bool validateOnPropertyChanged;
 
         /// <summary>
@@ -30,10 +31,10 @@ namespace Mvvm.Validation
         protected ErrorValidator(T model)
         {
             this.Model = model;
-            this.Properties = typeof(T)
-                .GetProperties()
-                .Where(o => o.GetCustomAttribute<NoValidationAttribute>() == null)
-                .ToArray();
+            this.propertyInfos = new Lazy<PropertyInfo[]>(
+                () => typeof(T).GetProperties()
+                               .Where(o => o.GetCustomAttribute<NoValidationAttribute>() == null)
+                               .ToArray());
         }
 
         /// <summary>
@@ -81,7 +82,7 @@ namespace Mvvm.Validation
         /// <summary>
         /// Gets the collection of properties to observe.
         /// </summary>
-        protected IEnumerable<PropertyInfo> Properties { get; }
+        protected IEnumerable<PropertyInfo> Properties => this.propertyInfos.Value;
 
         /// <summary>
         /// Gets the names of all public properties.

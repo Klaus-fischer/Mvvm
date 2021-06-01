@@ -20,18 +20,17 @@ namespace Mvvm.Core
         /// </summary>
         public AsyncExecutionContext()
         {
-            this.Cancel = new RelayCommand(this.OnCancel, this.CanCancel)
-                .RegisterPropertyDependency(this, nameof(this.IsBusy));
+            this.Cancel = new RelayCommand(this.OnCancel, this.CanCancel);
+
+            this.RegisterDependencies();
         }
 
-        /// <summary>
-        /// Gets the current active cancellation token source.
-        /// </summary>
+        /// <inheritdoc/>
+        [DependsOn(nameof(IsBusy))]
         public CancellationTokenSource? CancellationTokenSource { get; private set; }
 
-        /// <summary>
-        /// Gets the command to cancel the current running command.
-        /// </summary>
+        /// <inheritdoc/>
+        [DependsOn(nameof(IsBusy))]
         public ICommand Cancel { get; }
 
         /// <inheritdoc/>
@@ -49,8 +48,8 @@ namespace Mvvm.Core
                 throw new InvalidOperationException("Context is busy.");
             }
 
-            this.IsBusy = true;
             this.CancellationTokenSource = new CancellationTokenSource();
+            this.IsBusy = true;
             token = this.CancellationTokenSource.Token;
         }
 

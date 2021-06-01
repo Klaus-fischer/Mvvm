@@ -6,6 +6,7 @@ namespace Mvvm.Core
 {
     using System.ComponentModel;
     using System.Threading;
+    using System.Windows.Input;
 
     /// <summary>
     /// Declaration of an asynchron execution context.
@@ -16,6 +17,16 @@ namespace Mvvm.Core
         /// Gets a value indicating whether the execution context is busy.
         /// </summary>
         bool IsBusy { get; }
+
+        /// <summary>
+        /// Gets the command to cancel the current running command.
+        /// </summary>
+        ICommand Cancel { get; }
+
+        /// <summary>
+        /// Gets the current active cancellation token source.
+        /// </summary>
+        CancellationTokenSource? CancellationTokenSource { get;  }
 
         /// <summary>
         /// Prepares an execution context.
