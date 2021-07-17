@@ -5,6 +5,7 @@
 namespace Mvvm.Core
 {
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -14,8 +15,10 @@ namespace Mvvm.Core
     /// <summary>
     /// The base view model.
     /// </summary>
-    public abstract class BaseViewModel : IViewModel
+    public abstract class ViewModel : IViewModel
     {
+        private readonly Dictionary<string, object> supressedProperties = new();
+
         /// <inheritdoc/>
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -30,14 +33,42 @@ namespace Mvvm.Core
             this.OnPropertyChanged(propertyName, null, null);
         }
 
+        /// <inheritdoc/>
+        public void SuppressNotifications(string propertyName, object currentValue)
+        {
+            if (!this.supressedProperties.ContainsKey(propertyName))
+            {
+                this.supressedProperties.Add(propertyName, currentValue);
+            }
+        }
+
+        /// <inheritdoc/>
+        public void RestoreNotifications(string propertyName, object currentValue)
+        {
+            if (this.supressedProperties.TryGetValue(propertyName, out var oldValue))
+            {
+                this.supressedProperties.Remove(propertyName);
+
+                if (!Equals(oldValue, currentValue))
+                {
+                    this.OnPropertyChanged(propertyName, oldValue, currentValue);
+                }
+            }
+        }
+
         /// <summary>
         /// This call raises the <see cref="AdvancedPropertyChanged"/> and <see cref="PropertyChanged"/> event.
         /// </summary>
         /// <param name="propertyName">Name of the property that get changed.</param>
         /// <param name="before">Old value of the property.</param>
         /// <param name="after">New value of the property.</param>
-        protected void OnPropertyChanged(string propertyName, object? before, object? after)
+        protected void OnPropertyChanged(string? propertyName, object? before, object? after)
         {
+            if (propertyName is null || this.supressedProperties.ContainsKey(propertyName))
+            {
+                return;
+            }
+
             var args = new AdvancedPropertyChangedEventArgs(propertyName, before, after);
             this.AdvancedPropertyChanged?.Invoke(this, args);
             this.PropertyChanged?.Invoke(this, args);
@@ -51,6 +82,7 @@ namespace Mvvm.Core
         /// <typeparam name="T">Type of the Property.</typeparam>
         /// <param name="property">The reference to the current value.</param>
         /// <param name="newValue">The value from the setter.</param>
+        /// <param name="comparer">Optional comparer to validate was changed.</param>
         /// <param name="propertyName">The name of the property that was changed.</param>
         /// <example>
         /// private int _property;
@@ -61,12 +93,14 @@ namespace Mvvm.Core
         /// }
         /// ...
         /// </example>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void SetPropertyValue<T>(
-            ref T? property,
-            T? newValue,
+            ref T property,
+            T newValue,
+            IEqualityComparer<T>? comparer = null,
             [CallerMemberName] string propertyName = "")
         {
-            if (!Equals(property, newValue))
+            if (!Equals(property, newValue, comparer))
             {
                 T? oldValue = property;
                 property = newValue;
@@ -82,6 +116,7 @@ namespace Mvvm.Core
         /// <typeparam name="T">Type of the Property.</typeparam>
         /// <param name="expression">The expression that maps to the current value.</param>
         /// <param name="newValue">The value from the setter.</param>
+        /// <param name="comparer">Optional comparer to validate was changed.</param>
         /// <param name="propertyName">The name of the property that was changed.</param>
         /// <example>
         /// private Model _propertyModel;
@@ -92,14 +127,16 @@ namespace Mvvm.Core
         /// }
         /// ...
         /// </example>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void SetPropertyValue<T>(
             Expression<Func<T>> expression,
-            T? newValue,
+            T newValue,
+            IEqualityComparer<T>? comparer = null,
             [CallerMemberName] string propertyName = "")
         {
             T oldValue = expression.Compile().Invoke();
 
-            if (!Equals(oldValue, newValue))
+            if (!Equals(oldValue, newValue, comparer))
             {
                 if (expression.Body is MemberExpression me)
                 {
@@ -144,7 +181,7 @@ namespace Mvvm.Core
             }
         }
 
-        private static bool Equals<T>(T? property, T? newValue)
+        private static bool Equals<T>(T property, T newValue, IEqualityComparer<T>? comparer)
         {
             // true if property and newValue is null
             if (ReferenceEquals(property, newValue))
@@ -156,6 +193,12 @@ namespace Mvvm.Core
             if (property is null || newValue is null)
             {
                 return false;
+            }
+
+            // try to use the comparer to validate equality.
+            if (comparer?.Equals(property, newValue) ?? false)
+            {
+                return true;
             }
 
             // true if both values are equal.

@@ -11,7 +11,7 @@
     using System.Threading.Tasks;
     using System.Windows.Input;
 
-    public class SimpleErrorViewModel : BaseViewModel, INotifyDataErrorInfo
+    public class SimpleErrorViewModel : ViewModel, INotifyDataErrorInfo
     {
         private readonly IValidator validator;
 
@@ -41,7 +41,7 @@
             await Task.Delay(1000, token);
         }
 
-        private void DataObject_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void DataObject_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             this.OnPropertyChanged(e.PropertyName, null, null);
         }
@@ -60,22 +60,27 @@
             set => this.SetPropertyValue(() => this.DataObject.Alter, value);
         }
 
-        public string Username { get; set; }
+        public string Username { get; set; } = string.Empty;
 
+        public string Test
+        {
+            get => field;
+            set => this.SetPropertyValue(ref field, value);
+        }
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Required]
         [DisplayName("Passwort")]
         [StringLength(12, MinimumLength = 8, ErrorMessage = "{0} must have at least 8 and less than 12 character.")]
-        public string Password { get; set; }
+        public string Password { get; set; } = string.Empty;
 
         [NoValidation]
         public bool HasErrors => this.validator.HasErrors;
 
-        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged
+        public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged
         {
             add => this.validator.ErrorsChanged += value;
             remove => this.validator.ErrorsChanged -= value;

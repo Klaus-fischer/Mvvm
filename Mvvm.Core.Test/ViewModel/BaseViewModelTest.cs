@@ -188,7 +188,7 @@
             vm.SecondValue = 10;
         }
 
-        public class ViewModelMock : BaseViewModel
+        public class ViewModelMock : ViewModel
         {
             public ViewModelMock RegisterCounter()
             {

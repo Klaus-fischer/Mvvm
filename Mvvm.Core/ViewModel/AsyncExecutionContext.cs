@@ -11,7 +11,7 @@ namespace Mvvm.Core
     /// <summary>
     /// Execution context for asynchron commands.
     /// </summary>
-    public class AsyncExecutionContext : BaseViewModel, IAsyncExecutionContext
+    public class AsyncExecutionContext : ViewModel, IAsyncExecutionContext
     {
         private bool isBusy;
 

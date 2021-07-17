@@ -50,7 +50,7 @@ namespace Mvvm.Core.CodeGeneration.Tests
         }
     }
 
-    public partial class AutoMapViewModel : BaseViewModel
+    public partial class AutoMapViewModel : ViewModel
     {
         [AutoMapProperties]
         public Model Data { get; } = new Model();

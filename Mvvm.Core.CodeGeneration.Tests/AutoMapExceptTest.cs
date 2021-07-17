@@ -48,7 +48,7 @@ namespace Mvvm.Core.CodeGeneration.Tests
         }
     }
 
-    public partial class AutoMapExceptViewModel : BaseViewModel
+    public partial class AutoMapExceptViewModel : ViewModel
     {
         [AutoMapProperties(nameof(Model.Age))]
         public Model Data { get; } = new Model();

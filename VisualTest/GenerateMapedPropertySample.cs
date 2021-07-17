@@ -3,7 +3,7 @@
     using Mvvm.Core;
     using Mvvm.Core.CodeGeneration;
 
-    public partial class GenerateMapedProperty : BaseViewModel
+    public partial class GenerateMapedProperty : ViewModel
     {
         public GenerateMapedProperty()
         {
