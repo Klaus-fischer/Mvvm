@@ -62,11 +62,11 @@
 
         public string Username { get; set; } = string.Empty;
 
-        public string Test
-        {
-            get => field;
-            set => this.SetPropertyValue(ref field, value);
-        }
+        //public string Test
+        //{
+        //    get => field;
+        //    set => this.SetPropertyValue(ref field, value);
+        //}
 
         [Required]
         [EmailAddress]

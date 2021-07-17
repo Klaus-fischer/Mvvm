@@ -25,7 +25,7 @@ namespace Mvvm.Test.Commands
 
             Assert.IsFalse(invoked);
 
-            rc.Execute(null);
+            rc.Execute();
 
             Assert.IsTrue(invoked);
         }
@@ -43,14 +43,14 @@ namespace Mvvm.Test.Commands
             Assert.IsFalse(invoked);
             Assert.IsFalse(canExecuteInvoked);
 
-            Assert.IsTrue(rc.CanExecute(null));
+            Assert.IsTrue(((ICommand)rc).CanExecute(null));
 
             Assert.IsFalse(invoked);
             Assert.IsTrue(canExecuteInvoked);
 
             canExecuteInvoked = false;
 
-            rc.Execute(null);
+            rc.Execute();
 
             Assert.IsTrue(invoked);
             Assert.IsTrue(canExecuteInvoked);
@@ -69,7 +69,7 @@ namespace Mvvm.Test.Commands
             Assert.IsFalse(invoked);
             Assert.IsFalse(canExecuteInvoked);
 
-            rc.Execute(null);
+            rc.Execute();
 
             Assert.IsTrue(invoked);
             Assert.IsTrue(canExecuteInvoked);
@@ -88,7 +88,7 @@ namespace Mvvm.Test.Commands
             Assert.IsFalse(invoked);
             Assert.IsFalse(canExecuteInvoked);
 
-            rc.Execute(null);
+            rc.Execute();
 
             Assert.IsFalse(invoked);
             Assert.IsTrue(canExecuteInvoked);
@@ -106,7 +106,7 @@ namespace Mvvm.Test.Commands
             Assert.IsFalse(invoked);
             Assert.IsFalse(canExecuteInvoked);
 
-            rc.Execute(null);
+            rc.Execute();
 
             Assert.IsFalse(invoked);
             Assert.IsFalse(canExecuteInvoked);
@@ -116,7 +116,7 @@ namespace Mvvm.Test.Commands
             rc.OnExecuted += onExecuteEvent;
             rc.OnCanExecuted += (s, a) => rc.OnExecuted -= onExecuteEvent;
 
-            rc.Execute(null);
+            rc.Execute();
 
             Assert.IsFalse(invoked);
             Assert.IsTrue(canExecuteInvoked);

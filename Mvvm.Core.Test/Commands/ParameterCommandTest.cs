@@ -3,6 +3,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Mvvm.Core;
     using System;
+    using System.Windows.Input;
 
     [TestClass]
     public class ParameterCommandTest
@@ -13,7 +14,7 @@
             bool canExecuteCallbackCalled = false;
             bool onExecuteCallbackCalled = false;
 
-            var cmd = new ParameterCommandType
+            ICommand cmd = new ParameterCommandType
             {
                 CanExecuteCallback = i => { return canExecuteCallbackCalled = true; },
                 OnExecuteCallback = i => onExecuteCallbackCalled = true,
@@ -21,20 +22,23 @@
 
             cmd.CanExecute(null);
 
-            Assert.IsFalse(canExecuteCallbackCalled);
+            Assert.IsTrue(canExecuteCallbackCalled);
             Assert.IsFalse(onExecuteCallbackCalled);
 
-
+            canExecuteCallbackCalled = false;
             cmd.Execute(null);
 
-            Assert.IsFalse(canExecuteCallbackCalled);
-            Assert.IsFalse(onExecuteCallbackCalled);
+            Assert.IsTrue(canExecuteCallbackCalled);
+            Assert.IsTrue(onExecuteCallbackCalled);
 
+            canExecuteCallbackCalled = false; 
+            onExecuteCallbackCalled = false;
             cmd.CanExecute((object)13);
 
             Assert.IsTrue(canExecuteCallbackCalled);
             Assert.IsFalse(onExecuteCallbackCalled);
 
+            canExecuteCallbackCalled = false;
             cmd.Execute((object)13);
 
             Assert.IsTrue(canExecuteCallbackCalled);
@@ -72,18 +76,11 @@
 
             public Action<object> OnExecuteCallback;
 
-            public override bool CanExecute(int parameter)
-            {
-                return CanExecuteCallback?.Invoke(parameter) ?? true;
-            }
+            protected override bool CanExecute(int parameter) 
+                => CanExecuteCallback?.Invoke(parameter) ?? true;
 
-            public override void Execute(int parameter)
-            {
-                if (this.CanExecute(parameter))
-                {
-                    this.OnExecuteCallback?.Invoke(parameter);
-                }
-            }
+            protected override void OnExecute(int parameter) 
+                => this.OnExecuteCallback?.Invoke(parameter);
         }
     }
 }

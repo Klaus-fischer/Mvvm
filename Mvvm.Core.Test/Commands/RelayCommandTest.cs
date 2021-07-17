@@ -31,7 +31,7 @@ namespace Mvvm.Test.Commands
 
             Assert.IsFalse(invoked);
 
-            rc.Execute(null);
+            rc.Execute();
 
             Assert.IsTrue(invoked);
         }
@@ -42,7 +42,7 @@ namespace Mvvm.Test.Commands
             var invoked = false;
             var canExecuteInvoked = false;
 
-            var rc = new RelayCommand(() => invoked = true,
+            ICommand rc = new RelayCommand(() => invoked = true,
                 () => { canExecuteInvoked = true; return true; });
 
             Assert.IsFalse(invoked);
@@ -67,7 +67,7 @@ namespace Mvvm.Test.Commands
             var invoked = false;
             var canExecuteInvoked = false;
 
-            var rc = new RelayCommand(() => invoked = true,
+            ICommand rc = new RelayCommand(() => invoked = true,
                 () => { canExecuteInvoked = true; return true; });
 
             Assert.IsFalse(invoked);
@@ -85,7 +85,7 @@ namespace Mvvm.Test.Commands
             var invoked = false;
             var canExecuteInvoked = false;
 
-            var rc = new RelayCommand(() => invoked = true,
+            ICommand rc = new RelayCommand(() => invoked = true,
                 () => { canExecuteInvoked = true; return false; });
 
             Assert.IsFalse(invoked);

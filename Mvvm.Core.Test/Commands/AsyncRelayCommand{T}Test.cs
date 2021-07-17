@@ -4,6 +4,7 @@ using Mvvm.Core;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace Mvvm.Test.Commands
 {
@@ -57,7 +58,7 @@ namespace Mvvm.Test.Commands
             var invoked = false;
             var canExecuteInvoked = false;
 
-            var rc = new AsyncRelayCommand<int>(context, async (i, t) => invoked = true,
+            ICommand rc = new AsyncRelayCommand<int>(context, async (i, t) => invoked = true,
                 i => { canExecuteInvoked = true; return true; });
 
             Assert.IsFalse(invoked);

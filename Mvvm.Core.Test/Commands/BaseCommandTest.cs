@@ -26,13 +26,13 @@
         {
             public bool CanExecuteValue = true;
 
-            public Action<object> OnExecute;
+            public Action OnExecuteCallback;
 
-            public override bool CanExecute(object parameter) => CanExecuteValue;
+            protected override bool CanExecute() => CanExecuteValue;
 
-            public override void Execute(object parameter)
+            protected override void OnExecute()
             {
-                this.OnExecute?.Invoke(parameter);
+                this.OnExecuteCallback?.Invoke();
             }
         }
     }

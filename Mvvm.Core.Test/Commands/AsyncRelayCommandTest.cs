@@ -46,7 +46,7 @@ namespace Mvvm.Test.Commands
 
             Assert.IsFalse(invoked);
 
-            rc.Execute(null);
+            rc.Execute();
 
             Assert.IsTrue(invoked);
         }
@@ -58,7 +58,7 @@ namespace Mvvm.Test.Commands
             var invoked = false;
             var canExecuteInvoked = false;
 
-            var rc = new AsyncRelayCommand(context,
+            ICommand rc = new AsyncRelayCommand(context,
                 async (t) => invoked = true,
                 () =>
                 {
@@ -89,7 +89,7 @@ namespace Mvvm.Test.Commands
             var invoked = false;
             var canExecuteInvoked = false;
 
-            var rc = new AsyncRelayCommand(
+            ICommand rc = new AsyncRelayCommand(
                 context,
                 async (t) => invoked = true,
                 () => { canExecuteInvoked = true; return true; });
@@ -110,7 +110,7 @@ namespace Mvvm.Test.Commands
             var invoked = false;
             var canExecuteInvoked = false;
 
-            var rc = new AsyncRelayCommand(
+            ICommand rc = new AsyncRelayCommand(
                 context,
                 async (t) => invoked = true,
                 () => { canExecuteInvoked = true; return false; });
@@ -131,7 +131,7 @@ namespace Mvvm.Test.Commands
             mock.SetupGet(o => o.IsBusy).Returns(true);
             var invoked = false;
 
-            var rc = new AsyncRelayCommand(
+            ICommand rc = new AsyncRelayCommand(
                 mock.Object,
                 async (t) => invoked = true);
 
@@ -161,7 +161,7 @@ namespace Mvvm.Test.Commands
                     Assert.AreEqual(token, t);
                 });
 
-            await rc.ExecuteAsync(null);
+            await rc.ExecuteAsync();
 
             mock.VerifyGet(o => o.IsBusy, Times.AtLeastOnce());
             mock.Verify(o => o.PrepareExecution(out token), Times.Once());
@@ -194,7 +194,7 @@ namespace Mvvm.Test.Commands
 
             rc.ExceptionHandler = exceptionHandlerMock.Object;
 
-            await rc.ExecuteAsync(null);
+            await rc.ExecuteAsync();
 
             contextMock.VerifyGet(o => o.IsBusy, Times.AtLeastOnce);
             contextMock.Verify(o => o.PrepareExecution(out token), Times.Once);
@@ -221,7 +221,7 @@ namespace Mvvm.Test.Commands
                 contextMock.Object,
                 async (t) => throw new InvalidOperationException());
 
-            await rc.ExecuteAsync(null);
+            await rc.ExecuteAsync();
         }
 
         [TestMethod]
@@ -245,7 +245,7 @@ namespace Mvvm.Test.Commands
 
             rc.ExceptionHandler = exceptionHandlerMock.Object;
 
-            await rc.ExecuteAsync(null);
+            await rc.ExecuteAsync();
         }
     }
 }

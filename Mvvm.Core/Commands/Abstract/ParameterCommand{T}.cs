@@ -62,7 +62,7 @@ namespace Mvvm.Core
 
             if (this.CanExecute(param))
             {
-                this.Execute(param);
+                this.OnExecute(param);
             }
         }
 

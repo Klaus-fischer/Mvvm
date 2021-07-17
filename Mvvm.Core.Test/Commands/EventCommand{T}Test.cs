@@ -43,7 +43,7 @@ namespace Mvvm.Test.Commands
             Assert.IsFalse(invoked);
             Assert.IsFalse(canExecuteInvoked);
 
-            Assert.IsTrue(rc.CanExecute(0));
+            Assert.IsTrue(((ICommand)rc).CanExecute(0));
 
             Assert.IsFalse(invoked);
             Assert.IsTrue(canExecuteInvoked);
@@ -131,24 +131,6 @@ namespace Mvvm.Test.Commands
             rc.OnCanExecuted += (s, a) => Assert.AreEqual(param, a.Parameter);
 
             rc.Execute(param);
-        }
-
-        [TestMethod]
-        public void ParamConversationTest()
-        {
-            bool invoked = false;
-            var ec = new EventCommand<string>();
-            ec.OnExecuted += (s, a) => invoked = true;
-
-            // type will be checked 
-            ec.Execute((object)null);
-
-            Assert.IsFalse(invoked);
-
-            // on explizit conversation type will not be checked.
-            ec.Execute((string)null);
-
-            Assert.IsTrue(invoked);
         }
     }
 }

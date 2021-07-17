@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mvvm.Core;
 using System;
+using System.Windows.Input;
+
 namespace Mvvm.Test.Commands
 {
     [TestClass]
@@ -40,7 +42,7 @@ namespace Mvvm.Test.Commands
             var invoked = false;
             var canExecuteInvoked = false;
 
-            var rc = new RelayCommand<int>(i => invoked = true,
+            ICommand rc = new RelayCommand<int>(i => invoked = true,
                 i => { canExecuteInvoked = true; return true; });
 
             Assert.IsFalse(invoked);

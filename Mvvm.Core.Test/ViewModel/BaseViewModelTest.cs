@@ -220,7 +220,7 @@
 
             public new void SetPropertyValue<T>(ref T? oldValue, T? newValue, string propertyName)
             {
-                base.SetPropertyValue<T>(ref oldValue, newValue, propertyName);
+                base.SetPropertyValue<T>(ref oldValue, newValue, null, propertyName);
             }
 
             internal Model model = new Model();
