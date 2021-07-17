@@ -171,6 +171,35 @@ namespace Mvvm.Test.Commands
         }
 
         [TestMethod]
+        public async Task ContextValidation_CanExecute()
+        {
+            CancellationToken token = new CancellationToken();
+            var invoked = false;
+
+            var mock = new Mock<IAsyncExecutionContext>();
+            mock.SetupGet(o => o.IsBusy).Returns(false);
+            mock.Setup(o => o.PrepareExecution(out token));
+            mock.Setup(o => o.FinalizeExecution());
+
+            var rc = new AsyncRelayCommand(
+                mock.Object,
+                async (t) =>
+                {
+                    invoked = true;
+                    Assert.AreEqual(token, t);
+                },
+                () => false);
+
+            await rc.ExecuteAsync();
+
+            mock.VerifyGet(o => o.IsBusy, Times.AtLeastOnce());
+            mock.Verify(o => o.PrepareExecution(out token), Times.Never());
+            mock.Verify(o => o.FinalizeExecution(), Times.Never());
+
+            Assert.IsFalse(invoked);
+        }
+
+        [TestMethod]
         public async Task ContextValidation_Exception()
         {
             CancellationToken token = new CancellationToken();
