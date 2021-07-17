@@ -5,6 +5,7 @@
 namespace Mvvm.Core
 {
     using System;
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -35,12 +36,29 @@ namespace Mvvm.Core
         }
 
         /// <summary>
-        /// Gets or sets a handler for exceptions that occurs in <see cref="onExecute"/> method.
+        /// Gets or sets a handler for exceptions that occurs in <see cref="ExecuteAsync"/> method.
         /// </summary>
         public IExceptionHandler? ExceptionHandler { get; set; }
 
+        /// <summary>
+        /// Defines the method to be called when the command is invoked.
+        /// </summary>
+        /// If the command does not require data to be passed, this object can be set to null.
+        /// <returns>
+        /// A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task ExecuteAsync()
+        {
+            if (!this.CanExecute())
+            {
+                return;
+            }
+
+            await this.RunAsync();
+        }
+
         /// <inheritdoc/>
-        public override sealed bool CanExecute(object? parameter)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override sealed bool CanExecute()
         {
             if (this.context.IsBusy)
             {
@@ -59,26 +77,13 @@ namespace Mvvm.Core
         }
 
         /// <inheritdoc/>
-        public override void Execute(object? parameter)
-        {
-            _ = this.ExecuteAsync(parameter);
-        }
+        protected override sealed void OnExecute()
+            => _ = this.RunAsync();
 
-        /// <summary>
-        /// Defines the method to be called when the command is invoked.
-        /// </summary>
-        /// <param name="parameter">Data used by the command.
-        /// If the command does not require data to be passed, this object can be set to null.</param>
-        /// <returns>Asynchron task to wait for.</returns>
-        public async Task ExecuteAsync(object? parameter)
+        private async Task RunAsync()
         {
             try
             {
-                if (!this.CanExecute(parameter))
-                {
-                    return;
-                }
-
                 this.context.PrepareExecution(out var token);
 
                 await this.executeHandler.Invoke(token);

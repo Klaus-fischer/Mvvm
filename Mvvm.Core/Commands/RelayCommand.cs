@@ -5,12 +5,13 @@
 namespace Mvvm.Core
 {
     using System;
+    using System.Runtime.CompilerServices;
     using System.Windows.Input;
 
     /// <summary>
     /// Relay command to implement command behavior.
     /// </summary>
-    public sealed class RelayCommand : BaseCommand, ICommand
+    public class RelayCommand : BaseCommand, ICommand
     {
         private readonly Func<bool>? canExecuteHandler;
         private readonly Action executeHandler;
@@ -29,26 +30,12 @@ namespace Mvvm.Core
         }
 
         /// <inheritdoc/>
-        public override sealed bool CanExecute(object? parameter)
-        {
-            // tries to execute the can execute handler, if defined. Otherwise return true as default.
-            if (this.canExecuteHandler != null)
-            {
-                return this.canExecuteHandler();
-            }
-            else
-            {
-                return true;
-            }
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override sealed bool CanExecute()
+            => this.canExecuteHandler?.Invoke() ?? true;
 
         /// <inheritdoc/>
-        public override sealed void Execute(object? parameter)
-        {
-            if (this.CanExecute(parameter))
-            {
-                this.executeHandler();
-            }
-        }
+        protected override sealed void OnExecute()
+            => this.executeHandler();
     }
 }

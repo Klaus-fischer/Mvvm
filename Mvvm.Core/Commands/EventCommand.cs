@@ -5,39 +5,36 @@
 namespace Mvvm.Core
 {
     using System;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Implementation of an <see cref="IEventCommand"/>.
     /// </summary>
-    public sealed class EventCommand : BaseCommand, IEventCommand
+    public class EventCommand : BaseCommand, IEventCommand
     {
         /// <inheritdoc/>
-        public event EventHandler<CanExecuteEventArgs>? OnCanExecute;
+        public event EventHandler<CanExecuteEventArgs>? OnCanExecuted;
 
         /// <inheritdoc/>
-        public event EventHandler? OnExecute;
+        public event EventHandler? OnExecuted;
 
         /// <inheritdoc/>
-        public override sealed bool CanExecute(object parameter)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override sealed bool CanExecute()
         {
-            if (this.OnExecute is null)
+            if (this.OnExecuted is null)
             {
                 return false;
             }
 
             var args = new CanExecuteEventArgs() { CanExecute = true };
-            this.OnCanExecute?.Invoke(this, args);
+            this.OnCanExecuted?.Invoke(this, args);
 
             return args.CanExecute;
         }
 
         /// <inheritdoc/>
-        public override sealed void Execute(object parameter)
-        {
-            if (this.CanExecute(parameter))
-            {
-                this.OnExecute?.Invoke(this, new EventArgs());
-            }
-        }
+        protected override sealed void OnExecute() 
+            => this.OnExecuted?.Invoke(this, new EventArgs());
     }
 }

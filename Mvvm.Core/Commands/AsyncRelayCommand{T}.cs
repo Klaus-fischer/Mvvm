@@ -5,6 +5,7 @@
 namespace Mvvm.Core
 {
     using System;
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -40,8 +41,25 @@ namespace Mvvm.Core
         /// </summary>
         public IExceptionHandler? ExceptionHandler { get; set; }
 
+        /// <summary>
+        /// Defines the method to be called when the command is invoked.
+        /// </summary>
+        /// <param name="parameter">Data used by the command.
+        /// If the command does not require data to be passed, this object can be set to null.</param>
+        /// <returns> A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task ExecuteAsync(T parameter)
+        {
+            if (!this.CanExecute(parameter))
+            {
+                return;
+            }
+
+            await this.RunAsync(parameter);
+        }
+
         /// <inheritdoc/>
-        public override bool CanExecute(T parameter)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override sealed bool CanExecute(T parameter)
         {
             if (this.context.IsBusy)
             {
@@ -60,26 +78,13 @@ namespace Mvvm.Core
         }
 
         /// <inheritdoc/>
-        public override void Execute(T parameter)
-        {
-            _ = this.ExecuteAsync(parameter);
-        }
+        protected override sealed void OnExecute(T parameter) 
+            => _ = this.RunAsync(parameter);
 
-        /// <summary>
-        /// Defines the method to be called when the command is invoked.
-        /// </summary>
-        /// <param name="parameter">Data used by the command.
-        /// If the command does not require data to be passed, this object can be set to null.</param>
-        /// <returns>Asynchron task to wait for.</returns>
-        public async Task ExecuteAsync(T parameter)
+        private async Task RunAsync(T parameter)
         {
             try
             {
-                if (!this.CanExecute(parameter))
-                {
-                    return;
-                }
-
                 this.context.PrepareExecution(out var token);
 
                 await this.executeHandler.Invoke(parameter, token);

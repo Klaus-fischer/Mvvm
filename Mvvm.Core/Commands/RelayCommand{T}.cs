@@ -5,12 +5,13 @@
 namespace Mvvm.Core
 {
     using System;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Relay command to implement command behavior.
     /// </summary>
     /// <typeparam name="T">Type of expected parameter.</typeparam>
-    public sealed class RelayCommand<T> : ParameterCommand<T>
+    public class RelayCommand<T> : ParameterCommand<T>
     {
         private readonly CommandCanExecuteHandler<T?>? canExecuteHandler;
         private readonly CommandExecuteHandler<T?> executeHandler;
@@ -20,25 +21,21 @@ namespace Mvvm.Core
         /// </summary>
         /// <param name="onExecute">Handler for execute command.</param>
         /// <param name="onCanExecute">Handler to validate whether execution is possible.</param>
-        public RelayCommand(CommandExecuteHandler<T?> onExecute, CommandCanExecuteHandler<T?>? onCanExecute = null)
+        public RelayCommand(
+            CommandExecuteHandler<T?> onExecute,
+            CommandCanExecuteHandler<T?>? onCanExecute = null)
         {
             this.canExecuteHandler = onCanExecute;
             this.executeHandler = onExecute ?? throw new ArgumentNullException(nameof(onExecute));
         }
 
         /// <inheritdoc/>
-        public override bool CanExecute(T parameter)
-        {
-            return this.canExecuteHandler?.Invoke(parameter) ?? true;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override sealed bool CanExecute(T parameter) 
+            => this.canExecuteHandler?.Invoke(parameter) ?? true;
 
         /// <inheritdoc/>
-        public override void Execute(T parameter)
-        {
-            if (this.CanExecute(parameter))
-            {
-                this.executeHandler(parameter);
-            }
-        }
+        protected override sealed void OnExecute(T parameter)
+            => this.executeHandler(parameter);
     }
 }

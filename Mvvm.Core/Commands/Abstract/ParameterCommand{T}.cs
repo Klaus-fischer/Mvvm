@@ -2,39 +2,82 @@
 // Copyright (c) Klaus-Fischer-Inc. All rights reserved.
 // </copyright>
 
+#nullable disable
+
 namespace Mvvm.Core
 {
+    using System;
+    using System.Runtime.CompilerServices;
+    using System.Windows.Input;
+
     /// <summary>
     /// Base command class that provides type conversation.
     /// Signature of <see cref="IParameterCommand{T}"/> implemented.
     /// </summary>
     /// <typeparam name="T">Type of the expected command parameter.</typeparam>
-    public abstract class ParameterCommand<T> : BaseCommand, IParameterCommand<T>, ICommandInvokeCanExecuteChangedEvent
+    public abstract class ParameterCommand<T> : IParameterCommand<T>, ICommandInvokeCanExecuteChangedEvent
     {
         /// <inheritdoc/>
-        public sealed override bool CanExecute(object? parameter)
-            => parameter is T param && this.CanExecute(param);
+        public event EventHandler CanExecuteChanged;
 
         /// <inheritdoc/>
-        public sealed override void Execute(object? parameter)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool ICommand.CanExecute(object parameter)
         {
-            if (parameter is T param && this.CanExecute(param))
+            if (parameter is T param)
+            {
+                return this.CanExecute(param);
+            }
+
+            return this.CanExecute(default);
+        }
+
+        /// <inheritdoc/>
+        void ICommand.Execute(object parameter)
+        {
+            if (parameter is T param)
+            {
+                this.Execute(param);
+            }
+
+            this.Execute(default);
+        }
+
+        /// <inheritdoc/>
+        void ICommandInvokeCanExecuteChangedEvent.InvokeCanExecuteChanged(object sender, EventArgs e)
+        {
+            this.CanExecuteChanged?.Invoke(sender, e);
+        }
+
+        /// <summary>
+        /// Execute to run this command.
+        /// </summary>
+        /// <param name="parameter">The parameter to execute.</param>
+        public void Execute(T parameter)
+        {
+            if (parameter is not T param)
+            {
+                param = default;
+            }
+
+            if (this.CanExecute(param))
             {
                 this.Execute(param);
             }
         }
 
         /// <summary>
-        /// Elevates if the command can be executed (<see cref="CanExecute(object?)"/>).
+        /// Elevates if the command can be executed (<see cref="ICommand.CanExecute(object?)"/>).
         /// </summary>
         /// <param name="parameter">Converted parameter.</param>
         /// <returns>True if command is able to run.</returns>
-        public abstract bool CanExecute(T parameter);
+        protected virtual bool CanExecute(T parameter)
+            => true;
 
         /// <summary>
-        /// Runs the command (<see cref="Execute(object?)"/>).
+        /// Runs the command (<see cref="ICommand.Execute(object?)"/>).
         /// </summary>
         /// <param name="parameter">Converted parameter.</param>
-        public abstract void Execute(T parameter);
+        protected abstract void OnExecute(T parameter);
     }
 }
