@@ -10,7 +10,7 @@ namespace Mvvm.Core
     /// <summary>
     /// Interface to raise <see cref="ICommand.CanExecuteChanged"/> event.
     /// </summary>
-    public interface ICommandInvokeCanExecuteChangedEvent
+    public interface ICommandInvokeCanExecuteChangedEvent : ICommand
     {
         /// <summary>
         /// Raises the <see cref="ICommand.CanExecuteChanged"/> event.

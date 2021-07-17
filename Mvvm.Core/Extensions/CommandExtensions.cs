@@ -55,5 +55,20 @@ namespace Mvvm.Core
 
             return command;
         }
+
+        /// <summary>
+        /// Tries to invoke the <see cref="ICommand.CanExecuteChanged"/> event.
+        /// </summary>
+        /// <param name="command">The command that has changed.</param>
+        public static void TryInvokeCanExecuteChanged(this ICommand command)
+        {
+            if (command is ICommandInvokeCanExecuteChangedEvent cmd)
+            {
+                cmd.InvokeCanExecuteChanged(cmd, new EventArgs());
+                return;
+            }
+
+            throw new InvalidOperationException("The event could not be invoked.");
+        }
     }
 }
