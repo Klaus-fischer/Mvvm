@@ -21,7 +21,7 @@ namespace Mvvm.Test.Commands
             var invoked = false;
 
             var rc = new EventCommand<int>();
-            rc.OnExecute += (s, a) => invoked = true;
+            rc.OnExecuted += (s, a) => invoked = true;
 
             Assert.IsFalse(invoked);
 
@@ -37,8 +37,8 @@ namespace Mvvm.Test.Commands
             var canExecuteInvoked = false;
 
             var rc = new EventCommand<int>();
-            rc.OnExecute += (s, a) => invoked = true;
-            rc.OnCanExecute += (s, a) => { canExecuteInvoked = true; a.CanExecute = true; };
+            rc.OnExecuted += (s, a) => invoked = true;
+            rc.OnCanExecuted += (s, a) => { canExecuteInvoked = true; a.CanExecute = true; };
 
             Assert.IsFalse(invoked);
             Assert.IsFalse(canExecuteInvoked);
@@ -63,8 +63,8 @@ namespace Mvvm.Test.Commands
             var canExecuteInvoked = false;
 
             var rc = new EventCommand<int>();
-            rc.OnExecute += (s, a) => invoked = true;
-            rc.OnCanExecute += (s, a) => { canExecuteInvoked = true; a.CanExecute = true; };
+            rc.OnExecuted += (s, a) => invoked = true;
+            rc.OnCanExecuted += (s, a) => { canExecuteInvoked = true; a.CanExecute = true; };
 
             Assert.IsFalse(invoked);
             Assert.IsFalse(canExecuteInvoked);
@@ -82,8 +82,8 @@ namespace Mvvm.Test.Commands
             var canExecuteInvoked = false;
 
             var rc = new EventCommand<int>();
-            rc.OnExecute += (s, a) => invoked = true;
-            rc.OnCanExecute += (s, a) => { canExecuteInvoked = true; a.CanExecute = false; };
+            rc.OnExecuted += (s, a) => invoked = true;
+            rc.OnCanExecuted += (s, a) => { canExecuteInvoked = true; a.CanExecute = false; };
 
             Assert.IsFalse(invoked);
             Assert.IsFalse(canExecuteInvoked);
@@ -101,7 +101,7 @@ namespace Mvvm.Test.Commands
             var canExecuteInvoked = false;
 
             var rc = new EventCommand<int>();
-            rc.OnCanExecute += (s, a) => { canExecuteInvoked = true; };
+            rc.OnCanExecuted += (s, a) => { canExecuteInvoked = true; };
 
             Assert.IsFalse(invoked);
             Assert.IsFalse(canExecuteInvoked);
@@ -112,8 +112,8 @@ namespace Mvvm.Test.Commands
 
             EventHandler<int> onExecuteEvent = (s, a) => { invoked = true; };
 
-            rc.OnExecute += onExecuteEvent;
-            rc.OnCanExecute += (s, a) => rc.OnExecute -= onExecuteEvent;
+            rc.OnExecuted += onExecuteEvent;
+            rc.OnCanExecuted += (s, a) => rc.OnExecuted -= onExecuteEvent;
 
             rc.Execute(0);
 
@@ -127,8 +127,8 @@ namespace Mvvm.Test.Commands
             var param = 12356;
 
             var rc = new EventCommand<int>();
-            rc.OnExecute += (s, i) => Assert.AreEqual(param, i);
-            rc.OnCanExecute += (s, a) => Assert.AreEqual(param, a.Parameter);
+            rc.OnExecuted += (s, i) => Assert.AreEqual(param, i);
+            rc.OnCanExecuted += (s, a) => Assert.AreEqual(param, a.Parameter);
 
             rc.Execute(param);
         }
@@ -138,7 +138,7 @@ namespace Mvvm.Test.Commands
         {
             bool invoked = false;
             var ec = new EventCommand<string>();
-            ec.OnExecute += (s, a) => invoked = true;
+            ec.OnExecuted += (s, a) => invoked = true;
 
             // type will be checked 
             ec.Execute((object)null);

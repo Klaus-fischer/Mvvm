@@ -15,11 +15,11 @@ namespace Mvvm.Core
         /// <summary>
         /// EventHandler to determine can execute changed state.
         /// </summary>
-        event EventHandler<CanExecuteEventArgs>? OnCanExecute;
+        event EventHandler<CanExecuteEventArgs>? OnCanExecuted;
 
         /// <summary>
         /// EventHandler to Execute the command.
         /// </summary>
-        event EventHandler? OnExecute;
+        event EventHandler? OnExecuted;
     }
 }
