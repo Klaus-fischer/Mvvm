@@ -20,6 +20,11 @@ namespace Mvvm.Core
         /// <inheritdoc/>
         public event EventHandler CanExecuteChanged;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether <see cref="default(T)"/> is a valid value.
+        /// </summary>
+        protected bool AllowDefault { get; set; } = true;
+
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         bool ICommand.CanExecute(object parameter)
@@ -27,6 +32,11 @@ namespace Mvvm.Core
             if (parameter is T param)
             {
                 return this.CanExecute(param);
+            }
+
+            if (!this.AllowDefault)
+            {
+                return false;
             }
 
             return this.CanExecute(default);
@@ -57,6 +67,11 @@ namespace Mvvm.Core
         {
             if (parameter is not T param)
             {
+                if (!this.AllowDefault)
+                {
+                    return;
+                }
+
                 param = default;
             }
 
@@ -71,6 +86,7 @@ namespace Mvvm.Core
         /// </summary>
         /// <param name="parameter">Converted parameter.</param>
         /// <returns>True if command is able to run.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual bool CanExecute(T parameter)
             => true;
 

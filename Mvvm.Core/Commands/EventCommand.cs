@@ -10,7 +10,7 @@ namespace Mvvm.Core
     /// <summary>
     /// Implementation of an <see cref="IEventCommand"/>.
     /// </summary>
-    public class EventCommand : BaseCommand, IEventCommand
+    public class EventCommand : Command, IEventCommand
     {
         /// <inheritdoc/>
         public event EventHandler<CanExecuteEventArgs>? OnCanExecuted;

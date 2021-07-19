@@ -1,4 +1,4 @@
-﻿// <copyright file="BaseViewModel.cs" company="Klaus-Fischer-Inc">
+﻿// <copyright file="ViewModel.cs" company="Klaus-Fischer-Inc">
 // Copyright (c) Klaus-Fischer-Inc. All rights reserved.
 // </copyright>
 
@@ -17,7 +17,15 @@ namespace Mvvm.Core
     /// </summary>
     public abstract class ViewModel : IViewModel
     {
-        private readonly Dictionary<string, object> supressedProperties = new();
+        private readonly Dictionary<string, object> supressedProperties = new ();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ViewModel"/> class.
+        /// </summary>
+        public ViewModel()
+        {
+            this.RegisterDependencies();
+        }
 
         /// <inheritdoc/>
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -25,7 +33,7 @@ namespace Mvvm.Core
         /// <summary>
         /// Occurs when a property value changes.
         /// </summary>
-        protected event EventHandler<AdvancedPropertyChangedEventArgs>? AdvancedPropertyChanged;
+        public event EventHandler<AdvancedPropertyChangedEventArgs>? AdvancedPropertyChanged;
 
         /// <inheritdoc/>
         void IViewModel.InvokeOnPropertyChanged(string propertyName)
@@ -154,33 +162,6 @@ namespace Mvvm.Core
             }
         }
 
-        /// <summary>
-        /// Register all property dependencies marked with the <see cref="DependsOnAttribute"/>,
-        /// to a <see cref="ICommand"/> that implements <see cref="ICommandInvokeCanExecuteChangedEvent"/>.
-        /// </summary>
-        protected void RegisterDependencies()
-        {
-            foreach (var property in this.GetType().GetProperties())
-            {
-                if (property.GetCustomAttribute<DependsOnAttribute>() is not DependsOnAttribute dependsOn)
-                {
-                    continue;
-                }
-
-                if (typeof(ICommand).IsAssignableFrom(property.PropertyType))
-                {
-                    if (property.GetValue(this) is ICommandInvokeCanExecuteChangedEvent command)
-                    {
-                        command.RegisterPropertyDependency(this, dependsOn.PropertyNames);
-                    }
-                }
-                else
-                {
-                    this.RegisterDependencies(this, property.Name, dependsOn.PropertyNames);
-                }
-            }
-        }
-
         private static bool Equals<T>(T property, T newValue, IEqualityComparer<T>? comparer)
         {
             // true if property and newValue is null
@@ -203,6 +184,35 @@ namespace Mvvm.Core
 
             // true if both values are equal.
             return property.Equals(newValue);
+        }
+
+        /// <summary>
+        /// Register all property dependencies marked with the <see cref="DependsOnAttribute"/>,
+        /// to a <see cref="ICommand"/> that implements <see cref="ICommandInvokeCanExecuteChangedEvent"/>.
+        /// </summary>
+        protected void RegisterDependencies()
+        {
+            foreach (var property in this.GetType().GetProperties())
+            {
+                if (property.GetCustomAttribute<DependsOnAttribute>() is not DependsOnAttribute dependsOn)
+                {
+                    continue;
+                }
+
+                if (typeof(ICommand).IsAssignableFrom(property.PropertyType))
+                {
+                    if (property.GetValue(this) is ICommandInvokeCanExecuteChangedEvent command)
+                    {
+                        command.RegisterPropertyDependency(this, dependsOn.PropertyNames);
+                    }
+
+                    _ = new ViewModelCommandMonitor(this, property.Name, dependsOn.PropertyNames);
+                }
+                else
+                {
+                    this.RegisterDependencies(this, property.Name, dependsOn.PropertyNames);
+                }
+            }
         }
     }
 }

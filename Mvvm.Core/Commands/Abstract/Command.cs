@@ -1,4 +1,4 @@
-﻿// <copyright file="BaseCommand.cs" company="Klaus-Fischer-Inc">
+﻿// <copyright file="Command.cs" company="Klaus-Fischer-Inc">
 // Copyright (c) Klaus-Fischer-Inc. All rights reserved.
 // </copyright>
 
@@ -11,7 +11,7 @@ namespace Mvvm.Core
     /// <summary>
     /// Base command class that implements <see cref="ICommandInvokeCanExecuteChangedEvent"/>.
     /// </summary>
-    public abstract class BaseCommand : ICommandInvokeCanExecuteChangedEvent
+    public abstract class Command : ICommandInvokeCanExecuteChangedEvent
     {
         /// <inheritdoc/>
         public event EventHandler? CanExecuteChanged;

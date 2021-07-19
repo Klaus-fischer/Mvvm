@@ -11,7 +11,7 @@ namespace Mvvm.Core
     /// <summary>
     /// Relay command to implement command behavior.
     /// </summary>
-    public class RelayCommand : BaseCommand, ICommand
+    public class RelayCommand : Command, ICommand
     {
         private readonly Func<bool>? canExecuteHandler;
         private readonly Action executeHandler;

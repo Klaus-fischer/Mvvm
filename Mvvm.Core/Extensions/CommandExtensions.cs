@@ -5,6 +5,7 @@
 namespace Mvvm.Core
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Linq;
     using System.Windows.Input;
@@ -14,6 +15,9 @@ namespace Mvvm.Core
     /// </summary>
     public static class CommandExtensions
     {
+        private static Collection<ViewModelCommandListener> listeners
+            = new Collection<ViewModelCommandListener>();
+
         /// <summary>
         /// Creates an event listener to monitor depend properties.
         /// Raises <see cref="ICommand.CanExecuteChanged"/> event, if property was changed.
@@ -48,12 +52,30 @@ namespace Mvvm.Core
                 throw new ArgumentException("dependencies must contain at least one PropertyName");
             }
 
-            _ = new ViewModelCommandListener(
+            var listener = new ViewModelCommandListener(
                 viewModel ?? throw new ArgumentNullException(nameof(viewModel)),
                 command ?? throw new ArgumentNullException(nameof(command)),
                 dependencies);
 
+            listeners.Add(listener);
+
             return command;
+        }
+
+        /// <summary>
+        /// Unregisters the command listener.
+        /// </summary>
+        /// <param name="command">The command to release the monitor.</param>
+        /// <param name="viewModel">The view model the command belongs tó.</param>
+        public static void UnregisterPropertyDependency(
+            this ICommandInvokeCanExecuteChangedEvent command,
+            INotifyPropertyChanged viewModel)
+        {
+            if (listeners.FirstOrDefault(o => o.BelongsTo(viewModel, command)) is ViewModelCommandListener listener)
+            {
+                listener.Dispose();
+                listeners.Remove(listener);
+            }
         }
 
         /// <summary>

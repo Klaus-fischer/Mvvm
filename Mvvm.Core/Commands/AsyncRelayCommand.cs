@@ -11,7 +11,7 @@ namespace Mvvm.Core
     /// <summary>
     /// Relay command to implement asynchron command behavior.
     /// </summary>
-    public class AsyncRelayCommand : BaseCommand
+    public class AsyncRelayCommand : Command
     {
         private readonly IAsyncExecutionContext context;
         private readonly Func<bool>? canExecuteHandler;

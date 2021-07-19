@@ -5,6 +5,7 @@
     using Mvvm.Core;
     using System;
     using System.Collections.Generic;
+    using System.Windows.Input;
 
     [TestClass]
     public class BaseViewModelTest
@@ -188,6 +189,28 @@
             vm.SecondValue = 10;
         }
 
+        [TestMethod]
+        public void CommandInvokeTest()
+        {
+            var commandMock = new Mock<ICommand>();
+
+            var vm = new ViewModelMock();
+
+            vm.Command = commandMock.Object;
+            vm.Command.CanExecuteChanged += (s, a) => Assert.Fail();
+
+            vm.Name = "anything";
+
+            vm.Command = new RelayCommand(() => { });
+
+            bool canExecuteChangedInvoked = false;
+            vm.Command.CanExecuteChanged += (s, a) => canExecuteChangedInvoked = true;
+
+            vm.Name = "NewName";
+
+            Assert.IsTrue(canExecuteChangedInvoked);
+        }
+
         public class ViewModelMock : ViewModel
         {
             public ViewModelMock RegisterCounter()
@@ -245,14 +268,20 @@
                 set => this.SetPropertyValue(ref this.age, value);
             }
 
-
+            [DependsOn(nameof(Name))]
+            public ICommand Command
+            {
+                get => command;
+                set => this.SetPropertyValue(ref command, value);
+            }
 
             public ViewModelMock()
             {
-                this.RegisterDependencies();
             }
 
             private string name;
+            private ICommand command;
+
             public string Name
             {
                 get => this.name;

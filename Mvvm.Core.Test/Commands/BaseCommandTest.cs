@@ -22,7 +22,7 @@
         }
 
 
-        private class BaseCommandType : BaseCommand
+        private class BaseCommandType : Command
         {
             public bool CanExecuteValue = true;
 

@@ -20,9 +20,8 @@ namespace Mvvm.Core
         /// </summary>
         public AsyncExecutionContext()
         {
-            this.Cancel = new RelayCommand(this.OnCancel, this.CanCancel);
-
-            this.RegisterDependencies();
+            this.Cancel = new RelayCommand(this.OnCancel, this.CanCancel)
+                .RegisterPropertyDependency(this, nameof(this.IsBusy));
         }
 
         /// <inheritdoc/>

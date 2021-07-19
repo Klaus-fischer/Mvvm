@@ -4,6 +4,7 @@
 
 namespace Mvvm.Core
 {
+    using System;
     using System.ComponentModel;
 
     /// <summary>
@@ -11,6 +12,11 @@ namespace Mvvm.Core
     /// </summary>
     public interface IViewModel : INotifyPropertyChanged
     {
+        /// <summary>
+        /// Occurs when a property value changes.
+        /// </summary>
+        event EventHandler<AdvancedPropertyChangedEventArgs>? AdvancedPropertyChanged;
+
         /// <summary>
         /// To invoke the <see cref="INotifyPropertyChanged.PropertyChanged"/> event.
         /// </summary>
