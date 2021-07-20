@@ -1,4 +1,4 @@
-namespace Mvvm.Core.CodeGeneration.Tests
+namespace SIM.Mvvm.CodeGeneration.Tests
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -46,11 +46,5 @@ namespace Mvvm.Core.CodeGeneration.Tests
             Assert.AreEqual("TestOfficer", vm.Data.Name);
             Assert.AreEqual(false, vm.Data.IsAdmin);
         }
-    }
-
-    public partial class AutoMapExceptViewModel : ViewModel
-    {
-        [AutoMapProperties(nameof(Model.Age))]
-        public Model Data { get; } = new Model();
     }
 }
