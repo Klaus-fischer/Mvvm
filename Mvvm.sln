@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31005.135
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIM.Mvvm", "Mvvm.Core\SIM.Mvvm.csproj", "{A55705AF-44EA-47F4-BAF5-3A8C8CC5C180}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisualTest", "VisualTest\VisualTest.csproj", "{DA487907-4157-4798-8C78-2333A728F952}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mvvm.Core.CodeGenerator", "Mvvm.Core.CodeGenerator\Mvvm.Core.CodeGenerator.csproj", "{736E0826-CCD1-4F4E-ADEF-C2E2139778EA}"
@@ -15,16 +13,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIM.Mvvm.Test", "Mvvm.Core.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mvvm.Core.CodeGenerator.Tests", "Mvvm.Core.CodeGeneration.Tests\Mvvm.Core.CodeGenerator.Tests.csproj", "{85051C06-CD27-4FC2-90AC-9FA2542A57B8}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIM.Mvvm", "SIM.Mvvm\SIM.Mvvm.csproj", "{46B1EFB2-2465-487C-9211-91B8DD5C5923}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A55705AF-44EA-47F4-BAF5-3A8C8CC5C180}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A55705AF-44EA-47F4-BAF5-3A8C8CC5C180}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A55705AF-44EA-47F4-BAF5-3A8C8CC5C180}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A55705AF-44EA-47F4-BAF5-3A8C8CC5C180}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DA487907-4157-4798-8C78-2333A728F952}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DA487907-4157-4798-8C78-2333A728F952}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA487907-4157-4798-8C78-2333A728F952}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -45,6 +41,10 @@ Global
 		{85051C06-CD27-4FC2-90AC-9FA2542A57B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{85051C06-CD27-4FC2-90AC-9FA2542A57B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{85051C06-CD27-4FC2-90AC-9FA2542A57B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46B1EFB2-2465-487C-9211-91B8DD5C5923}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46B1EFB2-2465-487C-9211-91B8DD5C5923}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46B1EFB2-2465-487C-9211-91B8DD5C5923}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46B1EFB2-2465-487C-9211-91B8DD5C5923}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -11,12 +11,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>D:\Source\MVVM\Mvvm.Core\Mvvm.Core.xml</DocumentationFile>
+    <DocumentationFile>D:\Source\MVVM\SIM.Mvvm\Sim.Mvvm.xml</DocumentationFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="stylecop.json" />
-  </ItemGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="stylecop.json" />
