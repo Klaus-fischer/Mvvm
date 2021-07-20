@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Mvvm.Core;
+using SIM.Mvvm;
 using System;
 using System.Windows.Input;
 

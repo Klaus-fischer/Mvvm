@@ -1,7 +1,7 @@
 ﻿namespace Mvvm.Test
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Mvvm.Core;
+    using SIM.Mvvm;
 
     [TestClass]
     public class EventArgsTest

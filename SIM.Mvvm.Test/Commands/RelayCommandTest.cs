@@ -1,17 +1,17 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Mvvm.Core;
+using SIM.Mvvm;
 using System;
 using System.Windows.Input;
 
 namespace Mvvm.Test.Commands
 {
     [TestClass]
-    public class RelayCommand_T_Test
+    public class RelayCommandTest
     {
         [TestMethod]
         public void Constructor()
         {
-            var rc = new RelayCommand<int>(i => { });
+            var rc = new RelayCommand(() => { });
             Assert.IsNotNull(rc);
         }
 
@@ -19,7 +19,7 @@ namespace Mvvm.Test.Commands
         [ExpectedException(typeof(ArgumentNullException))]
         public void ConstructorFail()
         {
-            _ = new RelayCommand<int>(null);
+            _ = new RelayCommand(null);
         }
 
         [TestMethod]
@@ -27,11 +27,11 @@ namespace Mvvm.Test.Commands
         {
             var invoked = false;
 
-            var rc = new RelayCommand<int>(i => invoked = true);
+            var rc = new RelayCommand(() => invoked = true);
 
             Assert.IsFalse(invoked);
 
-            rc.Execute(0);
+            rc.Execute();
 
             Assert.IsTrue(invoked);
         }
@@ -42,20 +42,20 @@ namespace Mvvm.Test.Commands
             var invoked = false;
             var canExecuteInvoked = false;
 
-            ICommand rc = new RelayCommand<int>(i => invoked = true,
-                i => { canExecuteInvoked = true; return true; });
+            ICommand rc = new RelayCommand(() => invoked = true,
+                () => { canExecuteInvoked = true; return true; });
 
             Assert.IsFalse(invoked);
             Assert.IsFalse(canExecuteInvoked);
 
-            Assert.IsTrue(rc.CanExecute(0));
+            Assert.IsTrue(rc.CanExecute(null));
 
             Assert.IsFalse(invoked);
             Assert.IsTrue(canExecuteInvoked);
 
             canExecuteInvoked = false;
 
-            rc.Execute(0);
+            rc.Execute(null);
 
             Assert.IsTrue(invoked);
             Assert.IsTrue(canExecuteInvoked);
@@ -67,13 +67,13 @@ namespace Mvvm.Test.Commands
             var invoked = false;
             var canExecuteInvoked = false;
 
-            var rc = new RelayCommand<int>(i => invoked = true,
-                i => { canExecuteInvoked = true; return true; });
+            ICommand rc = new RelayCommand(() => invoked = true,
+                () => { canExecuteInvoked = true; return true; });
 
             Assert.IsFalse(invoked);
             Assert.IsFalse(canExecuteInvoked);
 
-            rc.Execute(0);
+            rc.Execute(null);
 
             Assert.IsTrue(invoked);
             Assert.IsTrue(canExecuteInvoked);
@@ -85,28 +85,16 @@ namespace Mvvm.Test.Commands
             var invoked = false;
             var canExecuteInvoked = false;
 
-            var rc = new RelayCommand<int>(i => invoked = true,
-                i => { canExecuteInvoked = true; return false; });
+            ICommand rc = new RelayCommand(() => invoked = true,
+                () => { canExecuteInvoked = true; return false; });
 
             Assert.IsFalse(invoked);
             Assert.IsFalse(canExecuteInvoked);
 
-            rc.Execute(0);
+            rc.Execute(null);
 
             Assert.IsFalse(invoked);
             Assert.IsTrue(canExecuteInvoked);
-        }
-
-        [TestMethod]
-        public void ParameterTransferTest()
-        {
-            var param = 12356;
-
-            var rc = new RelayCommand<int>(
-                i => Assert.AreEqual(param, i),
-                i => i == param);
-
-            rc.Execute(param);
         }
     }
 }

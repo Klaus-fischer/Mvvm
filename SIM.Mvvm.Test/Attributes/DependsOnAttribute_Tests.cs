@@ -1,4 +1,4 @@
-﻿namespace Mvvm.Core.Test.Attributes
+﻿namespace SIM.Mvvm.Test.Attributes
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;

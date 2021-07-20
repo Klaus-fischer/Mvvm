@@ -1,7 +1,7 @@
 ﻿namespace Mvvm.Test.ViewModel
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Mvvm.Core;
+    using SIM.Mvvm;
     using System;
 
     [TestClass]

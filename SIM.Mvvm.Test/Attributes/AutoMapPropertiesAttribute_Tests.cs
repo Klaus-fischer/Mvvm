@@ -1,7 +1,7 @@
-﻿namespace Mvvm.Core.Test.Attributes
+﻿namespace SIM.Mvvm.Test.Attributes
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Mvvm.Core.CodeGeneration;
+    using SIM.Mvvm.CodeGeneration;
 
     [TestClass]
     public class AutoMapPropertiesAttribute_Tests

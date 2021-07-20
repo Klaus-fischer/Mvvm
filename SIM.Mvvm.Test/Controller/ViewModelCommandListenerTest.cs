@@ -2,7 +2,7 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
-    using Mvvm.Core;
+    using SIM.Mvvm;
     using System;
     using System.ComponentModel;
 

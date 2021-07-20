@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mvvm.Core.CodeGenerator", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MVVM.Validation", "MVVM.Validation\MVVM.Validation.csproj", "{6F96368D-6D2B-4C62-8499-3733EFE59010}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIM.Mvvm.Test", "Mvvm.Core.Test\SIM.Mvvm.Test.csproj", "{ABB00320-F180-40AB-A2E3-8BA47460259C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIM.Mvvm.Test", "SIM.Mvvm.Test\SIM.Mvvm.Test.csproj", "{ABB00320-F180-40AB-A2E3-8BA47460259C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mvvm.Core.CodeGenerator.Tests", "Mvvm.Core.CodeGeneration.Tests\Mvvm.Core.CodeGenerator.Tests.csproj", "{85051C06-CD27-4FC2-90AC-9FA2542A57B8}"
 EndProject
