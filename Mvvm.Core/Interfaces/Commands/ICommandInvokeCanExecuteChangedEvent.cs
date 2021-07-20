@@ -1,8 +1,8 @@
-﻿// <copyright file="ICommandInvokeCanExecuteChangedEvent.cs" company="Klaus-Fischer-Inc">
-// Copyright (c) Klaus-Fischer-Inc. All rights reserved.
+﻿// <copyright file="ICommandInvokeCanExecuteChangedEvent.cs" company="SIM Automation">
+// Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
-namespace Mvvm.Core
+namespace SIM.Mvvm
 {
     using System;
     using System.Windows.Input;

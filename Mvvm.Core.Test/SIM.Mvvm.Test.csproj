@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Mvvm.Core\Mvvm.Core.csproj" />
+    <ProjectReference Include="..\Mvvm.Core\SIM.Mvvm.csproj" />
   </ItemGroup>
 
 </Project>

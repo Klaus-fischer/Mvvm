@@ -1,8 +1,8 @@
-﻿// <copyright file="CanExecuteEventArgs.cs" company="Klaus-Fischer-Inc">
-// Copyright (c) Klaus-Fischer-Inc. All rights reserved.
+﻿// <copyright file="CanExecuteEventArgs.cs" company="SIM Automation">
+// Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
-namespace Mvvm.Core
+namespace SIM.Mvvm
 {
     /// <summary>
     /// Event arguments for <see cref="IEventCommand"/> CanExecute handler.

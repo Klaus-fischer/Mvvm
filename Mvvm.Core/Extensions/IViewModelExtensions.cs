@@ -1,10 +1,10 @@
-﻿// <copyright file="IViewModelExtensions.cs" company="Klaus-Fischer-Inc">
-// Copyright (c) Klaus-Fischer-Inc. All rights reserved.
+﻿// <copyright file="IViewModelExtensions.cs" company="SIM Automation">
+// Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
 #pragma warning disable SA1004 // Documentation lines should begin with single space
 
-namespace Mvvm.Core
+namespace SIM.Mvvm
 {
     using System;
     using System.ComponentModel;

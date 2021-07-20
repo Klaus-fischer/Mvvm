@@ -1,10 +1,10 @@
-﻿// <copyright file="ParameterCommand{T}.cs" company="Klaus-Fischer-Inc">
-// Copyright (c) Klaus-Fischer-Inc. All rights reserved.
+﻿// <copyright file="ParameterCommand{T}.cs" company="SIM Automation">
+// Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
 #nullable disable
 
-namespace Mvvm.Core
+namespace SIM.Mvvm
 {
     using System;
     using System.Runtime.CompilerServices;

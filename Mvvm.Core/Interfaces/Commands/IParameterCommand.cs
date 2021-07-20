@@ -1,8 +1,8 @@
-﻿// <copyright file="IParameterCommand.cs" company="Klaus-Fischer-Inc">
-// Copyright (c) Klaus-Fischer-Inc. All rights reserved.
+﻿// <copyright file="IParameterCommand.cs" company="SIM Automation">
+// Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
-namespace Mvvm.Core
+namespace SIM.Mvvm
 {
     using System.Windows.Input;
 

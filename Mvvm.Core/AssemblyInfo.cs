@@ -1,7 +1,7 @@
-﻿// <copyright file="AssemblyInfo.cs" company="Klaus-Fischer-Inc">
-// Copyright (c) Klaus-Fischer-Inc. All rights reserved.
+﻿// <copyright file="AssemblyInfo.cs" company="SIM Automation">
+// Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
 using System.Runtime.CompilerServices;
 
-[assembly:InternalsVisibleTo("Mvvm.Core.Test")]
+[assembly:InternalsVisibleTo("SIM.Mvvm.Test")]
