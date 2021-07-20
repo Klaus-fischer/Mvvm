@@ -2,7 +2,7 @@
 // Copyright (c) Klaus-Fischer-Inc. All rights reserved.
 // </copyright>
 
-namespace Mvvm.Core
+namespace SIM.Mvvm.CodeGenerator
 {
     using System;
     using System.Collections.Generic;
@@ -36,16 +36,16 @@ namespace Mvvm.Core
             }
 
             // get the added attribute, and INotifyPropertyChanged
-            INamedTypeSymbol attributeSymbol = context.Compilation.GetTypeByMetadataName(AttributeFullName)
+            var attributeSymbol = context.Compilation.GetTypeByMetadataName(AttributeFullName)
                ?? throw new ArgumentNullException();
 
-            INamedTypeSymbol baseViewModelClassSymbol = context.Compilation.GetTypeByMetadataName(ViewModelFullName)
+            var baseViewModelClassSymbol = context.Compilation.GetTypeByMetadataName(ViewModelFullName)
                 ?? throw new ArgumentNullException();
 
             // group the fields by class, and generate the source
             foreach (var group in receiver.Fields.GroupBy(f => f.ContainingType))
             {
-                string classSource = this.ProcessClass(group.Key, group.ToList(), attributeSymbol, baseViewModelClassSymbol, context);
+                var classSource = this.ProcessClass(group.Key, group.ToList(), attributeSymbol, baseViewModelClassSymbol, context);
                 context.AddSource($"{group.Key.Name}_autoMap.cs", SourceText.From(classSource, Encoding.UTF8));
             }
         }
@@ -62,7 +62,7 @@ namespace Mvvm.Core
                 return string.Empty;
             }
 
-            string namespaceName = classSymbol.ContainingNamespace.ToDisplayString();
+            var namespaceName = classSymbol.ContainingNamespace.ToDisplayString();
 
             if (!this.CheckDerived(classSymbol, baseViewModelClassSymbol))
             {
@@ -70,7 +70,7 @@ namespace Mvvm.Core
             }
 
             // begin building the generated source
-            StringBuilder source = new StringBuilder($@"
+            var source = new StringBuilder($@"
 namespace {namespaceName}
 {{
     public partial class {classSymbol.Name}
@@ -82,7 +82,7 @@ namespace {namespaceName}
                 .ToList();
 
             // create properties for each field
-            foreach (ISymbol symbol in fields)
+            foreach (var symbol in fields)
             {
                 ITypeSymbol type;
                 IEnumerable<IPropertySymbol> properties;
@@ -100,10 +100,10 @@ namespace {namespaceName}
                     return "";
                 }
 
-                string[] excludedProperties = this.GetExcludedProperties(symbol);
+                var excludedProperties = this.GetExcludedProperties(symbol);
 
 
-                foreach (IPropertySymbol propertySymbol in type.GetMembers().Where(o =>
+                foreach (var propertySymbol in type.GetMembers().Where(o =>
                     o.Kind == SymbolKind.Property &&
                     o.DeclaredAccessibility == Accessibility.Public && !o.IsStatic)
                     .OfType<IPropertySymbol>())
@@ -165,8 +165,8 @@ namespace {namespaceName}
         private void ProcessProperty(StringBuilder source, IPropertySymbol propertySymbol, string fieldName, ISymbol attributeSymbol)
         {
             // get the name and type of the field
-            string propertyName = propertySymbol.Name;
-            ITypeSymbol fieldType = propertySymbol.Type;
+            var propertyName = propertySymbol.Name;
+            var fieldType = propertySymbol.Type;
 
             if (propertyName.Length == 0)
             {
@@ -200,7 +200,7 @@ namespace {namespaceName}
                 if (context.Node is FieldDeclarationSyntax fieldDeclarationSyntax
                     && fieldDeclarationSyntax.AttributeLists.Count > 0)
                 {
-                    foreach (VariableDeclaratorSyntax variable in fieldDeclarationSyntax.Declaration.Variables)
+                    foreach (var variable in fieldDeclarationSyntax.Declaration.Variables)
                     {
                         // Get the symbol being declared by the field, and keep it if its annotated
                         if (context.SemanticModel.GetDeclaredSymbol(variable) is IFieldSymbol fieldSymbol)
