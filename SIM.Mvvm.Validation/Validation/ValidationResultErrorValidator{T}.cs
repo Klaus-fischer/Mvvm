@@ -1,16 +1,15 @@
-﻿// <copyright file="ValidationResultErrorValidator{T}.cs" company="Klaus-Fischer-Inc">
-// Copyright (c) Klaus-Fischer-Inc. All rights reserved.
+﻿// <copyright file="ValidationResultErrorValidator{T}.cs" company="SIM Automation">
+// Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
-namespace Mvvm.Validation
+namespace Sim.Mvvm.Validation
 {
     using System.Collections;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.ComponentModel.DataAnnotations;
     using System.Linq;
-    using System.Reflection;
-    using Mvvm.Core;
+    using SIM.Mvvm;
 
     /// <summary>
     /// Implements <see cref="IDataErrorInfo"/> functionality to a model.
@@ -57,27 +56,19 @@ namespace Mvvm.Validation
 
         private IEnumerable<ValidationResult> GetValidationAttributeErrors(string propertyName)
         {
-            if (!this.UseValidationAttributes)
+            if (!this.UseValidationAttributes ||
+                !this.TryGetPropertyByName(propertyName, out var propertyInfo) ||
+                propertyInfo is null)
             {
                 yield break;
             }
 
-            PropertyInfo propertyInfo = this.Properties.FirstOrDefault(o => o.Name == propertyName)
-                    ?? typeof(T).GetProperty(propertyName);
-
-            if (propertyInfo is null)
-            {
-                yield break;
-            }
-
-            var attributes = propertyInfo.GetCustomAttributes(false)
-                    .OfType<ValidationAttribute>()
-                    .ToArray();
+            var attributes = this.GetValidationAttributes(propertyInfo);
 
             foreach (var valAttr in attributes)
             {
                 var value = propertyInfo.GetValue(this.Model);
-                var displayName = propertyInfo.GetCustomAttribute<DisplayNameAttribute>();
+                var displayName = this.GetDisplayNameAttribute(propertyInfo);
                 var context = new ValidationContext(this)
                 {
                     MemberName = propertyName,

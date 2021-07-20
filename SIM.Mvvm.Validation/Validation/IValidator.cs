@@ -1,8 +1,8 @@
-﻿// <copyright file="IValidator.cs" company="Klaus-Fischer-Inc">
-// Copyright (c) Klaus-Fischer-Inc. All rights reserved.
+﻿// <copyright file="IValidator.cs" company="SIM Automation">
+// Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
-namespace Mvvm.Validation
+namespace Sim.Mvvm.Validation
 {
     using System.ComponentModel;
 

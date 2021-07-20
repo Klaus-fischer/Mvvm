@@ -1,17 +1,20 @@
-﻿// <copyright file="ErrorValidator{T}.cs" company="Klaus-Fischer-Inc">
-// Copyright (c) Klaus-Fischer-Inc. All rights reserved.
+﻿// <copyright file="ErrorValidator{T}.cs" company="SIM Automation">
+// Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
-namespace Mvvm.Validation
+namespace Sim.Mvvm.Validation
 {
     using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.ComponentModel.DataAnnotations;
+#if NETSTANDARD2_1_OR_GREATER
+    using System.Diagnostics.CodeAnalysis;
+#endif
     using System.Linq;
     using System.Reflection;
-    using Mvvm.Core;
+    using SIM.Mvvm;
 
     /// <summary>
     /// Implements <see cref="IDataErrorInfo"/> functionality to a model.
@@ -21,7 +24,7 @@ namespace Mvvm.Validation
         where T : IViewModel
     {
         private readonly IDictionary<string, bool> propertyHasErrors = new Dictionary<string, bool>();
-        private readonly Lazy<PropertyInfo[]> propertyInfos;
+        private readonly Dictionary<PropertyInfo, Attribute[]> properties;
         private bool validateOnPropertyChanged;
 
         /// <summary>
@@ -31,10 +34,16 @@ namespace Mvvm.Validation
         protected ErrorValidator(T model)
         {
             this.Model = model;
-            this.propertyInfos = new Lazy<PropertyInfo[]>(
-                () => typeof(T).GetProperties()
-                               .Where(o => o.GetCustomAttribute<NoValidationAttribute>() == null)
-                               .ToArray());
+            this.properties = new Dictionary<PropertyInfo, Attribute[]>();
+
+            foreach (var property in typeof(T).GetProperties())
+            {
+                var attributes = property.GetCustomAttributes()
+                    .Where(o => o is DisplayNameAttribute || o is ValidationAttribute)
+                    .ToArray();
+
+                this.properties.Add(property, attributes);
+            }
         }
 
         /// <summary>
@@ -82,7 +91,7 @@ namespace Mvvm.Validation
         /// <summary>
         /// Gets the collection of properties to observe.
         /// </summary>
-        protected IEnumerable<PropertyInfo> Properties => this.propertyInfos.Value;
+        protected IEnumerable<PropertyInfo> Properties => this.properties.Keys;
 
         /// <summary>
         /// Gets the names of all public properties.
@@ -119,6 +128,39 @@ namespace Mvvm.Validation
         {
             this.ErrorsChanged?.Invoke(this.Model, new DataErrorsChangedEventArgs(propertyName));
         }
+
+        /// <summary>
+        /// Tries to get the property by name.
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <param name="propertyInfo">The property, if found.</param>
+        /// <returns>True if property was found.</returns>
+        protected bool TryGetPropertyByName(
+            string propertyName,
+#if NETSTANDARD2_1_OR_GREATER
+            [NotNullWhen(true)]
+#endif
+            out PropertyInfo? propertyInfo)
+        {
+            propertyInfo = this.properties.Keys.FirstOrDefault(o => o.Name == propertyName);
+            return propertyInfo is not null;
+        }
+
+        /// <summary>
+        /// Gets the display name attribute of the property.
+        /// </summary>
+        /// <param name="propertyInfo">The property to get attribute from.</param>
+        /// <returns>The read display name attribute.</returns>
+        protected DisplayNameAttribute? GetDisplayNameAttribute(PropertyInfo propertyInfo)
+            => this.properties[propertyInfo].OfType<DisplayNameAttribute>().FirstOrDefault();
+
+        /// <summary>
+        /// Gets the display name attribute of the property.
+        /// </summary>
+        /// <param name="propertyInfo">The property to get attribute from.</param>
+        /// <returns>The read display name attribute.</returns>
+        protected IEnumerable<ValidationAttribute> GetValidationAttributes(PropertyInfo propertyInfo)
+            => this.properties[propertyInfo].OfType<ValidationAttribute>();
 
         /// <summary>
         /// Checks for errors for the changed property.

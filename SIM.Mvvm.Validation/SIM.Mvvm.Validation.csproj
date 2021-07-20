@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Mvvm.Core\SIM.Mvvm.csproj" />
+    <ProjectReference Include="..\SIM.Mvvm\SIM.Mvvm.csproj" />
   </ItemGroup>
 
 </Project>
