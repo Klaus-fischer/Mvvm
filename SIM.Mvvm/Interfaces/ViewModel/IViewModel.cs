@@ -5,6 +5,7 @@
 namespace SIM.Mvvm
 {
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel;
 
     /// <summary>
@@ -16,6 +17,20 @@ namespace SIM.Mvvm
         /// Occurs when a property value changes.
         /// </summary>
         event EventHandler<AdvancedPropertyChangedEventArgs>? AdvancedPropertyChanged;
+
+        /// <summary>
+        /// Gets the <see cref="IPropertyMonitor"/> of a property.
+        /// </summary>
+        /// <param name="name">Name of the property.</param>
+        /// <returns>The property monitor to register callbacks and commands.</returns>
+        public IPropertyMonitor this[string name] { get; }
+
+        /// <summary>
+        /// Gets the a collection of <see cref="IPropertyMonitor"/> for each property.
+        /// </summary>
+        /// <param name="names">The collection of names of the properties.</param>
+        /// <returns>The property monitor to register callbacks and commands.</returns>
+        public IEnumerable<IPropertyMonitor> this[params string[] names] { get; }
 
         /// <summary>
         /// To invoke the <see cref="INotifyPropertyChanged.PropertyChanged"/> event.

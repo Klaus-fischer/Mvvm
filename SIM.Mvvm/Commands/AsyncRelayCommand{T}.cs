@@ -33,7 +33,10 @@ namespace SIM.Mvvm
             this.executeHandler = onExecute ?? throw new ArgumentNullException(nameof(onExecute));
             this.canExecuteHandler = onCanExecute;
 
-            _ = this.RegisterPropertyDependency(this.context, nameof(IAsyncExecutionContext.IsBusy));
+            if (this.context is IViewModel viewModel)
+            {
+                viewModel[nameof(IAsyncExecutionContext.IsBusy)].RegisterCommand(this);
+            }
         }
 
         /// <summary>

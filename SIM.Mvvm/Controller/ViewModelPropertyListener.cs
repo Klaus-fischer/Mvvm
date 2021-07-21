@@ -15,7 +15,6 @@ namespace SIM.Mvvm
     {
         private readonly IViewModel viewModel;
         private readonly string propertyName;
-        private readonly string[] dependencies;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewModelPropertyListener"/> class.
@@ -25,23 +24,20 @@ namespace SIM.Mvvm
         /// <param name="propertyName">Property name to call <see cref="IViewModel.InvokeOnPropertyChanged(string)"/> with.</param>
         /// <param name="dependencies">Collection of dependencies to monitor.</param>
         public ViewModelPropertyListener(
-            INotifyPropertyChanged target,
+            IViewModel target,
             IViewModel viewModel,
             string propertyName,
             params string[] dependencies)
         {
             this.viewModel = viewModel;
             this.propertyName = propertyName;
-            this.dependencies = dependencies;
-            target.PropertyChanged += this.NotifyViewModelOnTargetPropertyChanged;
+
+            target[dependencies].RegisterCallback(this.NotifyViewModelOnTargetPropertyChanged);
         }
 
         private void NotifyViewModelOnTargetPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (this.dependencies.Contains(e.PropertyName))
-            {
-                this.viewModel.InvokeOnPropertyChanged(this.propertyName);
-            }
+            this.viewModel.InvokeOnPropertyChanged(this.propertyName);
         }
     }
 }

@@ -7,6 +7,7 @@ namespace SIM.Mvvm
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Runtime.CompilerServices;
@@ -17,7 +18,9 @@ namespace SIM.Mvvm
     /// </summary>
     public abstract class ViewModel : IViewModel
     {
-        private readonly Dictionary<string, object> supressedProperties = new ();
+        internal static readonly string[] AllPropertyMontitorsToUnregister = { };
+
+        private readonly Dictionary<string, PropertyMonitor> propertyMontitors = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewModel"/> class.
@@ -36,6 +39,23 @@ namespace SIM.Mvvm
         public event EventHandler<AdvancedPropertyChangedEventArgs>? AdvancedPropertyChanged;
 
         /// <inheritdoc/>
+        public IPropertyMonitor this[string name] => this.GetPropertyMonitor(name);
+
+        /// <inheritdoc/>
+        public IEnumerable<IPropertyMonitor> this[params string[] names]
+        {
+            get
+            {
+                if (ReferenceEquals(names, AllPropertyMontitorsToUnregister))
+                {
+                    return this.propertyMontitors.Values;
+                }
+
+                return names.Select(o => this[o]);
+            }
+        }
+
+        /// <inheritdoc/>
         void IViewModel.InvokeOnPropertyChanged(string propertyName)
         {
             this.OnPropertyChanged(propertyName, null, null);
@@ -44,22 +64,21 @@ namespace SIM.Mvvm
         /// <inheritdoc/>
         public void SuppressNotifications(string propertyName, object currentValue)
         {
-            if (!this.supressedProperties.ContainsKey(propertyName))
-            {
-                this.supressedProperties.Add(propertyName, currentValue);
-            }
+            var monitor = this.GetPropertyMonitor(propertyName);
+            monitor.StoredValue = currentValue;
+            monitor.IsSuppressed = true;
         }
 
         /// <inheritdoc/>
         public void RestoreNotifications(string propertyName, object currentValue)
         {
-            if (this.supressedProperties.TryGetValue(propertyName, out var oldValue))
+            if (this.propertyMontitors.TryGetValue(propertyName, out var oldValue))
             {
-                this.supressedProperties.Remove(propertyName);
-
-                if (!Equals(oldValue, currentValue))
+                if (!Equals(oldValue.StoredValue, currentValue))
                 {
-                    this.OnPropertyChanged(propertyName, oldValue, currentValue);
+                    oldValue.InvokeOnViewModelPropertyChanged(
+                        this,
+                        new AdvancedPropertyChangedEventArgs(propertyName, oldValue, currentValue));
                 }
             }
         }
@@ -72,13 +91,15 @@ namespace SIM.Mvvm
         /// <param name="after">New value of the property.</param>
         protected void OnPropertyChanged(string? propertyName, object? before, object? after)
         {
-            if (propertyName is null || this.supressedProperties.ContainsKey(propertyName))
+            if (propertyName is null ||
+                (this.propertyMontitors.TryGetValue(propertyName, out var monitor) && monitor.IsSuppressed))
             {
                 return;
             }
 
             var args = new AdvancedPropertyChangedEventArgs(propertyName, before, after);
             this.AdvancedPropertyChanged?.Invoke(this, args);
+
             this.PropertyChanged?.Invoke(this, args);
         }
 
@@ -213,6 +234,19 @@ namespace SIM.Mvvm
                     this.RegisterDependencies(this, property.Name, dependsOn.PropertyNames);
                 }
             }
+        }
+
+        private PropertyMonitor GetPropertyMonitor(string propertyName)
+        {
+            if (this.propertyMontitors.TryGetValue(propertyName, out var monitor))
+            {
+                return monitor;
+            }
+
+            monitor = new PropertyMonitor(propertyName);
+            this.propertyMontitors.Add(propertyName, monitor);
+            this.AdvancedPropertyChanged += monitor.InvokeOnViewModelPropertyChanged;
+            return monitor;
         }
     }
 }

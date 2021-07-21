@@ -7,6 +7,7 @@
 namespace SIM.Mvvm
 {
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
 
@@ -38,7 +39,7 @@ namespace SIM.Mvvm
             IViewModel mainViewModel,
             string mainPropertyName,
             params string[] dependencies)
-            where T : INotifyPropertyChanged
+            where T : IViewModel
         {
             if (dependencies is null || !dependencies.Any())
             {

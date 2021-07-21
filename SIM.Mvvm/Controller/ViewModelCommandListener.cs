@@ -17,7 +17,6 @@ namespace SIM.Mvvm
     {
         private readonly INotifyPropertyChanged target;
         private readonly ICommandInvokeCanExecuteChangedEvent command;
-        private readonly string[] dependencies;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewModelCommandListener"/> class.
@@ -26,14 +25,14 @@ namespace SIM.Mvvm
         /// <param name="command">Command to raise <see cref="ICommand.CanExecuteChanged"/>.</param>
         /// <param name="dependencies">Collection of dependencies to monitor.</param>
         public ViewModelCommandListener(
-            INotifyPropertyChanged target,
+            IViewModel target,
             ICommandInvokeCanExecuteChangedEvent command,
             params string[] dependencies)
         {
             this.target = target;
             this.command = command;
-            this.dependencies = dependencies;
-            target.PropertyChanged += this.RaiseCommandCanExecuteChangedOnTargetPropertyChanged;
+
+            target[dependencies].RegisterCallback(this.RaiseCommandCanExecuteChangedOnTargetPropertyChanged);
         }
 
         /// <inheritdoc/>
@@ -53,10 +52,7 @@ namespace SIM.Mvvm
 
         private void RaiseCommandCanExecuteChangedOnTargetPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (this.dependencies.Contains(e.PropertyName))
-            {
-                this.command.InvokeCanExecuteChanged(this.command, new EventArgs());
-            }
+            this.command.InvokeCanExecuteChanged(this.command, new EventArgs());
         }
     }
 }

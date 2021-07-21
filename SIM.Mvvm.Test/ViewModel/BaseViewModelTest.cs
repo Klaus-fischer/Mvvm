@@ -210,92 +210,93 @@
 
             Assert.IsTrue(canExecuteChangedInvoked);
         }
+    }
 
-        public class ViewModelMock : ViewModel
+    public class ViewModelMock : ViewModel
+    {
+        public ViewModelMock RegisterCounter()
         {
-            public ViewModelMock RegisterCounter()
+            base.AdvancedPropertyChanged += (s, a) => this.AdvancedPropertyChangedRaisedCount++;
+            base.PropertyChanged += (s, a) => this.PropertyChangedRaisedCount++;
+
+            return this;
+        }
+
+        private void ViewModelMock_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e is AdvancedPropertyChangedEventArgs args)
             {
-                base.AdvancedPropertyChanged += (s, a) => this.AdvancedPropertyChangedRaisedCount++;
-                base.PropertyChanged += (s, a) => this.PropertyChangedRaisedCount++;
-
-                return this;
-            }
-
-            public int AdvancedPropertyChangedRaisedCount { get; private set; }
-            public int PropertyChangedRaisedCount { get; private set; }
-
-            public new event EventHandler<AdvancedPropertyChangedEventArgs> AdvancedPropertyChanged
-            {
-                add
-                {
-                    base.AdvancedPropertyChanged += value;
-                }
-                remove
-                {
-                    base.AdvancedPropertyChanged -= value;
-                }
-            }
-
-            public new void OnPropertyChanged(string propertyName, object before, object after)
-            {
-                base.OnPropertyChanged(propertyName, before, after);
-            }
-
-            public new void SetPropertyValue<T>(ref T? oldValue, T? newValue, string propertyName)
-            {
-                base.SetPropertyValue<T>(ref oldValue, newValue, null, propertyName);
-            }
-
-            internal Model model = new Model();
-
-            public int FirstValue
-            {
-                get => this.model.FirstValue;
-                set => this.SetPropertyValue(() => this.model.FirstValue, value);
-            }
-
-            public int SecondValue
-            {
-                get => this.model.FirstValue;
-                set => this.SetPropertyValue(() => new object(), value);
-            }
-
-            private int age;
-
-            public int Age
-            {
-                get => this.age;
-                set => this.SetPropertyValue(ref this.age, value);
-            }
-
-            [DependsOn(nameof(Name))]
-            public ICommand Command
-            {
-                get => command;
-                set => this.SetPropertyValue(ref command, value);
-            }
-
-            public ViewModelMock()
-            {
-            }
-
-            private string name;
-            private ICommand command;
-
-            public string Name
-            {
-                get => this.name;
-                set => this.SetPropertyValue(ref this.name, value);
-            }
-
-            [DependsOn(nameof(Name), nameof(Age))]
-            public string AgedName => $"{this.Name} ({this.Age})";
-
-
-            internal class Model
-            {
-                public int FirstValue { get; set; }
+                AdvancedPropertyChanged?.Invoke(this, args);
             }
         }
+
+        public int AdvancedPropertyChangedRaisedCount { get; private set; }
+        public int PropertyChangedRaisedCount { get; private set; }
+
+        public event EventHandler<AdvancedPropertyChangedEventArgs> AdvancedPropertyChanged;
+
+
+        public new void OnPropertyChanged(string propertyName, object before, object after)
+        {
+            base.OnPropertyChanged(propertyName, before, after);
+        }
+
+        public new void SetPropertyValue<T>(ref T? oldValue, T? newValue, string propertyName)
+        {
+            base.SetPropertyValue<T>(ref oldValue, newValue, null, propertyName);
+        }
+
+        internal Model model = new Model();
+
+        public int FirstValue
+        {
+            get => this.model.FirstValue;
+            set => this.SetPropertyValue(() => this.model.FirstValue, value);
+        }
+
+        public int SecondValue
+        {
+            get => this.model.FirstValue;
+            set => this.SetPropertyValue(() => new object(), value);
+        }
+
+        private int age;
+
+        public int Age
+        {
+            get => this.age;
+            set => this.SetPropertyValue(ref this.age, value);
+        }
+
+        [DependsOn(nameof(Name))]
+        public ICommand Command
+        {
+            get => command;
+            set => this.SetPropertyValue(ref command, value);
+        }
+
+        public ViewModelMock()
+        {
+            base.PropertyChanged += this.ViewModelMock_PropertyChanged;
+        }
+
+        private string name;
+        private ICommand command;
+
+        public string Name
+        {
+            get => this.name;
+            set => this.SetPropertyValue(ref this.name, value);
+        }
+
+        [DependsOn(nameof(Name), nameof(Age))]
+        public string AgedName => $"{this.Name} ({this.Age})";
+
+
+        internal class Model
+        {
+            public int FirstValue { get; set; }
+        }
+
     }
 }

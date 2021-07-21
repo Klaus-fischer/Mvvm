@@ -13,7 +13,7 @@ namespace SIM.Mvvm
     /// </summary>
     internal class ViewModelCommandMonitor
     {
-        private readonly INotifyPropertyChanged target;
+        private readonly IViewModel target;
         private readonly string commandName;
         private readonly string[] dependencies;
 
@@ -32,7 +32,8 @@ namespace SIM.Mvvm
             this.commandName = commandName;
 
             this.dependencies = dependencies;
-            target.AdvancedPropertyChanged += this.RaiseCommandCanExecuteChangedOnTargetPropertyChanged;
+
+            target[commandName].RegisterCallback(this.RaiseCommandCanExecuteChangedOnTargetPropertyChanged);
         }
 
         private void RaiseCommandCanExecuteChangedOnTargetPropertyChanged(object sender, AdvancedPropertyChangedEventArgs e)
@@ -41,12 +42,12 @@ namespace SIM.Mvvm
             {
                 if (e.Before is ICommandInvokeCanExecuteChangedEvent oldCmd)
                 {
-                   oldCmd.UnregisterPropertyDependency(this.target);
+                    this.target[this.dependencies].UnregisterCommand(oldCmd);
                 }
 
                 if (e.After is ICommandInvokeCanExecuteChangedEvent newCmd)
                 {
-                    newCmd.RegisterPropertyDependency(this.target, this.dependencies);
+                    this.target[this.dependencies].RegisterCommand(newCmd);
                 }
             }
         }

@@ -15,9 +15,6 @@ namespace SIM.Mvvm
     /// </summary>
     public static class CommandExtensions
     {
-        private static Collection<ViewModelCommandListener> listeners
-            = new Collection<ViewModelCommandListener>();
-
         /// <summary>
         /// Creates an event listener to monitor depend properties.
         /// Raises <see cref="ICommand.CanExecuteChanged"/> event, if property was changed.
@@ -43,21 +40,21 @@ namespace SIM.Mvvm
         /// </example>
         public static T RegisterPropertyDependency<T>(
             this T command,
-            INotifyPropertyChanged viewModel,
+            IViewModel viewModel,
             params string[] dependencies)
             where T : ICommandInvokeCanExecuteChangedEvent
         {
+            if (viewModel is null)
+            {
+                throw new ArgumentNullException(nameof(viewModel));
+            }
+
             if (dependencies is null || !dependencies.Any())
             {
                 throw new ArgumentException("dependencies must contain at least one PropertyName");
             }
 
-            var listener = new ViewModelCommandListener(
-                viewModel ?? throw new ArgumentNullException(nameof(viewModel)),
-                command ?? throw new ArgumentNullException(nameof(command)),
-                dependencies);
-
-            listeners.Add(listener);
+            viewModel[dependencies].RegisterCommand(command);
 
             return command;
         }
@@ -66,16 +63,12 @@ namespace SIM.Mvvm
         /// Unregisters the command listener.
         /// </summary>
         /// <param name="command">The command to release the monitor.</param>
-        /// <param name="viewModel">The view model the command belongs tó.</param>
+        /// <param name="viewModel">The view model the command belongs to.</param>
         public static void UnregisterPropertyDependency(
             this ICommandInvokeCanExecuteChangedEvent command,
-            INotifyPropertyChanged viewModel)
+            IViewModel viewModel)
         {
-            if (listeners.FirstOrDefault(o => o.BelongsTo(viewModel, command)) is ViewModelCommandListener listener)
-            {
-                listener.Dispose();
-                listeners.Remove(listener);
-            }
+            viewModel[ViewModel.AllPropertyMontitorsToUnregister].UnregisterCommand(command);
         }
 
         /// <summary>
@@ -91,6 +84,15 @@ namespace SIM.Mvvm
             }
 
             throw new InvalidOperationException("The event could not be invoked.");
+        }
+
+        /// <summary>
+        /// Tries to invoke the <see cref="ICommand.CanExecuteChanged"/> event.
+        /// </summary>
+        /// <param name="command">The command that has changed.</param>
+        public static void InvokeCanExecuteChanged(this ICommandInvokeCanExecuteChangedEvent command)
+        {
+            command.InvokeCanExecuteChanged(command, new EventArgs());
         }
     }
 }
