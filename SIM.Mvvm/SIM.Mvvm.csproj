@@ -7,7 +7,6 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>Klaus Fischer</Authors>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>1.0.0</Version>
     <Company>SIM Automation</Company>
     <Description>A Standard Model-View-ViewModel library.
 Implements ViewModel base class and many Commands.</Description>
@@ -15,6 +14,7 @@ Implements ViewModel base class and many Commands.</Description>
     <FileVersion>1.0.0.0</FileVersion>
     <PackageProjectUrl>https://s-op.verwaltung.sim/gitlab/sim/mvvm/</PackageProjectUrl>
     <RepositoryUrl>https://s-op.verwaltung.sim/gitlab/sim/mvvm/</RepositoryUrl>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
