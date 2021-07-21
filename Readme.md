@@ -21,6 +21,7 @@ Standart Bibliothek für alle Model-View-ViewModel implementationen.
   * [AsyncRelayCommand](../SIM.Mvvm/Commands/AsyncRelayCommand.cs): asynchrone variante von RelayCommand
   * [EventCommand](../SIM.Mvvm/Commands/EventCommand.cs): nutzt events um die Funktionalität zu Implementieren
 
+
 * [ParameterCommand\<T\>](../SIM.Mvvm/Commands/Abstract/ParameterCommand\{T\}.cs): Basisklasse für  Commands mit Parametern
   * [RelayCommand\<T\>](../SIM.Mvvm/Commands/RelayCommand\{T\}.cs) - nutzt delegates um die Funktionalität zu Implementieren
   * [AsyncRelayCommand\<T\>](../SIM.Mvvm/Commands/AsyncRelayCommand\{T\}.cs) - asynchrone variante von RelayCommand\<T\>
