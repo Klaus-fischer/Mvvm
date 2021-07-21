@@ -8,15 +8,15 @@ Standart Bibliothek für alle Model-View-ViewModel implementationen.
     OnPropertyChanged(string? propertyName, object? before, object? after)
 
 ##### Eigenschaften implementieren:
-      private int _property;
-      public int Property
-      {
-          get => this._property;
-          set => this.SetPropertyValue(ref _property, value);
-      }
+    private int _property;
+    public int Property
+    {
+        get => this._property;
+        set => this.SetPropertyValue(ref _property, value);
+    }
 
 #### Vordefinierte Commands:
-- Command - Basisklasse für parameterlose Commands
+- [Command](../SIM.Mvvm/Commands/Abstract/Command.cs) - Basisklasse für parameterlose Commands
 -- RelayCommand - nutzt delegates um die Funktionalität zu Implementieren
 -- AsyncRelayCommand - asynchrone variante von RelayCommand
 -- EventCommand - nutzt events um die Funktionalität zu Implementieren
