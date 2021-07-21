@@ -15,8 +15,8 @@ namespace SIM.Mvvm.CodeGenerator
     [Generator]
     public partial class AutoMapPropertiesGenerator : ISourceGenerator
     {
-        private static readonly string AttributeFullName = "SIM.Mvvm.CodeGeneration.AutoMapPropertiesAttribute";
-        private static readonly string ViewModelFullName = "SIM.Mvvm.ViewModel";
+        private static readonly string AttributeFullName = typeof(SIM.Mvvm.CodeGeneration.AutoMapPropertiesAttribute).FullName;
+        private static readonly string ViewModelFullName = typeof(SIM.Mvvm.ViewModel).FullName;
 
         /// <inheritdoc/>
         public void Initialize(GeneratorInitializationContext context)
