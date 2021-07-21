@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>D:\Source\MVVM\SIM.Mvvm\Sim.Mvvm.xml</DocumentationFile>
+    <DocumentationFile>.\Sim.Mvvm.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
