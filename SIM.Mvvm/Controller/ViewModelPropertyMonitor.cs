@@ -94,7 +94,18 @@ namespace SIM.Mvvm
             }
             
             notifier.AddProperty(property);
-        }            
+        }  
+
+        public void UnregisterViewModelProperty(IViewModel target, string property)
+        {
+            var notifier = this.notifierls.FirstOrDefault(o => o.CheckViewModel(target));
+            if (notifier is null)
+            {
+                return;
+            }
+            
+            notifier.RemoveProperty(property);
+        }          
     }
 
     public static class PropertyMonitorExtensions
