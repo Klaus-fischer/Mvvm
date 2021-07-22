@@ -66,9 +66,15 @@ namespace SIM.Mvvm
             }
 
             this.OnViewModelPropertyChanged?.Invoke(sender, e);
+
             foreach (var command in this.commands)
             {
                 command.InvokeCanExecuteChanged();
+            }
+
+            foreach (var notifier in this.notifiers)
+            {
+                notifier.InvokeViewModelPropertyChanged();
             }
         }
 
