@@ -38,6 +38,8 @@ namespace SIM.Mvvm
 
         private Collection<ICommandInvokeCanExecuteChangedEvent> commands = new();
 
+        private Collection<ViewModelNotifier> notifiers = new ();
+
         /// <inheritdoc/>
         public event EventHandler<AdvancedPropertyChangedEventArgs>? OnViewModelPropertyChanged;
 
@@ -81,6 +83,18 @@ namespace SIM.Mvvm
         {
             this.commands.Remove(command ?? throw new ArgumentNullException(nameof(command)));
         }
+
+        public void RegisterViewModelProperty(IViewModel target, string property)
+        {
+            var notifier = this.notifierls.FirstOrDefault(o => o.CheckViewModel(target));
+            if (notifier is null)
+            {
+                notifier = new ViewModelNotifier(target);
+                this.notifiers.Add(notifier);
+            }
+            
+            notifier.AddProperty(property);
+        }            
     }
 
     public static class PropertyMonitorExtensions
