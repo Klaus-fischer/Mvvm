@@ -11,6 +11,9 @@ class ViewModelNotifier
         this.viewModel = viewModel;
     }
 
+    public void CheckViewModel(IViewModel target)
+        => ReferenceEquals(this.viewModel, target);
+
     public void AddProperty(string property)
     {
         if (!this.properties.Contains(property))
