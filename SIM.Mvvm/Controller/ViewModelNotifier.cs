@@ -1,38 +1,44 @@
-namespace SIM.Mvvm;
+// <copyright file="ViewModelNotifier.cs" company="SIM Automation">
+// Copyright (c) SIM Automation. All rights reserved.
+// </copyright>
+
+namespace SIM.Mvvm
 {
-class ViewModelNotifier
-{
-    readonly IViewModel viewModel;
+    using System.Collections.ObjectModel;
 
-    readonly Collection<string> properties = new();
-
-    public ViewModelNotifier(IViewModel viewModel)
+    internal class ViewModelNotifier
     {
-        this.viewModel = viewModel;
-    }
+        readonly IViewModel viewModel;
 
-    public void CheckViewModel(IViewModel target)
-        => ReferenceEquals(this.viewModel, target);
+        readonly Collection<string> properties = new();
 
-    public void AddProperty(string property)
-    {
-        if (!this.properties.Contains(property))
+        public ViewModelNotifier(IViewModel viewModel)
         {
-            this.properties.Add(property);
+            this.viewModel = viewModel;
+        }
+
+        public bool CheckViewModel(IViewModel target)
+            => ReferenceEquals(this.viewModel, target);
+
+        public void AddProperty(string property)
+        {
+            if (!this.properties.Contains(property))
+            {
+                this.properties.Add(property);
+            }
+        }
+
+        public void RemoveProperty(string property)
+        {
+            this.properties.Remove(property);
+        }
+
+        public void InvokePropertyChanged()
+        {
+            foreach (var property in this.properties)
+            {
+                this.viewModel.InvokeOnPropertyChanged(property);
+            }
         }
     }
-
-    public void RemoveProperty(string property)
-    {
-        this.propertys.Remove(property);
-    }
-
-    public void InvokePropertyChanged()
-    {
-        foreach (var property in this.properties)
-        {
-            this.viewModel.InvokeOnProprtyChanged(this.viewModel, property);
-        }
-    }
-}
 }

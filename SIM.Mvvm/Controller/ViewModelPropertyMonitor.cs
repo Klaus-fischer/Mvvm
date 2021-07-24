@@ -5,16 +5,44 @@
 namespace SIM.Mvvm
 {
     using System;
-    using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Linq;
 
+    /// <summary>
+    /// Defines a monitor that listens to an single property of an view model.
+    /// </summary>
     public interface IPropertyMonitor
     {
+        /// <summary>
+        /// Event will be forwarded from view model, if property name matches.
+        /// </summary>
         public event EventHandler<AdvancedPropertyChangedEventArgs> OnViewModelPropertyChanged;
 
+        /// <summary>
+        /// To register a command dependency.
+        /// </summary>
+        /// <param name="command">Command to register.</param>
         public void RegisterCommand(ICommandInvokeCanExecuteChangedEvent command);
 
+        /// <summary>
+        /// Unregister command dependency.
+        /// </summary>
+        /// <param name="command">Command to unregister.</param>
         public void UnregisterCommand(ICommandInvokeCanExecuteChangedEvent command);
+
+        /// <summary>
+        /// Registers a dependent view model.
+        /// </summary>
+        /// <param name="target">View model to register if property was changed.</param>
+        /// <param name="property">Name of the property that will be effected.</param>
+        void RegisterViewModelProperty(IViewModel target, string property);
+
+        /// <summary>
+        /// Unregisters a dependent view model.
+        /// </summary>
+        /// <param name="target">View model to register if property was changed.</param>
+        /// <param name="property">Name of the property that will be effected.</param>
+        void UnregisterViewModelProperty(IViewModel target, string property);
     }
 
     /// <summary>
@@ -27,6 +55,10 @@ namespace SIM.Mvvm
         /// </summary>
         private readonly string propertyName;
 
+        private Collection<ICommandInvokeCanExecuteChangedEvent> commands = new ();
+
+        private Collection<ViewModelNotifier> notifiers = new ();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PropertyMonitor"/> class.
         /// </summary>
@@ -35,10 +67,6 @@ namespace SIM.Mvvm
         {
             this.propertyName = propertyName;
         }
-
-        private Collection<ICommandInvokeCanExecuteChangedEvent> commands = new();
-
-        private Collection<ViewModelNotifier> notifiers = new ();
 
         /// <inheritdoc/>
         public event EventHandler<AdvancedPropertyChangedEventArgs>? OnViewModelPropertyChanged;
@@ -74,7 +102,7 @@ namespace SIM.Mvvm
 
             foreach (var notifier in this.notifiers)
             {
-                notifier.InvokeViewModelPropertyChanged();
+                notifier.InvokePropertyChanged();
             }
         }
 
@@ -90,151 +118,29 @@ namespace SIM.Mvvm
             this.commands.Remove(command ?? throw new ArgumentNullException(nameof(command)));
         }
 
+        /// <inheritdoc/>
         public void RegisterViewModelProperty(IViewModel target, string property)
         {
-            var notifier = this.notifierls.FirstOrDefault(o => o.CheckViewModel(target));
+            var notifier = this.notifiers.FirstOrDefault(o => o.CheckViewModel(target));
             if (notifier is null)
             {
                 notifier = new ViewModelNotifier(target);
                 this.notifiers.Add(notifier);
             }
-            
-            notifier.AddProperty(property);
-        }  
 
+            notifier.AddProperty(property);
+        }
+
+        /// <inheritdoc/>
         public void UnregisterViewModelProperty(IViewModel target, string property)
         {
-            var notifier = this.notifierls.FirstOrDefault(o => o.CheckViewModel(target));
+            var notifier = this.notifiers.FirstOrDefault(o => o.CheckViewModel(target));
             if (notifier is null)
             {
                 return;
             }
-            
+
             notifier.RemoveProperty(property);
-        }          
-    }
-
-    public static class PropertyMonitorExtensions
-    {
-        public static T RegisterCallback<T>(this T monitor, Action callback)
-            where T : IPropertyMonitor
-        {
-            monitor.OnViewModelPropertyChanged += (s, e) => callback();
-            return monitor;
-        }
-
-        public static T RegisterCallback<T>(this T monitor, EventHandler<AdvancedPropertyChangedEventArgs> callback)
-            where T : IPropertyMonitor
-        {
-            monitor.OnViewModelPropertyChanged += callback;
-            return monitor;
-        }
-
-        public static T UnregisterCallback<T>(this T monitor, EventHandler<AdvancedPropertyChangedEventArgs> callback)
-            where T : IPropertyMonitor
-        {
-            monitor.OnViewModelPropertyChanged -= callback;
-            return monitor;
-        }
-
-        public static void RegisterCommands(
-            this IPropertyMonitor monitor,
-            params ICommandInvokeCanExecuteChangedEvent[] commands)
-        {
-            foreach (var command in commands)
-            {
-                monitor.RegisterCommand(command);
-            }
-        }
-
-        public static void UnregisterCommands(
-           this IPropertyMonitor monitor,
-           params ICommandInvokeCanExecuteChangedEvent[] commands)
-        {
-            foreach (var command in commands)
-            {
-                monitor.UnregisterCommand(command);
-            }
-        }
-    }
-
-    public static class PropertyMonitorCollectionExtensions
-    {
-        public static IEnumerable<T> RegisterCallback<T>(this IEnumerable<T> monitorCollection, Action callback)
-            where T : IPropertyMonitor
-        {
-            foreach (var monitor in monitorCollection)
-            {
-                monitor.OnViewModelPropertyChanged += (s, e) => callback();
-            }
-
-            return monitorCollection;
-        }
-
-        public static IEnumerable<T> RegisterCallback<T>(this IEnumerable<T> monitorCollection, EventHandler<AdvancedPropertyChangedEventArgs> callback)
-            where T : IPropertyMonitor
-        {
-            foreach (var monitor in monitorCollection)
-            {
-                monitor.OnViewModelPropertyChanged += callback;
-            }
-
-            return monitorCollection;
-        }
-
-        public static IEnumerable<T> UnregisterCallback<T>(this IEnumerable<T> monitorCollection, EventHandler<AdvancedPropertyChangedEventArgs> callback)
-            where T : IPropertyMonitor
-        {
-            foreach (var monitor in monitorCollection)
-            {
-                monitor.OnViewModelPropertyChanged += callback;
-            }
-
-            return monitorCollection;
-        }
-
-        public static IEnumerable<T> RegisterCommand<T>(this IEnumerable<T> monitorCollection, ICommandInvokeCanExecuteChangedEvent command)
-             where T : IPropertyMonitor
-        {
-            foreach (var monitor in monitorCollection)
-            {
-                monitor.RegisterCommand(command);
-            }
-
-            return monitorCollection;
-        }
-
-        public static IEnumerable<T> UnregisterCommand<T>(this IEnumerable<T> monitorCollection, ICommandInvokeCanExecuteChangedEvent command)
-            where T : IPropertyMonitor
-        {
-            foreach (var monitor in monitorCollection)
-            {
-                monitor.UnregisterCommand(command);
-            }
-
-            return monitorCollection;
-        }
-
-        public static IEnumerable<T> RegisterCommands<T>(this IEnumerable<T> monitorCollection, params ICommandInvokeCanExecuteChangedEvent[] commands)
-             where T : IPropertyMonitor
-        {
-            foreach (var monitor in monitorCollection)
-            {
-                monitor.RegisterCommands(commands);
-            }
-
-            return monitorCollection;
-        }
-
-        public static IEnumerable<T> UnregisterCommands<T>(this IEnumerable<T> monitorCollection, params ICommandInvokeCanExecuteChangedEvent[] commands)
-            where T : IPropertyMonitor
-        {
-            foreach (var monitor in monitorCollection)
-            {
-                monitor.UnregisterCommands(commands);
-            }
-
-            return monitorCollection;
         }
     }
 }
