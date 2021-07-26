@@ -48,6 +48,12 @@ namespace SIM.Mvvm
             if (parameter is T param)
             {
                 this.Execute(param);
+                return;
+            }
+
+            if (!this.AllowDefault)
+            {
+                return;
             }
 
             this.Execute(default);

@@ -21,6 +21,32 @@
             Assert.IsTrue(canExecuteChangedInvoked);
         }
 
+        [TestMethod]
+        public void InvokeCanExecuteChanged2()
+        {
+            bool canExecuteChangedInvoked = false;
+            var cmd = new BaseCommandType();
+
+            cmd.BaseInvokeCanExecuteChanged();
+            Assert.IsFalse(canExecuteChangedInvoked);
+
+            cmd.CanExecuteChanged += (s, a) => canExecuteChangedInvoked = true;
+            cmd.BaseInvokeCanExecuteChanged();
+            Assert.IsTrue(canExecuteChangedInvoked);
+        }
+
+
+        [TestMethod]
+        public void InvokeOnExecuteCallback()
+        {
+            bool executeInvoked = false;
+            var cmd = new BaseCommandType();
+            cmd.OnExecuteCallback = () => executeInvoked = true;
+
+            cmd.Execute();
+            Assert.IsTrue(executeInvoked);
+        }
+
 
         private class BaseCommandType : Command
         {
@@ -28,12 +54,13 @@
 
             public Action OnExecuteCallback;
 
-            protected override bool CanExecute() => CanExecuteValue;
-
             protected override void OnExecute()
             {
                 this.OnExecuteCallback?.Invoke();
             }
+
+            public void BaseInvokeCanExecuteChanged()
+                => base.InvokeCanExecuteChanged();
         }
     }
 }

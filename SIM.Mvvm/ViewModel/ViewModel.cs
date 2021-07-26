@@ -7,6 +7,7 @@ namespace SIM.Mvvm
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Runtime.CompilerServices;
@@ -17,7 +18,10 @@ namespace SIM.Mvvm
     /// </summary>
     public abstract class ViewModel : IViewModel
     {
-        private readonly Dictionary<string, object> supressedProperties = new ();
+        internal static readonly string[] AllPropertyMontitorsToUnregister = { };
+
+        private readonly Dictionary<string, IPropertyMonitor> propertyMontitors =
+            new Dictionary<string, IPropertyMonitor>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewModel"/> class.
@@ -30,56 +34,27 @@ namespace SIM.Mvvm
         /// <inheritdoc/>
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        /// <summary>
-        /// Occurs when a property value changes.
-        /// </summary>
-        public event EventHandler<AdvancedPropertyChangedEventArgs>? AdvancedPropertyChanged;
+        /// <inheritdoc/>
+        public IPropertyMonitor this[string name] => this.GetPropertyMonitor(name);
 
         /// <inheritdoc/>
-        void IViewModel.InvokeOnPropertyChanged(string propertyName)
+        public IEnumerable<IPropertyMonitor> this[params string[] names]
         {
-            this.OnPropertyChanged(propertyName, null, null);
-        }
-
-        /// <inheritdoc/>
-        public void SuppressNotifications(string propertyName, object currentValue)
-        {
-            if (!this.supressedProperties.ContainsKey(propertyName))
+            get
             {
-                this.supressedProperties.Add(propertyName, currentValue);
-            }
-        }
-
-        /// <inheritdoc/>
-        public void RestoreNotifications(string propertyName, object currentValue)
-        {
-            if (this.supressedProperties.TryGetValue(propertyName, out var oldValue))
-            {
-                this.supressedProperties.Remove(propertyName);
-
-                if (!Equals(oldValue, currentValue))
+                if (ReferenceEquals(names, AllPropertyMontitorsToUnregister))
                 {
-                    this.OnPropertyChanged(propertyName, oldValue, currentValue);
+                    return this.propertyMontitors.Values;
                 }
+
+                return names.Select(o => this[o]);
             }
         }
 
-        /// <summary>
-        /// This call raises the <see cref="AdvancedPropertyChanged"/> and <see cref="PropertyChanged"/> event.
-        /// </summary>
-        /// <param name="propertyName">Name of the property that get changed.</param>
-        /// <param name="before">Old value of the property.</param>
-        /// <param name="after">New value of the property.</param>
-        protected void OnPropertyChanged(string? propertyName, object? before, object? after)
+        /// <inheritdoc/>
+        public void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
-            if (propertyName is null || this.supressedProperties.ContainsKey(propertyName))
-            {
-                return;
-            }
-
-            var args = new AdvancedPropertyChangedEventArgs(propertyName, before, after);
-            this.AdvancedPropertyChanged?.Invoke(this, args);
-            this.PropertyChanged?.Invoke(this, args);
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         /// <summary>
@@ -110,9 +85,8 @@ namespace SIM.Mvvm
         {
             if (!Equals(property, newValue, comparer))
             {
-                T? oldValue = property;
                 property = newValue;
-                this.OnPropertyChanged(propertyName, oldValue, newValue);
+                this.OnPropertyChanged(propertyName);
             }
         }
 
@@ -158,7 +132,7 @@ namespace SIM.Mvvm
                     throw new InvalidOperationException("Expression should point direct to target property. '() => this.Data.Property'");
                 }
 
-                this.OnPropertyChanged(propertyName, oldValue, newValue);
+                this.OnPropertyChanged(propertyName);
             }
         }
 
@@ -190,7 +164,7 @@ namespace SIM.Mvvm
         /// Register all property dependencies marked with the <see cref="DependsOnAttribute"/>,
         /// to a <see cref="ICommand"/> that implements <see cref="ICommandInvokeCanExecuteChangedEvent"/>.
         /// </summary>
-        protected void RegisterDependencies()
+        private void RegisterDependencies()
         {
             foreach (var property in this.GetType().GetProperties())
             {
@@ -201,18 +175,24 @@ namespace SIM.Mvvm
 
                 if (typeof(ICommand).IsAssignableFrom(property.PropertyType))
                 {
-                    if (property.GetValue(this) is ICommandInvokeCanExecuteChangedEvent command)
-                    {
-                        command.RegisterPropertyDependency(this, dependsOn.PropertyNames);
-                    }
+                    // to Register an update command notification.
+                    _ = this.GetPropertyMonitor(property.Name);
+                }
 
-                    _ = new ViewModelCommandMonitor(this, property.Name, dependsOn.PropertyNames);
-                }
-                else
-                {
-                    this.RegisterDependencies(this, property.Name, dependsOn.PropertyNames);
-                }
+                this[dependsOn.PropertyNames].RegisterViewModelProperties(this, property.Name);
             }
+        }
+
+        private IPropertyMonitor GetPropertyMonitor(string propertyName)
+        {
+            if (this.propertyMontitors.TryGetValue(propertyName, out var monitor))
+            {
+                return monitor;
+            }
+
+            monitor = PropertyMonitorFactory.Create(this, propertyName);
+            this.propertyMontitors.Add(propertyName, monitor);
+            return monitor;
         }
     }
 }

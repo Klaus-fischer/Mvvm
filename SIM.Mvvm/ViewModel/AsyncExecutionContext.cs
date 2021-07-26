@@ -20,8 +20,7 @@ namespace SIM.Mvvm
         /// </summary>
         public AsyncExecutionContext()
         {
-            this.Cancel = new RelayCommand(this.OnCancel, this.CanCancel)
-                .RegisterPropertyDependency(this, nameof(this.IsBusy));
+            this.Cancel = new RelayCommand(this.OnCancel, this.CanCancel);
         }
 
         /// <inheritdoc/>
