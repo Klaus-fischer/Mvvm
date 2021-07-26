@@ -37,7 +37,7 @@ namespace SIM.Mvvm
         {
             foreach (var property in this.properties)
             {
-                this.viewModel.InvokeOnPropertyChanged(property);
+                this.viewModel.OnPropertyChanged(property);
             }
         }
     }

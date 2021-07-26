@@ -1,4 +1,4 @@
-﻿// <copyright file="ViewModelPropertyMonitor.cs" company="SIM Automation">
+﻿// <copyright file="PropertyMonitorCollectionExtensions.cs" company="SIM Automation">
 // Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
@@ -6,7 +6,6 @@ namespace SIM.Mvvm
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Linq;
 
     public static class PropertyMonitorCollectionExtensions
@@ -16,7 +15,18 @@ namespace SIM.Mvvm
         {
             foreach (var monitor in monitorCollection)
             {
-                monitor.OnViewModelPropertyChanged += (s, e) => callback();
+                monitor.OnPropertyChangedCallback += callback;
+            }
+
+            return monitorCollection;
+        }
+
+        public static IEnumerable<T> UnregisterCallback<T>(this IEnumerable<T> monitorCollection, Action callback)
+          where T : IPropertyMonitor
+        {
+            foreach (var monitor in monitorCollection)
+            {
+                monitor.OnPropertyChangedCallback -= callback;
             }
 
             return monitorCollection;
@@ -27,7 +37,7 @@ namespace SIM.Mvvm
         {
             foreach (var monitor in monitorCollection)
             {
-                monitor.OnViewModelPropertyChanged += callback;
+                monitor.OnPropertyChanged += callback;
             }
 
             return monitorCollection;
@@ -38,7 +48,7 @@ namespace SIM.Mvvm
         {
             foreach (var monitor in monitorCollection)
             {
-                monitor.OnViewModelPropertyChanged += callback;
+                monitor.OnPropertyChanged -= callback;
             }
 
             return monitorCollection;
@@ -83,6 +93,34 @@ namespace SIM.Mvvm
             foreach (var monitor in monitorCollection)
             {
                 monitor.UnregisterCommands(commands);
+            }
+
+            return monitorCollection;
+        }
+
+        public static IEnumerable<T> RegisterViewModelProperties<T>(
+            this IEnumerable<T> monitorCollection,
+            IViewModel target,
+            params string[] propertyNames)
+            where T : IPropertyMonitor
+        {
+            foreach (var monitor in monitorCollection)
+            {
+                monitor.RegisterViewModelProperties(target, propertyNames);
+            }
+
+            return monitorCollection;
+        }
+
+        public static IEnumerable<T> UnregisterViewModelProperties<T>(
+          this IEnumerable<T> monitorCollection,
+          IViewModel target,
+          params string[] propertyNames)
+          where T : IPropertyMonitor
+        {
+            foreach (var monitor in monitorCollection)
+            {
+                monitor.UnregisterViewModelProperties(target, propertyNames);
             }
 
             return monitorCollection;

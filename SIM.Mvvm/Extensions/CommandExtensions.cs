@@ -44,6 +44,11 @@ namespace SIM.Mvvm
             params string[] dependencies)
             where T : ICommandInvokeCanExecuteChangedEvent
         {
+            if (command is null)
+            {
+                throw new ArgumentNullException(nameof(command));
+            }
+
             if (viewModel is null)
             {
                 throw new ArgumentNullException(nameof(viewModel));

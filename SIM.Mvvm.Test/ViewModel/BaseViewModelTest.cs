@@ -5,6 +5,7 @@
     using SIM.Mvvm;
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Windows.Input;
 
     [TestClass]
@@ -15,27 +16,20 @@
         public void OnPropertyChangedTest()
         {
             bool propertChangedWasRised = false;
-            bool advPropertChangedWasRised = false;
 
             var vm = new ViewModelMock();
-            vm.AdvancedPropertyChanged += (s, a) =>
-            {
-                Assert.AreEqual("Test", a.PropertyName);
-                Assert.AreEqual("before", a.Before);
-                Assert.AreEqual("after", a.After);
-                propertChangedWasRised = true;
-            };
+
+            vm.OnPropertyChanged();
 
             vm.PropertyChanged += (s, a) =>
             {
                 Assert.AreEqual("Test", a.PropertyName);
-                advPropertChangedWasRised = true;
+                propertChangedWasRised = true;
             };
 
             vm.OnPropertyChanged("Test", "before", "after");
 
             Assert.IsTrue(propertChangedWasRised);
-            Assert.IsTrue(advPropertChangedWasRised);
         }
 
         [TestMethod]
@@ -76,7 +70,6 @@
 
             vm.SetPropertyValue(ref value, 0, "Test");
 
-            Assert.AreEqual(1, vm.AdvancedPropertyChangedRaisedCount);
             Assert.AreEqual(1, vm.PropertyChangedRaisedCount);
             Assert.AreEqual(0, value);
         }
@@ -86,10 +79,9 @@
         {
             var vm = new ViewModelMock().RegisterCounter();
 
-            ((IViewModel)vm).InvokeOnPropertyChanged("Test");
+            ((IViewModel)vm).OnPropertyChanged("Test");
             vm.PropertyChanged += (s, a) => Assert.AreEqual("Test", a.PropertyName);
 
-            Assert.AreEqual(1, vm.AdvancedPropertyChangedRaisedCount);
             Assert.AreEqual(1, vm.PropertyChangedRaisedCount);
         }
 
@@ -102,7 +94,6 @@
 
             vm.SetPropertyValue(ref obj, obj, "PropertyName");
 
-            Assert.AreEqual(0, vm.AdvancedPropertyChangedRaisedCount);
             Assert.AreEqual(0, vm.PropertyChangedRaisedCount);
         }
 
@@ -114,7 +105,6 @@
             object oldValue = null;
             vm.SetPropertyValue(ref oldValue, null, "PropertyName");
 
-            Assert.AreEqual(0, vm.AdvancedPropertyChangedRaisedCount);
             Assert.AreEqual(0, vm.PropertyChangedRaisedCount);
         }
 
@@ -126,7 +116,6 @@
             object oldValue = new object();
             vm.SetPropertyValue(ref oldValue, null, "PropertyName");
 
-            Assert.AreEqual(1, vm.AdvancedPropertyChangedRaisedCount);
             Assert.AreEqual(1, vm.PropertyChangedRaisedCount);
         }
 
@@ -138,7 +127,6 @@
             object? oldValue = null;
             vm.SetPropertyValue(ref oldValue, new object(), "PropertyName");
 
-            Assert.AreEqual(1, vm.AdvancedPropertyChangedRaisedCount);
             Assert.AreEqual(1, vm.PropertyChangedRaisedCount);
         }
 
@@ -150,7 +138,6 @@
             string oldValue = "String";
             vm.SetPropertyValue(ref oldValue, "String", "PropertyName");
 
-            Assert.AreEqual(0, vm.AdvancedPropertyChangedRaisedCount);
             Assert.AreEqual(0, vm.PropertyChangedRaisedCount);
         }
 
@@ -162,13 +149,11 @@
             vm.model.FirstValue = 10;
 
             Assert.AreEqual(10, vm.model.FirstValue);
-            Assert.AreEqual(0, vm.AdvancedPropertyChangedRaisedCount);
             Assert.AreEqual(0, vm.PropertyChangedRaisedCount);
 
             vm.FirstValue = 13;
 
             Assert.AreEqual(13, vm.model.FirstValue);
-            Assert.AreEqual(1, vm.AdvancedPropertyChangedRaisedCount);
             Assert.AreEqual(1, vm.PropertyChangedRaisedCount);
 
             vm.model.FirstValue = 10;
@@ -176,7 +161,6 @@
             vm.FirstValue = 10;
 
             Assert.AreEqual(10, vm.model.FirstValue);
-            Assert.AreEqual(1, vm.AdvancedPropertyChangedRaisedCount);
             Assert.AreEqual(1, vm.PropertyChangedRaisedCount);
         }
 
@@ -210,35 +194,47 @@
 
             Assert.IsTrue(canExecuteChangedInvoked);
         }
+
+        [TestMethod]
+        public void GetPropertyMonitorTest()
+        {
+            var vm = new ViewModelMock();
+            var monitor = vm[nameof(ViewModelMock.FirstValue)];
+            Assert.AreEqual(nameof(ViewModelMock.FirstValue), monitor.PropertyName);
+
+            // get from collection
+            string[] collection = new string[] { nameof(ViewModelMock.FirstValue), nameof(ViewModelMock.Age) };
+            var monitors = vm[collection].ToArray();
+            Assert.AreEqual(2, monitors.Length);
+            Assert.IsTrue(collection.SequenceEqual(monitors.Select(o => o.PropertyName)));
+
+            // get from empty collection
+            collection = Array.Empty<string>();
+            monitors = vm[collection].ToArray();
+            Assert.AreEqual(0, monitors.Length);
+
+            // get from remove all collection
+            collection = ViewModel.AllPropertyMontitorsToUnregister;
+            monitors = vm[collection].ToArray();
+            Assert.IsTrue(monitors.Select(o => o.PropertyName).Contains(nameof(ViewModelMock.FirstValue)));
+            Assert.IsTrue(monitors.Select(o => o.PropertyName).Contains(nameof(ViewModelMock.Age)));
+        }
     }
 
     public class ViewModelMock : ViewModel
     {
         public ViewModelMock RegisterCounter()
         {
-            base.AdvancedPropertyChanged += (s, a) => this.AdvancedPropertyChangedRaisedCount++;
             base.PropertyChanged += (s, a) => this.PropertyChangedRaisedCount++;
 
             return this;
         }
 
-        private void ViewModelMock_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e is AdvancedPropertyChangedEventArgs args)
-            {
-                AdvancedPropertyChanged?.Invoke(this, args);
-            }
-        }
-
-        public int AdvancedPropertyChangedRaisedCount { get; private set; }
         public int PropertyChangedRaisedCount { get; private set; }
-
-        public event EventHandler<AdvancedPropertyChangedEventArgs> AdvancedPropertyChanged;
-
 
         public new void OnPropertyChanged(string propertyName, object before, object after)
         {
-            base.OnPropertyChanged(propertyName, before, after);
+            base.OnPropertyChanged(propertyName);
         }
 
         public new void SetPropertyValue<T>(ref T? oldValue, T? newValue, string propertyName)
@@ -275,11 +271,6 @@
             set => this.SetPropertyValue(ref command, value);
         }
 
-        public ViewModelMock()
-        {
-            base.PropertyChanged += this.ViewModelMock_PropertyChanged;
-        }
-
         private string name;
         private ICommand command;
 
@@ -297,6 +288,5 @@
         {
             public int FirstValue { get; set; }
         }
-
     }
 }

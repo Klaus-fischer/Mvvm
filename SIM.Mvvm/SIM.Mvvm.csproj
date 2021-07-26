@@ -22,15 +22,7 @@ Implements ViewModel base class and many Commands.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Controller\ViewModelCommandListener.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <AdditionalFiles Include="stylecop.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Controller\ViewModelCommandListener.cs" />
   </ItemGroup>
 
   <ItemGroup>
