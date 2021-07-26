@@ -202,12 +202,12 @@
 
             var monitor = new PropertyMonitor<string>(vm.Object, "TestProperty", () => "TestValue", comparer.Object);
 
-            monitor.RegisterViewModelProperty(vm.Object, "TargetProperty");
+            monitor.RegisterViewModelProperties(vm.Object, "TargetProperty");
 
             vm.Raise(o => o.PropertyChanged += null, new PropertyChangedEventArgs("TestProperty"));
             vm.Verify(o => o.OnPropertyChanged("TargetProperty"), Times.Once);
 
-            monitor.UnregisterViewModelProperty(vm.Object, "TargetProperty");
+            monitor.UnregisterViewModelProperties(vm.Object, "TargetProperty");
 
             // raise should not increment invocations after de-registration
             vm.Raise(o => o.PropertyChanged += null, new PropertyChangedEventArgs("TestProperty"));

@@ -66,15 +66,22 @@ namespace SIM.Mvvm
         public string PropertyName { get; }
 
         /// <inheritdoc/>
-        public void RegisterCommand(ICommandInvokeCanExecuteChangedEvent command)
-            => this.commands.Add(command);
+        INotifyPropertyChanged IPropertyMonitor.Target => this.viewModel;
+
+        /// <inheritdoc/>
+        public TCommand RegisterCommand<TCommand>(TCommand command)
+            where TCommand : ICommandInvokeCanExecuteChangedEvent
+        {
+            this.commands.Add(command);
+            return command;
+        }
 
         /// <inheritdoc/>
         public void UnregisterCommand(ICommandInvokeCanExecuteChangedEvent command)
             => this.commands.Remove(command);
 
         /// <inheritdoc/>
-        public void RegisterViewModelProperty(IViewModel target, string property)
+        void IPropertyMonitor.RegisterViewModelProperty(IViewModel target, string property)
         {
             var notifier = this.notifiers.FirstOrDefault(o => o.CheckViewModel(target));
             if (notifier is null)
@@ -87,7 +94,7 @@ namespace SIM.Mvvm
         }
 
         /// <inheritdoc/>
-        public void UnregisterViewModelProperty(IViewModel target, string property)
+        void IPropertyMonitor.UnregisterViewModelProperty(IViewModel target, string property)
         {
             if (this.notifiers.FirstOrDefault(o => o.CheckViewModel(target)) is ViewModelNotifier notifier)
             {

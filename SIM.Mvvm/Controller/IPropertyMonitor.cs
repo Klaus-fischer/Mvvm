@@ -5,6 +5,7 @@
 namespace SIM.Mvvm
 {
     using System;
+    using System.ComponentModel;
 
     /// <summary>
     /// Defines a monitor that listens to an single property of an view model.
@@ -26,11 +27,16 @@ namespace SIM.Mvvm
         /// </summary>
         string PropertyName { get; }
 
+        internal INotifyPropertyChanged Target { get; }
+
         /// <summary>
         /// To register a command dependency.
         /// </summary>
         /// <param name="command">Command to register.</param>
-        void RegisterCommand(ICommandInvokeCanExecuteChangedEvent command);
+        /// <typeparam name="T">Type of the command.</typeparam>
+        /// <returns>The command itself for chaining.</returns>
+        T RegisterCommand<T>(T command)
+            where T : ICommandInvokeCanExecuteChangedEvent;
 
         /// <summary>
         /// Unregister command dependency.
@@ -43,14 +49,14 @@ namespace SIM.Mvvm
         /// </summary>
         /// <param name="target">View model to register if property was changed.</param>
         /// <param name="property">Name of the property that will be effected.</param>
-        void RegisterViewModelProperty(IViewModel target, string property);
+        internal void RegisterViewModelProperty(IViewModel target, string property);
 
         /// <summary>
         /// Unregisters a dependent view model.
         /// </summary>
         /// <param name="target">View model to register if property was changed.</param>
         /// <param name="property">Name of the property that will be effected.</param>
-        void UnregisterViewModelProperty(IViewModel target, string property);
+        internal void UnregisterViewModelProperty(IViewModel target, string property);
 
         /// <summary>
         /// Suppresses all property changed notifications.

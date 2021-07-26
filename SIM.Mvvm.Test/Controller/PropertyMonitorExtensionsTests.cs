@@ -4,6 +4,7 @@
     using Moq;
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
@@ -112,6 +113,7 @@
             Assert.AreEqual(monitor.Object, result);
         }
 
+
         [TestMethod]
         public void UnregisterViewModelProperties_Test()
         {
@@ -128,5 +130,143 @@
 
             Assert.AreEqual(monitor.Object, result);
         }
+
+        [TestMethod]
+        public void ExpressionTest()
+        {
+            bool invoked = false;
+            var expVm = new ExpressionVm();
+
+            Assert.IsNotNull(expVm);
+            expVm.PropertyChanged += (s, a) =>
+            {
+                if (a.PropertyName == nameof(expVm.TestString))
+                {
+                    invoked = true;
+                }
+            };
+
+            // to invoke property changed
+            expVm.Test = 42;
+
+            Assert.IsTrue(invoked);
+        }
+
+        [TestMethod]
+        public void MasterExpressionTest()
+        {
+            bool invoked = false;
+            var expVm = new MasterExpressionVm();
+
+            Assert.IsNotNull(expVm);
+            expVm.PropertyChanged += (s, a) =>
+            {
+                if (a.PropertyName == nameof(expVm.TestString))
+                {
+                    invoked = true;
+                }
+            };
+
+            // to invoke property changed
+            expVm.expressionVm.Test = 42;
+
+            Assert.IsTrue(invoked);
+        }
+
+        [TestMethod]
+        public void NestedExpressionTest()
+        {
+            bool nestedVmLightTextInvoked = false;
+            bool nestedVmTextInvoked = false;
+            var expVm = new NestedExpressionVm();
+
+            Assert.IsNotNull(expVm);
+            expVm.PropertyChanged += (s, a) =>
+            {
+                if (a.PropertyName == nameof(expVm.NestedVmLightText))
+                {
+                    nestedVmLightTextInvoked = true;
+                }
+
+                if (a.PropertyName == nameof(expVm.NestedVmText))
+                {
+                    nestedVmTextInvoked = true;
+                }
+            };
+
+            // to invoke property changed
+            expVm.nestedVm.Test = 42;
+            Assert.IsTrue(nestedVmTextInvoked);
+
+            expVm.nestedVmLight.Text = "42";
+            expVm.nestedVmLight.Invoke();
+            Assert.IsTrue(nestedVmLightTextInvoked);
+        }
+
+        public class ExpressionVm : ViewModel
+        {
+            private int test;
+
+            public int Test
+            {
+                get { return test; }
+                set { SetPropertyValue(ref test, value); }
+            }
+
+            public string TestString => $"{test}String";
+
+            public ExpressionVm()
+            {
+                this[nameof(Test)].NotifyAlso(() => this.TestString);
+            }
+        }
+
+        public class MasterExpressionVm : ViewModel
+        {
+            public readonly ExpressionVm expressionVm;
+
+            public MasterExpressionVm()
+            {
+                this.expressionVm = new ExpressionVm();
+                this.expressionVm[nameof(Test)].NotifyAlso(() => TestString);
+            }
+
+            public string TestString => $"{expressionVm.Test} String";
+        }
+
+        public class NestedExpressionVm : ViewModel
+        {
+            public readonly ExpressionVm nestedVm;
+
+            public readonly NestedVmLight nestedVmLight;
+
+            public NestedExpressionVm()
+            {
+                this.nestedVm = new ExpressionVm();
+                this.nestedVmLight = new NestedVmLight();
+
+                this[nameof(NestedVmText)].DependsOn(() => nestedVm.Test);
+                this[nameof(NestedVmLightText)].DependsOn(() => nestedVmLight.Text);
+            }
+
+            public string NestedVmText => $"{nestedVm.Test} NestedVmText";
+
+            public string NestedVmLightText => nestedVmLight.Text;
+
+
+            public class NestedVmLight : INotifyPropertyChanged
+            {
+                public event PropertyChangedEventHandler? PropertyChanged;
+
+                public string Text { get; set; }
+
+                public void Invoke()
+                {
+                    this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
+                }
+            }
+        }
+
+
     }
 }
