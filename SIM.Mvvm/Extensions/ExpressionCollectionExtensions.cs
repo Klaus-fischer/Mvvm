@@ -7,7 +7,9 @@ namespace SIM.Mvvm.Expressions
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
     using System.Windows.Input;
     using SIM.Mvvm;
 
@@ -28,9 +30,13 @@ namespace SIM.Mvvm.Expressions
         {
             foreach (var expression in expressions)
             {
-              //  yield return target.Listen(expression);
+                var exp = ConvertExpression(expression, out var propertyType);
+
+                if (GetGenericMethodInfo(nameof(ExpressionExtensions.Listen), new Type[] { propertyType }) is MethodInfo methodInfo)
+                {
+                    yield return (IPropertyMonitor)methodInfo.Invoke(null, new object[] { target, exp });
+                }
             }
-            yield break;
         }
 
         /// <summary>
@@ -153,7 +159,12 @@ namespace SIM.Mvvm.Expressions
             {
                 foreach (var expression in expressions)
                 {
-                    //monitor.Notify(expression);
+                    var exp = ConvertExpression(expression, out var propertyType);
+
+                    if (GetGenericMethodInfo(nameof(ExpressionExtensions.Notify), new Type[] { propertyType }) is MethodInfo methodInfo)
+                    {
+                        methodInfo.Invoke(null, new object[] { monitor, exp });
+                    }
                 }
             }
 
@@ -228,10 +239,50 @@ namespace SIM.Mvvm.Expressions
         {
             foreach (var expression in expressions)
             {
-                command.Listen<T>(expression);
+                var exp = ConvertExpression(expression, out var propertyType);
+
+                var genericTypes = new Type[] { typeof(T), propertyType };
+
+                if (GetGenericMethodInfo(nameof(ExpressionExtensions.Listen), genericTypes) is MethodInfo methodInfo)
+                {
+                    methodInfo.Invoke(null, new object[] { command, exp });
+                }
             }
 
             return command;
+        }
+
+        private static dynamic ConvertExpression(Expression<Func<object>> lambda, out Type propertyType)
+        {
+            var expression = lambda.Body;
+
+            if (expression.NodeType == ExpressionType.Convert && expression is UnaryExpression ue)
+            {
+                expression = ue.Operand;
+            }
+
+            if (expression.NodeType == ExpressionType.MemberAccess && expression is MemberExpression me)
+            {
+                propertyType = me.Member is PropertyInfo pi ? pi.PropertyType
+                             : me.Member is FieldInfo fi ? fi.FieldType
+                             : throw new InvalidOperationException("Expression must show a Property or a Field");
+
+                return Expression.Lambda(me);
+            }
+
+            throw new InvalidOperationException();
+        }
+
+        private static MethodInfo? GetGenericMethodInfo(string methodName, Type[] genericTypes)
+        {
+            var methodInfo = typeof(ExpressionExtensions).GetMethods(BindingFlags.Static | BindingFlags.Public)
+                .Where(o => o.IsGenericMethod && o.Name == methodName)
+                .Where(o => o.GetGenericArguments().Length == genericTypes.Length)
+                .FirstOrDefault();
+
+            methodInfo = methodInfo?.MakeGenericMethod(genericTypes);
+
+            return methodInfo;
         }
     }
 }
