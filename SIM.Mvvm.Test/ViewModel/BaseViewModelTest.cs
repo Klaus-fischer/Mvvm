@@ -7,6 +7,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Windows.Input;
+    using SIM.Mvvm.Expressions;
+    using System.Diagnostics.CodeAnalysis;
 
     [TestClass]
     public class BaseViewModelTest
@@ -199,25 +201,39 @@
         public void GetPropertyMonitorTest()
         {
             var vm = new ViewModelMock();
-            var monitor = vm[nameof(ViewModelMock.FirstValue)];
+            var monitor = vm.Listen(() => vm.FirstValue);
             Assert.AreEqual(nameof(ViewModelMock.FirstValue), monitor.PropertyName);
 
             // get from collection
-            string[] collection = new string[] { nameof(ViewModelMock.FirstValue), nameof(ViewModelMock.Age) };
-            var monitors = vm[collection].ToArray();
+            string[] collection = new string[] { nameof(ViewModelMock.FirstValue), nameof(ViewModelMock.Command) };
+
+            var monitors = vm.Listen(() => vm.FirstValue, () => vm.Command).ToArray();
             Assert.AreEqual(2, monitors.Length);
             Assert.IsTrue(collection.SequenceEqual(monitors.Select(o => o.PropertyName)));
 
             // get from empty collection
             collection = Array.Empty<string>();
-            monitors = vm[collection].ToArray();
+            monitors = vm.Listen().ToArray();
             Assert.AreEqual(0, monitors.Length);
 
             // get from remove all collection
-            collection = ViewModel.AllPropertyMontitorsToUnregister;
-            monitors = vm[collection].ToArray();
-            Assert.IsTrue(monitors.Select(o => o.PropertyName).Contains(nameof(ViewModelMock.FirstValue)));
-            Assert.IsTrue(monitors.Select(o => o.PropertyName).Contains(nameof(ViewModelMock.Age)));
+        }
+
+        [TestMethod]
+        public void InvokeEqualNotifier()
+        {
+            bool invoked = false;
+            var vm = new ViewModelMock();
+            vm.PropertyChanged += (s, a) => invoked = true;
+
+            vm.InvariantCaseString = "HalloWelt";
+
+            Assert.IsTrue(invoked);
+
+            invoked = false;
+
+            vm.InvariantCaseString = "hALLOwELT";
+            Assert.IsFalse(invoked);
         }
     }
 
@@ -256,6 +272,14 @@
             set => this.SetPropertyValue(() => new object(), value);
         }
 
+        private string invariantCaseString;
+        public string InvariantCaseString
+        {
+            get => this.invariantCaseString;
+            set => this.SetPropertyValue(() => this.invariantCaseString, value, InvariantCaseStringComparer.Current);
+
+        }
+
         private int age;
 
         public int Age
@@ -287,6 +311,35 @@
         internal class Model
         {
             public int FirstValue { get; set; }
+        }
+
+        internal class InvariantCaseStringComparer : IEqualityComparer<string>
+        {
+            private static InvariantCaseStringComparer current;
+
+            /// <summary>
+            /// Gets access to a singleton <see cref="InvariantCaseStringComparer"/>.
+            /// </summary>
+            public static InvariantCaseStringComparer Current
+            {
+                get
+                {
+                    if (current == null)
+                    {
+                        current = new InvariantCaseStringComparer();
+                    }
+
+                    return current;
+                }
+            }
+
+            public bool Equals(string? x, string? y)
+                => string.Equals(x, y, StringComparison.InvariantCultureIgnoreCase);
+
+
+            public int GetHashCode([DisallowNull] string obj)
+                => HashCode.Combine(obj);
+
         }
     }
 }

@@ -4,22 +4,46 @@
 
 namespace SIM.Mvvm
 {
+    using System;
     using System.Collections.ObjectModel;
 
+    /// <summary>
+    /// Handler to notify a view model.
+    /// </summary>
     internal class ViewModelNotifier
     {
-        readonly IViewModel viewModel;
+        private readonly WeakReference<IViewModel> viewModelReference;
 
-        readonly Collection<string> properties = new();
+        private readonly Collection<string> properties = new Collection<string>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ViewModelNotifier"/> class.
+        /// </summary>
+        /// <param name="viewModel">View model to notify.</param>
         public ViewModelNotifier(IViewModel viewModel)
         {
-            this.viewModel = viewModel;
+            this.viewModelReference = new WeakReference<IViewModel>(viewModel);
         }
 
-        public bool CheckViewModel(IViewModel target)
-            => ReferenceEquals(this.viewModel, target);
+        /// <summary>
+        /// Checks if view model is alive.
+        /// </summary>
+        /// <returns>True if view model is alive.</returns>
+        public bool IsAlive()
+            => this.viewModelReference.TryGetTarget(out var _);
 
+        /// <summary>
+        /// Handler to validate if the current notifier belongs to the view model.
+        /// </summary>
+        /// <param name="target">View model to check.</param>
+        /// <returns>True if view model is alive and the reference equals.</returns>
+        public bool CheckViewModel(IViewModel target)
+            => this.viewModelReference.TryGetTarget(out var vm) && ReferenceEquals(vm, target);
+
+        /// <summary>
+        /// Adds a property to notification list.
+        /// </summary>
+        /// <param name="property">Name of the property.</param>
         public void AddProperty(string property)
         {
             if (!this.properties.Contains(property))
@@ -28,16 +52,26 @@ namespace SIM.Mvvm
             }
         }
 
+        /// <summary>
+        /// Removes a property from notification list.
+        /// </summary>
+        /// <param name="property">Name of the property.</param>
         public void RemoveProperty(string property)
         {
             this.properties.Remove(property);
         }
 
+        /// <summary>
+        /// Raises <see cref="IViewModel.OnPropertyChanged(string)"/> for every registered property.
+        /// </summary>
         public void InvokePropertyChanged()
         {
-            foreach (var property in this.properties)
+            if (this.viewModelReference.TryGetTarget(out var viewModel))
             {
-                this.viewModel.OnPropertyChanged(property);
+                foreach (var property in this.properties)
+                {
+                    viewModel.OnPropertyChanged(property);
+                }
             }
         }
     }

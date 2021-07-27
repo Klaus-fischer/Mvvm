@@ -9,9 +9,9 @@ namespace SIM.Mvvm
     using System.Windows.Input;
 
     /// <summary>
-    /// Base command class that implements <see cref="ICommandInvokeCanExecuteChangedEvent"/>.
+    /// Base command class that implements <see cref="INotifyCommand"/>.
     /// </summary>
-    public abstract class Command : ICommandInvokeCanExecuteChangedEvent
+    public abstract class Command : INotifyCommand
     {
         /// <inheritdoc/>
         public event EventHandler? CanExecuteChanged;
@@ -25,9 +25,9 @@ namespace SIM.Mvvm
              => this.Execute();
 
         /// <inheritdoc/>
-        void ICommandInvokeCanExecuteChangedEvent.InvokeCanExecuteChanged(object? sender, EventArgs e)
+        void INotifyCommand.NotifyCanExecuteChanged()
         {
-            this.CanExecuteChanged?.Invoke(sender, e);
+            this.CanExecuteChanged?.Invoke(this, new EventArgs());
         }
 
         /// <summary>

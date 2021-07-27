@@ -1,14 +1,13 @@
-﻿namespace SIM.Mvvm.Test
+﻿namespace SIM.Mvvm.Test.Controller
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+    using static SIM.Mvvm.Test.Extensions.Expression_Tests;
 
     [TestClass]
     public class PropertyMonitorTests
@@ -31,12 +30,12 @@
             var comparer = new Mock<IEqualityComparer<string>>();
             comparer.Setup(o => o.Equals(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
 
-            string value = "TestValue";
+            var value = "TestValue";
             var monitor = new PropertyMonitor<string>(vm.Object, "TestProperty", () => value, comparer.Object);
 
             value = "NewValue";
 
-            bool onPropertyChangedRaised = false;
+            var onPropertyChangedRaised = false;
             monitor.OnPropertyChanged += (s, a) =>
             {
                 onPropertyChangedRaised = true;
@@ -61,7 +60,7 @@
 
             var monitor = new PropertyMonitor<string>(vm.Object, "TestProperty", () => "TestValue", comparer.Object);
 
-            bool onPropertyChangedRaised = false;
+            var onPropertyChangedRaised = false;
             monitor.OnPropertyChangedCallback += () =>
             {
                 onPropertyChangedRaised = true;
@@ -81,7 +80,7 @@
 
             var monitor = new PropertyMonitor<string>(vm.Object, "TestProperty", () => "TestValue", comparer.Object);
 
-            bool onPropertyChangedRaised = false;
+            var onPropertyChangedRaised = false;
             monitor.OnPropertyChangedCallback += () =>
             {
                 onPropertyChangedRaised = true;
@@ -92,7 +91,6 @@
             Assert.IsFalse(onPropertyChangedRaised);
         }
 
-
         [TestMethod]
         public void OnPropertyChangedCallback_IsSuppressed_Test()
         {
@@ -102,7 +100,7 @@
 
             var monitor = new PropertyMonitor<string>(vm.Object, "TestProperty", () => "TestValue", comparer.Object);
 
-            bool onPropertyChangedRaised = false;
+            var onPropertyChangedRaised = false;
             monitor.OnPropertyChangedCallback += () =>
             {
                 onPropertyChangedRaised = true;
@@ -124,7 +122,7 @@
 
             var monitor = new PropertyMonitor<string>(vm.Object, "TestProperty", () => "TestValue", comparer.Object);
 
-            bool onPropertyChangedRaised = false;
+            var onPropertyChangedRaised = false;
             monitor.OnPropertyChangedCallback += () =>
             {
                 onPropertyChangedRaised = true;
@@ -135,7 +133,6 @@
             Assert.IsFalse(onPropertyChangedRaised);
         }
 
-
         [TestMethod]
         public void OnPropertyChangedCallback_SuppressRestore_Test()
         {
@@ -145,7 +142,7 @@
 
             var monitor = new PropertyMonitor<string>(vm.Object, "TestProperty", () => "TestValue", comparer.Object);
 
-            bool onPropertyChangedRaised = false;
+            var onPropertyChangedRaised = false;
             monitor.OnPropertyChangedCallback += () =>
             {
                 onPropertyChangedRaised = true;
@@ -164,31 +161,20 @@
             var comparer = new Mock<IEqualityComparer<string>>();
             comparer.Setup(o => o.Equals(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
 
-            var command = new Mock<ICommandInvokeCanExecuteChangedEvent>();
-            command.Setup(o => o.InvokeCanExecuteChanged(command.Object, It.IsAny<EventArgs>()));
+            var command = new Mock<INotifyCommand>();
+            command.Setup(o => o.NotifyCanExecuteChanged());
 
             var monitor = new PropertyMonitor<string>(vm.Object, "TestProperty", () => "TestValue", comparer.Object);
 
             monitor.RegisterCommand(command.Object);
             vm.Raise(o => o.PropertyChanged += null, new PropertyChangedEventArgs("TestProperty"));
-            command.Verify(o => o.InvokeCanExecuteChanged(command.Object, It.IsAny<EventArgs>()), Times.Once);
+            command.Verify(o => o.NotifyCanExecuteChanged(), Times.Once);
 
             monitor.UnregisterCommand(command.Object);
 
             // raise should not increment invocations after de-registration
             vm.Raise(o => o.PropertyChanged += null, new PropertyChangedEventArgs("TestProperty"));
-            command.Verify(o => o.InvokeCanExecuteChanged(command.Object, It.IsAny<EventArgs>()), Times.Once);
-        }
-
-        [TestMethod]
-        public void ToString_Test()
-        {
-            var vm = new Mock<INotifyPropertyChanged>();
-            vm.Setup(o => o.ToString()).Returns("ViewModel");
-
-            var monitor = new PropertyMonitor<string>(vm.Object, "TestProperty", () => "TestValue");
-
-            Assert.AreEqual($"PropertyMonitor -> TestProperty/(ViewModel)", monitor.ToString());
+            command.Verify(o => o.NotifyCanExecuteChanged(), Times.Once);
         }
 
         [TestMethod]
@@ -196,11 +182,13 @@
         {
             var vm = new Mock<IViewModel>();
             vm.Setup(o => o.OnPropertyChanged("TargetProperty"));
+            vm.SetupGet(o => o.PropertyMonitors).Returns(new Collection<IPropertyMonitor>());
+
 
             var comparer = new Mock<IEqualityComparer<string>>();
             comparer.Setup(o => o.Equals(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
 
-            var monitor = new PropertyMonitor<string>(vm.Object, "TestProperty", () => "TestValue", comparer.Object);
+            IPropertyMonitor monitor = new PropertyMonitor<string>(vm.Object, "TestProperty", () => "TestValue", comparer.Object);
 
             monitor.RegisterViewModelProperty(vm.Object, "TargetProperty");
 
@@ -215,29 +203,26 @@
         }
 
         [TestMethod]
-        public void UpdateCommand_Test()
+        public void FinalizerTest()
         {
-            var command = new Mock<ICommandInvokeCanExecuteChangedEvent>();
-            command.Setup(o => o.InvokeCanExecuteChanged(command.Object, It.IsAny<EventArgs>()));
+            List<IPropertyMonitor> monitors = new();
 
-            var pm = new Mock<IPropertyMonitor>();
-            pm.Setup(o => o.RegisterCommand(command.Object));
-            pm.Setup(o => o.UnregisterCommand(command.Object));
+            for (int i = 0; i < 1_000; i++)
+            {
+                var target = new TestVm();
 
-            var pms = new IPropertyMonitor[] { pm.Object };
+                monitors.Add(new PropertyMonitor<string>(target, nameof(target.Property), () => target.Property, null));
 
-            var vm = new Mock<IViewModel>();
-            vm.SetupGet(o => o[ViewModel.AllPropertyMontitorsToUnregister]).Returns(pms);
+                target = null;
 
-            var comparer = new Mock<IEqualityComparer<ICommandInvokeCanExecuteChangedEvent>>();
-            comparer.Setup(o => o.Equals(It.IsAny<ICommandInvokeCanExecuteChangedEvent>(), It.IsAny<ICommandInvokeCanExecuteChangedEvent>())).Returns(false);
+            }
 
-            var monitor = new PropertyMonitor<ICommandInvokeCanExecuteChangedEvent>(vm.Object, "TestProperty", () => command.Object, comparer.Object);
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.WaitForFullGCComplete();
+            GC.Collect();
 
-            vm.Raise(o => o.PropertyChanged += null, new PropertyChangedEventArgs("TestProperty"));
-
-            pm.Verify(o => o.RegisterCommand(command.Object), Times.Once);
-            pm.Verify(o => o.UnregisterCommand(command.Object), Times.Once);
+            Assert.IsTrue(monitors.Any(o => o.Target is null));
         }
     }
 }

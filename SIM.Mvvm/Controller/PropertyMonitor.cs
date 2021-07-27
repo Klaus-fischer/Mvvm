@@ -8,21 +8,22 @@ namespace SIM.Mvvm
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Linq;
-    using System.Windows.Input;
 
     /// <summary>
     /// Monitor to watch for a single property of a <see cref="IViewModel"/>.
     /// </summary>
     /// <typeparam name="T">Type of the property to monitor.</typeparam>
+    [DebuggerDisplay("PropertyMonitor -> {this.PropertyName}")]
     internal class PropertyMonitor<T> : IPropertyMonitor
     {
-        private readonly INotifyPropertyChanged viewModel;
         private readonly IEqualityComparer<T> equalityComparer;
         private readonly Func<T> getValue;
+        private readonly WeakReference<INotifyPropertyChanged> viewModelReference;
 
-        private readonly Collection<ICommandInvokeCanExecuteChangedEvent> commands =
-            new Collection<ICommandInvokeCanExecuteChangedEvent>();
+        private readonly Collection<INotifyCommand> commands =
+            new Collection<INotifyCommand>();
 
         private readonly Collection<ViewModelNotifier> notifiers =
             new Collection<ViewModelNotifier>();
@@ -43,17 +44,13 @@ namespace SIM.Mvvm
         public PropertyMonitor(INotifyPropertyChanged viewModel, string propertyName, Func<T> getValue, IEqualityComparer<T>? equalityComparer = null)
         {
             this.PropertyName = propertyName;
-            this.viewModel = viewModel;
             this.getValue = getValue;
             this.equalityComparer = equalityComparer ?? EqualityComparer<T>.Default;
             this.oldValue = getValue();
 
-            this.viewModel.PropertyChanged += this.OnViewModelPropertyChangedHandler;
+            this.viewModelReference = new WeakReference<INotifyPropertyChanged>(viewModel, false);
 
-            if (viewModel is IViewModel && typeof(ICommand).IsAssignableFrom(typeof(T)))
-            {
-                this.OnPropertyChanged += this.UpdateCommand;
-            }
+            viewModel.PropertyChanged += this.OnViewModelPropertyChangedHandler;
         }
 
         /// <inheritdoc/>
@@ -66,15 +63,33 @@ namespace SIM.Mvvm
         public string PropertyName { get; }
 
         /// <inheritdoc/>
-        public void RegisterCommand(ICommandInvokeCanExecuteChangedEvent command)
-            => this.commands.Add(command);
+        public INotifyPropertyChanged? Target
+        {
+            get
+            {
+                if (this.viewModelReference.TryGetTarget(out var value))
+                {
+                    return value;
+                }
+
+                return null;
+            }
+        }
 
         /// <inheritdoc/>
-        public void UnregisterCommand(ICommandInvokeCanExecuteChangedEvent command)
+        public TCommand RegisterCommand<TCommand>(TCommand command)
+            where TCommand : INotifyCommand
+        {
+            this.commands.Add(command);
+            return command;
+        }
+
+        /// <inheritdoc/>
+        public void UnregisterCommand(INotifyCommand command)
             => this.commands.Remove(command);
 
         /// <inheritdoc/>
-        public void RegisterViewModelProperty(IViewModel target, string property)
+        void IPropertyMonitor.RegisterViewModelProperty(IViewModel target, string property)
         {
             var notifier = this.notifiers.FirstOrDefault(o => o.CheckViewModel(target));
             if (notifier is null)
@@ -87,7 +102,7 @@ namespace SIM.Mvvm
         }
 
         /// <inheritdoc/>
-        public void UnregisterViewModelProperty(IViewModel target, string property)
+        void IPropertyMonitor.UnregisterViewModelProperty(IViewModel target, string property)
         {
             if (this.notifiers.FirstOrDefault(o => o.CheckViewModel(target)) is ViewModelNotifier notifier)
             {
@@ -109,12 +124,6 @@ namespace SIM.Mvvm
             this.OnViewModelPropertyChangedHandler(null, new PropertyChangedEventArgs(this.PropertyName));
         }
 
-        /// <inheritdoc/>
-        public override string ToString()
-        {
-            return $"PropertyMonitor -> {this.PropertyName}/({this.viewModel})";
-        }
-
         private void OnViewModelPropertyChangedHandler(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName != this.PropertyName || this.isSuppressed)
@@ -133,43 +142,29 @@ namespace SIM.Mvvm
             }
 
             this.InvokeOnViewModelPropertyChanged(
+                sender,
                 new AdvancedPropertyChangedEventArgs(this.PropertyName, oldValue, newValue));
         }
 
         /// <summary>
         /// Invokes the <see cref="OnPropertyChanged"/> event.
         /// </summary>
+        /// <param name="sender">Sender of the event.</param>
         /// <param name="e">Event Arguments to submit.</param>
-        private void InvokeOnViewModelPropertyChanged(AdvancedPropertyChangedEventArgs e)
+        private void InvokeOnViewModelPropertyChanged(object? sender, AdvancedPropertyChangedEventArgs e)
         {
-            this.OnPropertyChanged?.Invoke(this.viewModel, e);
+            this.OnPropertyChanged?.Invoke(sender, e);
 
             this.OnPropertyChangedCallback?.Invoke();
 
             foreach (var command in this.commands)
             {
-                command.InvokeCanExecuteChanged();
+                command.NotifyCanExecuteChanged();
             }
 
             foreach (var notifier in this.notifiers)
             {
                 notifier.InvokePropertyChanged();
-            }
-        }
-
-        private void UpdateCommand(object sender, AdvancedPropertyChangedEventArgs e)
-        {
-            if (this.viewModel is IViewModel viewModel)
-            {
-                if (e.Before is ICommandInvokeCanExecuteChangedEvent oldCommand)
-                {
-                    viewModel[ViewModel.AllPropertyMontitorsToUnregister].UnregisterCommand(oldCommand);
-                }
-
-                if (e.After is ICommandInvokeCanExecuteChangedEvent newCommand)
-                {
-                    viewModel[ViewModel.AllPropertyMontitorsToUnregister].RegisterCommand(newCommand);
-                }
             }
         }
     }

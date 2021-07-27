@@ -148,16 +148,16 @@
         {
             bool eventHandlerInvoked = false;
 
-            ICommandInvokeCanExecuteChangedEvent cmd = new ParameterCommandType<string>();
+            INotifyCommand cmd = new ParameterCommandType<string>();
 
             EventHandler handler = (s, a) => eventHandlerInvoked = true;
 
-            cmd.InvokeCanExecuteChanged();
+            cmd.NotifyCanExecuteChanged();
             Assert.IsFalse(eventHandlerInvoked);
 
             cmd.CanExecuteChanged += handler;
 
-            cmd.InvokeCanExecuteChanged();
+            cmd.NotifyCanExecuteChanged();
             Assert.IsTrue(eventHandlerInvoked);
         }
 
