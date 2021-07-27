@@ -5,7 +5,7 @@ Standart Bibliothek für alle Model-View-ViewModel implementationen.
 - Basisklasse für  die MVVM funktionalität.
 ##### Aufruf für PropertyChanged:
  
-    OnPropertyChanged(string? propertyName, object? before, object? after)
+    OnPropertyChanged(string? propertyName);
 
 ##### Eigenschaften implementieren:
     private int _property;
