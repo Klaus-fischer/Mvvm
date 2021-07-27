@@ -8,6 +8,7 @@
     using System.Linq;
     using System.Windows.Input;
     using SIM.Mvvm.Expressions;
+    using System.Diagnostics.CodeAnalysis;
 
     [TestClass]
     public class BaseViewModelTest
@@ -217,6 +218,23 @@
 
             // get from remove all collection
         }
+
+        [TestMethod]
+        public void InvokeEqualNotifier()
+        {
+            bool invoked = false;
+            var vm = new ViewModelMock();
+            vm.PropertyChanged += (s, a) => invoked = true;
+
+            vm.InvariantCaseString = "HalloWelt";
+
+            Assert.IsTrue(invoked);
+
+            invoked = false;
+
+            vm.InvariantCaseString = "hALLOwELT";
+            Assert.IsFalse(invoked);
+        }
     }
 
     public class ViewModelMock : ViewModel
@@ -254,6 +272,14 @@
             set => this.SetPropertyValue(() => new object(), value);
         }
 
+        private string invariantCaseString;
+        public string InvariantCaseString
+        {
+            get => this.invariantCaseString;
+            set => this.SetPropertyValue(() => this.invariantCaseString, value, InvariantCaseStringComparer.Current);
+
+        }
+
         private int age;
 
         public int Age
@@ -285,6 +311,35 @@
         internal class Model
         {
             public int FirstValue { get; set; }
+        }
+
+        internal class InvariantCaseStringComparer : IEqualityComparer<string>
+        {
+            private static InvariantCaseStringComparer current;
+
+            /// <summary>
+            /// Gets access to a singleton <see cref="InvariantCaseStringComparer"/>.
+            /// </summary>
+            public static InvariantCaseStringComparer Current
+            {
+                get
+                {
+                    if (current == null)
+                    {
+                        current = new InvariantCaseStringComparer();
+                    }
+
+                    return current;
+                }
+            }
+
+            public bool Equals(string? x, string? y)
+                => string.Equals(x, y, StringComparison.InvariantCultureIgnoreCase);
+
+
+            public int GetHashCode([DisallowNull] string obj)
+                => HashCode.Combine(obj);
+
         }
     }
 }

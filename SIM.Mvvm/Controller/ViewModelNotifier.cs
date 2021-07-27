@@ -28,7 +28,7 @@ namespace SIM.Mvvm
         /// <summary>
         /// Checks if view model is alive.
         /// </summary>
-        /// <returns>True if view model is alive</returns>
+        /// <returns>True if view model is alive.</returns>
         public bool IsAlive()
             => this.viewModelReference.TryGetTarget(out var _);
 
