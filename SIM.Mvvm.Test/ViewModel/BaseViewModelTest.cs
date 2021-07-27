@@ -204,9 +204,9 @@
             Assert.AreEqual(nameof(ViewModelMock.FirstValue), monitor.PropertyName);
 
             // get from collection
-            string[] collection = new string[] { nameof(ViewModelMock.FirstValue), nameof(ViewModelMock.Age) };
+            string[] collection = new string[] { nameof(ViewModelMock.FirstValue), nameof(ViewModelMock.Command) };
 
-            var monitors = vm.Listen(() => vm.FirstValue, () => vm.Age).ToArray();
+            var monitors = vm.Listen(() => vm.FirstValue, () => vm.Command).ToArray();
             Assert.AreEqual(2, monitors.Length);
             Assert.IsTrue(collection.SequenceEqual(monitors.Select(o => o.PropertyName)));
 

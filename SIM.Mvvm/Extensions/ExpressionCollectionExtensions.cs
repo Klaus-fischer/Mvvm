@@ -28,8 +28,9 @@ namespace SIM.Mvvm.Expressions
         {
             foreach (var expression in expressions)
             {
-                yield return target.Listen(expression);
+              //  yield return target.Listen(expression);
             }
+            yield break;
         }
 
         /// <summary>
@@ -152,7 +153,7 @@ namespace SIM.Mvvm.Expressions
             {
                 foreach (var expression in expressions)
                 {
-                    monitor.Notify(expression);
+                    //monitor.Notify(expression);
                 }
             }
 

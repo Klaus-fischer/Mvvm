@@ -13,11 +13,11 @@
             bool canExecuteChangedInvoked = false;
             var cmd = new BaseCommandType();
 
-            ((INotifyCommand)cmd).Notify(cmd, new EventArgs());
+            ((INotifyCommand)cmd).NotifyCanExecuteChanged();
             Assert.IsFalse(canExecuteChangedInvoked);
 
             cmd.CanExecuteChanged += (s, a) => canExecuteChangedInvoked = true;
-            ((INotifyCommand)cmd).Notify(cmd, new EventArgs());
+            ((INotifyCommand)cmd).NotifyCanExecuteChanged();
             Assert.IsTrue(canExecuteChangedInvoked);
         }
 

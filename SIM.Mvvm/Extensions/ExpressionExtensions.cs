@@ -10,6 +10,7 @@ namespace SIM.Mvvm.Expressions
     using System.ComponentModel;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
     using System.Windows.Input;
     using SIM.Mvvm;
 
@@ -48,28 +49,6 @@ namespace SIM.Mvvm.Expressions
                 if (obj is INotifyPropertyChanged targetViewModel)
                 {
                     return targetViewModel.GetPropertyMonitor(propertyName, expression.Compile());
-                }
-            }
-
-            throw new InvalidOperationException($"Expression must point to an Property of an view model of type {nameof(INotifyPropertyChanged)}.");
-        }
-
-        /// <summary>
-        /// <see cref="Listen{TProperty}(INotifyPropertyChanged, Expression{Func{TProperty}})"/>.
-        /// </summary>
-        /// <param name="target">This property is only to extend the <see cref="IViewModel"/> class itself.</param>
-        /// <param name="expression">The anonym expression to the property.</param>
-        /// <returns>The property monitor.</returns>
-        internal static IPropertyMonitor Listen(this INotifyPropertyChanged target, Expression<Func<object>> expression)
-        {
-            if (expression.Body.NodeType == ExpressionType.MemberAccess && expression.Body is MemberExpression me)
-            {
-                var propertyName = me.Member.Name;
-                var obj = Expression.Lambda(me.Expression).Compile().DynamicInvoke();
-
-                if (obj is INotifyPropertyChanged targetViewModel)
-                {
-                    return targetViewModel.GetPropertyMonitor(propertyName, expression);
                 }
             }
 
@@ -144,11 +123,12 @@ namespace SIM.Mvvm.Expressions
         /// }
         /// ...
         /// </example>
+        /// <typeparam name="TProperty">Type of the target property.</typeparam>
         /// <param name="monitor">The property monitor to register the notification to.</param>
         /// <param name="expression">The Expression to the property to notify.
         /// Must be a MemberExpression to a <see cref="IViewModel"/> object.</param>
         /// <returns>The property monitor.</returns>
-        public static IPropertyMonitor Notify(this IPropertyMonitor monitor, Expression<Func<object>> expression)
+        public static IPropertyMonitor Notify<TProperty>(this IPropertyMonitor monitor, Expression<Func<TProperty>> expression)
         {
             if (expression.Body.NodeType == ExpressionType.MemberAccess && expression.Body is MemberExpression me)
             {
@@ -219,52 +199,25 @@ namespace SIM.Mvvm.Expressions
         /// <param name="expression">The Expression to the property.
         /// Must be a MemberExpression to a <see cref="INotifyPropertyChanged"/> object.</param>
         /// <returns>The property monitor.</returns>
-        public static T Listen<T>(this T command, Expression<Func<object>> expression)
+        public static T Listen<T, TProperty>(this T command, Expression<Func<TProperty>> expression)
             where T : INotifyCommand
         {
             if (expression.Body.NodeType == ExpressionType.MemberAccess && expression.Body is MemberExpression me)
             {
                 var propertyName = me.Member.Name;
+
                 var obj = Expression.Lambda(me.Expression).Compile().DynamicInvoke();
 
                 if (obj is INotifyPropertyChanged target)
                 {
-                    var monitor = target.GetPropertyMonitor(propertyName, expression);
+                    var monitor = target.GetPropertyMonitor(propertyName, expression.Compile());
                     monitor.RegisterCommand(command);
+
+                    return command;
                 }
             }
 
             throw new InvalidOperationException($"Expression must point to an Property of an view model of type {nameof(INotifyPropertyChanged)}.");
-        }
-
-        private static Expression ConvertExpression(out Type foundType, Expression<Func<object>> expression)
-        {
-            if (expression.Body.NodeType == ExpressionType.MemberAccess && expression.Body is MemberExpression me)
-            {
-                foundType = me.Member.DeclaringType;
-
-                var exp = Expression.MakeMemberAccess(me.Expression, foundType);
-                return Expression.Lambda(exp);
-            }
-
-            throw new InvalidOperationException();
-        }
-
-        private static IPropertyMonitor GetPropertyMonitor(this INotifyPropertyChanged target, string propertyName, Expression<Func<object>> expression)
-        {
-            if (expression.Body.NodeType == ExpressionType.MemberAccess && expression.Body is MemberExpression me)
-            {
-                var propertyType = me.Member.ReflectedType;
-
-                var exp = Expression.MakeMemberAccess(me.Expression, propertyType);
-                var lambda = Expression.Lambda(exp).Compile();
-
-                var memberInfo = typeof(ExpressionExtensions).GetMethod($"{nameof(GetPropertyMonitor)}`1").MakeGenericMethod(propertyType);
-
-                return (IPropertyMonitor)memberInfo.Invoke(null, new object[] { target, propertyName, lambda });
-            }
-
-            throw new InvalidOperationException();
         }
 
         private static IPropertyMonitor GetPropertyMonitor<TProperty>(this INotifyPropertyChanged target, string propertyName, Func<TProperty> expression)

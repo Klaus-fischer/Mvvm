@@ -140,11 +140,6 @@ namespace SIM.Mvvm
             return property.Equals(newValue);
         }
 
-        void IViewModel.OnPropertyChanged(string propertyName)
-        {
-            throw new NotImplementedException();
-        }
-
         ///// <summary>
         ///// Register all property dependencies marked with the <see cref="DependsOnAttribute"/>,
         ///// to a <see cref="ICommand"/> that implements <see cref="ICommandInvokeCanExecuteChangedEvent"/>.

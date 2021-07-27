@@ -152,12 +152,12 @@
 
             EventHandler handler = (s, a) => eventHandlerInvoked = true;
 
-            cmd.InvokeCanExecuteChanged();
+            cmd.NotifyCanExecuteChanged();
             Assert.IsFalse(eventHandlerInvoked);
 
             cmd.CanExecuteChanged += handler;
 
-            cmd.InvokeCanExecuteChanged();
+            cmd.NotifyCanExecuteChanged();
             Assert.IsTrue(eventHandlerInvoked);
         }
 
