@@ -16,7 +16,7 @@ namespace SIM.Mvvm
         /// <summary>
         /// Gets the collection of property monitors that listen to this view model properties.
         /// </summary>
-        internal Collection<IPropertyMonitor> PropertyMonitors { get; }
+        Collection<IPropertyMonitor> PropertyMonitors { get; }
 
         /// <summary>
         /// To invoke the <see cref="INotifyPropertyChanged.PropertyChanged"/> event.

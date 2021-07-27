@@ -7,6 +7,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Windows.Input;
+    using SIM.Mvvm.Expressions;
 
     [TestClass]
     public class BaseViewModelTest
@@ -199,25 +200,22 @@
         public void GetPropertyMonitorTest()
         {
             var vm = new ViewModelMock();
-            var monitor = vm[nameof(ViewModelMock.FirstValue)];
+            var monitor = vm.Listen(() => vm.FirstValue);
             Assert.AreEqual(nameof(ViewModelMock.FirstValue), monitor.PropertyName);
 
             // get from collection
             string[] collection = new string[] { nameof(ViewModelMock.FirstValue), nameof(ViewModelMock.Age) };
-            var monitors = vm[collection].ToArray();
+
+            var monitors = vm.Listen(() => vm.FirstValue, () => vm.Age).ToArray();
             Assert.AreEqual(2, monitors.Length);
             Assert.IsTrue(collection.SequenceEqual(monitors.Select(o => o.PropertyName)));
 
             // get from empty collection
             collection = Array.Empty<string>();
-            monitors = vm[collection].ToArray();
+            monitors = vm.Listen().ToArray();
             Assert.AreEqual(0, monitors.Length);
 
             // get from remove all collection
-            collection = ViewModel.AllPropertyMontitorsToUnregister;
-            monitors = vm[collection].ToArray();
-            Assert.IsTrue(monitors.Select(o => o.PropertyName).Contains(nameof(ViewModelMock.FirstValue)));
-            Assert.IsTrue(monitors.Select(o => o.PropertyName).Contains(nameof(ViewModelMock.Age)));
         }
     }
 

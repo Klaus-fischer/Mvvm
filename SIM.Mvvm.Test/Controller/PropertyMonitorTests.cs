@@ -4,11 +4,8 @@
     using Moq;
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
 
     [TestClass]
     public class PropertyMonitorTests
@@ -181,40 +178,31 @@
         }
 
         [TestMethod]
-        public void ToString_Test()
-        {
-            var vm = new Mock<INotifyPropertyChanged>();
-            vm.Setup(o => o.ToString()).Returns("ViewModel");
-
-            var monitor = new PropertyMonitor<string>(vm.Object, "TestProperty", () => "TestValue");
-
-            Assert.AreEqual($"PropertyMonitor -> TestProperty/(ViewModel)", monitor.ToString());
-        }
-
-        [TestMethod]
         public void OnPropertyChangedViewModel_Test()
         {
             var vm = new Mock<IViewModel>();
             vm.Setup(o => o.OnPropertyChanged("TargetProperty"));
+            vm.SetupGet(o => o.PropertyMonitors).Returns(new Collection<IPropertyMonitor>());
+
 
             var comparer = new Mock<IEqualityComparer<string>>();
             comparer.Setup(o => o.Equals(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
 
-            var monitor = new PropertyMonitor<string>(vm.Object, "TestProperty", () => "TestValue", comparer.Object);
+            IPropertyMonitor monitor = new PropertyMonitor<string>(vm.Object, "TestProperty", () => "TestValue", comparer.Object);
 
-            monitor.RegisterViewModelProperties(vm.Object, "TargetProperty");
+            monitor.RegisterViewModelProperty(vm.Object, "TargetProperty");
 
             vm.Raise(o => o.PropertyChanged += null, new PropertyChangedEventArgs("TestProperty"));
             vm.Verify(o => o.OnPropertyChanged("TargetProperty"), Times.Once);
 
-            monitor.UnregisterViewModelProperties(vm.Object, "TargetProperty");
+            monitor.UnregisterViewModelProperty(vm.Object, "TargetProperty");
 
             // raise should not increment invocations after de-registration
             vm.Raise(o => o.PropertyChanged += null, new PropertyChangedEventArgs("TestProperty"));
             vm.Verify(o => o.OnPropertyChanged("TargetProperty"), Times.Once);
         }
 
-        [TestMethod]
+        [TestMethod("NotImplemented yet")]
         public void UpdateCommand_Test()
         {
             var command = new Mock<ICommandInvokeCanExecuteChangedEvent>();
@@ -227,7 +215,7 @@
             var pms = new IPropertyMonitor[] { pm.Object };
 
             var vm = new Mock<IViewModel>();
-            vm.SetupGet(o => o[ViewModel.AllPropertyMontitorsToUnregister]).Returns(pms);
+            //vm.SetupGet(o => o[ViewModel.AllPropertyMontitorsToUnregister]).Returns(pms);
 
             var comparer = new Mock<IEqualityComparer<ICommandInvokeCanExecuteChangedEvent>>();
             comparer.Setup(o => o.Equals(It.IsAny<ICommandInvokeCanExecuteChangedEvent>(), It.IsAny<ICommandInvokeCanExecuteChangedEvent>())).Returns(false);

@@ -267,7 +267,6 @@ namespace SIM.Mvvm.Expressions
             throw new InvalidOperationException();
         }
 
-
         private static IPropertyMonitor GetPropertyMonitor<TProperty>(this INotifyPropertyChanged target, string propertyName, Func<TProperty> expression)
         {
             if (target is IViewModel viewModel)

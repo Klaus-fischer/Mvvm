@@ -8,12 +8,14 @@ namespace SIM.Mvvm
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Linq;
 
     /// <summary>
     /// Monitor to watch for a single property of a <see cref="IViewModel"/>.
     /// </summary>
     /// <typeparam name="T">Type of the property to monitor.</typeparam>
+    [DebuggerDisplay("PropertyMonitor -> {this.PropertyName}")]
     internal class PropertyMonitor<T> : IPropertyMonitor
     {
         private readonly IEqualityComparer<T> equalityComparer;
@@ -120,12 +122,6 @@ namespace SIM.Mvvm
             this.isSuppressed = false;
 
             this.OnViewModelPropertyChangedHandler(null, new PropertyChangedEventArgs(this.PropertyName));
-        }
-
-        /// <inheritdoc/>
-        public override string ToString()
-        {
-            return $"PropertyMonitor -> {this.PropertyName}/";
         }
 
         private void OnViewModelPropertyChangedHandler(object? sender, PropertyChangedEventArgs e)

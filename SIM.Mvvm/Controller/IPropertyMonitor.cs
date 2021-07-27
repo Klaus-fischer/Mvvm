@@ -52,14 +52,14 @@ namespace SIM.Mvvm
         /// </summary>
         /// <param name="target">View model to register if property was changed.</param>
         /// <param name="property">Name of the property that will be effected.</param>
-        internal void RegisterViewModelProperty(IViewModel target, string property);
+        void RegisterViewModelProperty(IViewModel target, string property);
 
         /// <summary>
         /// Unregisters a dependent view model.
         /// </summary>
         /// <param name="target">View model to register if property was changed.</param>
         /// <param name="property">Name of the property that will be effected.</param>
-        internal void UnregisterViewModelProperty(IViewModel target, string property);
+        void UnregisterViewModelProperty(IViewModel target, string property);
 
         /// <summary>
         /// Suppresses all property changed notifications.

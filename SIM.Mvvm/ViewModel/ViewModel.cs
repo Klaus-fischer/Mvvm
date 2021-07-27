@@ -16,8 +16,6 @@ namespace SIM.Mvvm
     /// </summary>
     public abstract class ViewModel : IViewModel
     {
-        internal static readonly string[] AllPropertyMontitorsToUnregister = { };
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewModel"/> class.
         /// </summary>

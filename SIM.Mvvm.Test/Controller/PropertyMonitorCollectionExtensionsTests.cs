@@ -7,6 +7,7 @@
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
+    using SIM.Mvvm.Expressions;
 
     [TestClass]
     public class PropertyMonitorCollectionExtensionsTests
@@ -20,23 +21,10 @@
 
             monitor.SetupAdd(o => o.OnPropertyChangedCallback += a).Verifiable();
 
-            var result = PropertyMonitorCollectionExtensions.RegisterCallback(monitors, a);
+            var result = ExpressionCollectionExtensions.Call(monitors, a);
             monitor.VerifyAdd(o => o.OnPropertyChangedCallback += a, Times.Once);
 
             Assert.AreEqual(monitors, result);
-        }
-
-        [TestMethod]
-        public void UnregisterCallback_Test()
-        {
-            Action a = new Action(() => { });
-            var monitor = new Mock<IPropertyMonitor>();
-            var monitors = new IPropertyMonitor[] { monitor.Object };
-
-            monitor.SetupRemove(o => o.OnPropertyChangedCallback -= a).Verifiable();
-
-            var result = PropertyMonitorCollectionExtensions.UnregisterCallback(monitors, a);
-            monitor.VerifyRemove(o => o.OnPropertyChangedCallback -= a, Times.Once);
         }
 
         [TestMethod]
@@ -44,27 +32,12 @@
         {
             EventHandler<AdvancedPropertyChangedEventArgs> a = (s, e) => { };
             var monitor = new Mock<IPropertyMonitor>();
-            var monitors = new IPropertyMonitor[] { monitor.Object };
-
             monitor.SetupAdd(o => o.OnPropertyChanged += a).Verifiable();
 
-            var result = PropertyMonitorCollectionExtensions.RegisterCallback(monitors, a);
-            monitor.VerifyAdd(o => o.OnPropertyChanged += a, Times.Once);
-
-            Assert.AreEqual(monitors, result);
-        }
-
-        [TestMethod]
-        public void UnregisterCallback_Adv_Test()
-        {
-            EventHandler<AdvancedPropertyChangedEventArgs> a = (s, e) => { };
-            var monitor = new Mock<IPropertyMonitor>();
             var monitors = new IPropertyMonitor[] { monitor.Object };
 
-            monitor.SetupRemove(o => o.OnPropertyChanged -= a).Verifiable();
-
-            var result = PropertyMonitorCollectionExtensions.UnregisterCallback(monitors, a);
-            monitor.VerifyRemove(o => o.OnPropertyChanged -= a, Times.Once);
+            var result = ExpressionCollectionExtensions.Call(monitors, a);
+            monitor.VerifyAdd(o => o.OnPropertyChanged += a, Times.Once);
 
             Assert.AreEqual(monitors, result);
         }
@@ -82,27 +55,8 @@
 
             monitor.Setup(o => o.RegisterCommand(commands[0]));
 
-            var result = PropertyMonitorCollectionExtensions.RegisterCommands(monitors, commands);
+            var result = ExpressionCollectionExtensions.Notify(monitors, commands);
             monitor.Verify(o => o.RegisterCommand(commands[0]), Times.Once);
-
-            Assert.AreEqual(monitors, result);
-        }
-
-        [TestMethod]
-        public void UnregisterCommands_Test()
-        {
-            ICommandInvokeCanExecuteChangedEvent[] commands = new ICommandInvokeCanExecuteChangedEvent[]
-            {
-            new EventCommand(),
-            };
-
-            var monitor = new Mock<IPropertyMonitor>();
-            var monitors = new IPropertyMonitor[] { monitor.Object };
-
-            monitor.Setup(o => o.UnregisterCommand(commands[0]));
-
-            var result = PropertyMonitorCollectionExtensions.UnregisterCommands(monitors, commands);
-            monitor.Verify(o => o.UnregisterCommand(commands[0]), Times.Once);
 
             Assert.AreEqual(monitors, result);
         }
@@ -110,39 +64,26 @@
         [TestMethod]
         public void RegisterViewModelProperties_Test()
         {
-            var viewModel = new Mock<IViewModel>();
+            var viewModel = new Mock<IViewModelMockTest>();
+            viewModel.SetupGet(o => o.MyProperty).Returns("Test");
 
-            string[] propertyNames = new string[] { "Test" };
+            string[] propertyNames = new string[] { nameof(IViewModelMockTest.MyProperty) };
 
             var monitor = new Mock<IPropertyMonitor>();
             var monitors = new IPropertyMonitor[] { monitor.Object };
 
             monitor.Setup(o => o.RegisterViewModelProperty(viewModel.Object, propertyNames[0]));
 
-            var result = PropertyMonitorCollectionExtensions.RegisterViewModelProperties(monitors, viewModel.Object, propertyNames);
+            var result = ExpressionCollectionExtensions.Notify(monitors, () => viewModel.Object.MyProperty);
 
             monitor.Verify(o => o.RegisterViewModelProperty(viewModel.Object, propertyNames[0]), Times.Once);
 
             Assert.AreEqual(monitors, result);
         }
 
-        [TestMethod]
-        public void UnregisterViewModelProperties_Test()
+        public interface IViewModelMockTest : IViewModel
         {
-            var viewModel = new Mock<IViewModel>();
-
-            string[] propertyNames = new string[] { "Test" };
-
-            var monitor = new Mock<IPropertyMonitor>();
-            var monitors = new IPropertyMonitor[] { monitor.Object };
-
-            monitor.Setup(o => o.UnregisterViewModelProperty(viewModel.Object, propertyNames[0]));
-
-            var result = PropertyMonitorCollectionExtensions.UnregisterViewModelProperties(monitors, viewModel.Object, propertyNames);
-
-            monitor.Verify(o => o.UnregisterViewModelProperty(viewModel.Object, propertyNames[0]), Times.Once);
-
-            Assert.AreEqual(monitors, result);
+            public string MyProperty { get; set; }
         }
     }
 }
