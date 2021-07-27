@@ -6,12 +6,10 @@ namespace SIM.Mvvm
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.ComponentModel;
-    using System.Linq;
     using System.Linq.Expressions;
-    using System.Reflection;
     using System.Runtime.CompilerServices;
-    using System.Windows.Input;
 
     /// <summary>
     /// The base view model.
@@ -20,36 +18,20 @@ namespace SIM.Mvvm
     {
         internal static readonly string[] AllPropertyMontitorsToUnregister = { };
 
-        private readonly Dictionary<string, IPropertyMonitor> propertyMontitors =
-            new Dictionary<string, IPropertyMonitor>();
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewModel"/> class.
         /// </summary>
         public ViewModel()
         {
-            this.RegisterDependencies();
+            //this.RegisterDependencies();
         }
 
         /// <inheritdoc/>
         public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <inheritdoc/>
-        public IPropertyMonitor this[string name] => this.GetPropertyMonitor(name);
-
-        /// <inheritdoc/>
-        public IEnumerable<IPropertyMonitor> this[params string[] names]
-        {
-            get
-            {
-                if (ReferenceEquals(names, AllPropertyMontitorsToUnregister))
-                {
-                    return this.propertyMontitors.Values;
-                }
-
-                return names.Select(o => this[o]);
-            }
-        }
+        Collection<IPropertyMonitor> IViewModel.PropertyMonitors { get; }
+            = new Collection<IPropertyMonitor>();
 
         /// <inheritdoc/>
         public void OnPropertyChanged([CallerMemberName] string propertyName = "")
@@ -160,101 +142,94 @@ namespace SIM.Mvvm
             return property.Equals(newValue);
         }
 
-        /// <summary>
-        /// Register all property dependencies marked with the <see cref="DependsOnAttribute"/>,
-        /// to a <see cref="ICommand"/> that implements <see cref="ICommandInvokeCanExecuteChangedEvent"/>.
-        /// </summary>
-        private void RegisterDependencies()
+        void IViewModel.OnPropertyChanged(string propertyName)
         {
-            foreach (var property in this.GetType().GetProperties())
-            {
-                if (property.GetCustomAttribute<DependsOnAttribute>() is not DependsOnAttribute dependsOn)
-                {
-                    continue;
-                }
-
-                if (typeof(ICommand).IsAssignableFrom(property.PropertyType))
-                {
-                    // to Register an update command notification.
-                    _ = this.GetPropertyMonitor(property.Name);
-                }
-
-                this[dependsOn.PropertyNames].RegisterViewModelProperties(this, property.Name);
-            }
-
-            foreach (var method in this.GetType().GetMethods())
-            {
-                if (method.GetCustomAttribute<CallOnPropertyChangedAttribute>() is not CallOnPropertyChangedAttribute callOn)
-                {
-                    continue;
-                }
-
-                if (!this.TryAssignCallback(method, callOn, out var message))
-                {
-                    throw new InvalidOperationException($"Could not assign call back {message}");
-                }
-            }
+            throw new NotImplementedException();
         }
 
-        private bool TryAssignCallback(MethodInfo method, CallOnPropertyChangedAttribute callOn, out string? errorMessage)
-        {
-            var parameters = method.GetParameters();
+        ///// <summary>
+        ///// Register all property dependencies marked with the <see cref="DependsOnAttribute"/>,
+        ///// to a <see cref="ICommand"/> that implements <see cref="ICommandInvokeCanExecuteChangedEvent"/>.
+        ///// </summary>
+        //private void RegisterDependencies()
+        //{
+        //    foreach (var property in this.GetType().GetProperties())
+        //    {
+        //        if (property.GetCustomAttribute<DependsOnAttribute>() is not DependsOnAttribute dependsOn)
+        //        {
+        //            continue;
+        //        }
 
-            errorMessage = null;
-            string prefix = $"{method.Name}({string.Join(", ", parameters.Select(o => o.ParameterType.Name))})\n";
+        //        if (typeof(ICommand).IsAssignableFrom(property.PropertyType))
+        //        {
+        //            // to Register an update command notification.
+        //            _ = this.GetPropertyMonitor(property.Name);
+        //        }
 
-            if (parameters.Length > 0)
-            {
-                if (parameters.Length != 2)
-                {
-                    errorMessage = prefix + "Only zero or two parameters expected.";
-                }
-                else if (parameters[0].ParameterType != typeof(object))
-                {
-                    errorMessage = prefix + "First parameter must have type 'object'";
-                }
-                else if (!typeof(EventArgs).IsAssignableFrom(parameters[1].ParameterType))
-                {
-                    errorMessage = $"{prefix}Second parameter must be assignable to type '{nameof(AdvancedPropertyChangedEventArgs)}'";
-                }
-            }
+        //        this[dependsOn.PropertyNames].RegisterViewModelProperties(this, property.Name);
+        //    }
 
-            if (method.ReturnType != typeof(void))
-            {
-                errorMessage = $"Return type must be void";
-            }
+        //    foreach (var method in this.GetType().GetMethods())
+        //    {
+        //        if (method.GetCustomAttribute<CallOnPropertyChangedAttribute>() is not CallOnPropertyChangedAttribute callOn)
+        //        {
+        //            continue;
+        //        }
 
-            if (errorMessage is not null)
-            {
-                return false;
-            }
+        //        if (!this.TryAssignCallback(method, callOn, out var message))
+        //        {
+        //            throw new InvalidOperationException($"Could not assign call back {message}");
+        //        }
+        //    }
+        //}
 
-            if (parameters.Length == 0)
-            {
-                this[callOn.PropertyNames].RegisterCallback(
-                    (Action)method.CreateDelegate(typeof(Action), this));
-            }
-            else
-            {
-                this[callOn.PropertyNames].RegisterCallback(
-                    (EventHandler<AdvancedPropertyChangedEventArgs>)method.CreateDelegate(
-                        typeof(EventHandler<AdvancedPropertyChangedEventArgs>),
-                        this));
-            }
+        //private bool TryAssignCallback(MethodInfo method, CallOnPropertyChangedAttribute callOn, out string? errorMessage)
+        //{
+        //    var parameters = method.GetParameters();
 
-            return true;
-        }
+        //    errorMessage = null;
+        //    string prefix = $"{method.Name}({string.Join(", ", parameters.Select(o => o.ParameterType.Name))})\n";
 
-        private IPropertyMonitor GetPropertyMonitor(string propertyName)
-        {
-            if (this.propertyMontitors.TryGetValue(propertyName, out var monitor))
-            {
-                return monitor;
-            }
+        //    if (parameters.Length > 0)
+        //    {
+        //        if (parameters.Length != 2)
+        //        {
+        //            errorMessage = prefix + "Only zero or two parameters expected.";
+        //        }
+        //        else if (parameters[0].ParameterType != typeof(object))
+        //        {
+        //            errorMessage = prefix + "First parameter must have type 'object'";
+        //        }
+        //        else if (!typeof(EventArgs).IsAssignableFrom(parameters[1].ParameterType))
+        //        {
+        //            errorMessage = $"{prefix}Second parameter must be assignable to type '{nameof(AdvancedPropertyChangedEventArgs)}'";
+        //        }
+        //    }
 
-            monitor = PropertyMonitorFactory.Create(this, propertyName);
-            this.propertyMontitors.Add(propertyName, monitor);
-            return monitor;
-        }
+        //    if (method.ReturnType != typeof(void))
+        //    {
+        //        errorMessage = $"Return type must be void";
+        //    }
+
+        //    if (errorMessage is not null)
+        //    {
+        //        return false;
+        //    }
+
+        //    if (parameters.Length == 0)
+        //    {
+        //        this[callOn.PropertyNames].RegisterCallback(
+        //            (Action)method.CreateDelegate(typeof(Action), this));
+        //    }
+        //    else
+        //    {
+        //        this[callOn.PropertyNames].RegisterCallback(
+        //            (EventHandler<AdvancedPropertyChangedEventArgs>)method.CreateDelegate(
+        //                typeof(EventHandler<AdvancedPropertyChangedEventArgs>),
+        //                this));
+        //    }
+
+        //    return true;
+        //}
     }
 }

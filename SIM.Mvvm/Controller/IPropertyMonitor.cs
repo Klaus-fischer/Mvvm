@@ -1,4 +1,4 @@
-﻿// <copyright file="ViewModelPropertyMonitor.cs" company="SIM Automation">
+﻿// <copyright file="IPropertyMonitor.cs" company="SIM Automation">
 // Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
@@ -27,7 +27,10 @@ namespace SIM.Mvvm
         /// </summary>
         string PropertyName { get; }
 
-        internal INotifyPropertyChanged Target { get; }
+        /// <summary>
+        /// Gets the reference to the target to observe.
+        /// </summary>
+        INotifyPropertyChanged? Target { get; }
 
         /// <summary>
         /// To register a command dependency.
