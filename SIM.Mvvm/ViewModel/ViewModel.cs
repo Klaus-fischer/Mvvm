@@ -21,7 +21,7 @@ namespace SIM.Mvvm
         /// </summary>
         public ViewModel()
         {
-            //this.RegisterDependencies();
+            this.RegisterDependencies();
         }
 
         /// <inheritdoc/>
@@ -139,90 +139,5 @@ namespace SIM.Mvvm
             // true if both values are equal.
             return property.Equals(newValue);
         }
-
-        ///// <summary>
-        ///// Register all property dependencies marked with the <see cref="DependsOnAttribute"/>,
-        ///// to a <see cref="ICommand"/> that implements <see cref="ICommandInvokeCanExecuteChangedEvent"/>.
-        ///// </summary>
-        //private void RegisterDependencies()
-        //{
-        //    foreach (var property in this.GetType().GetProperties())
-        //    {
-        //        if (property.GetCustomAttribute<DependsOnAttribute>() is not DependsOnAttribute dependsOn)
-        //        {
-        //            continue;
-        //        }
-
-        //        if (typeof(ICommand).IsAssignableFrom(property.PropertyType))
-        //        {
-        //            // to Register an update command notification.
-        //            _ = this.GetPropertyMonitor(property.Name);
-        //        }
-
-        //        this[dependsOn.PropertyNames].RegisterViewModelProperties(this, property.Name);
-        //    }
-
-        //    foreach (var method in this.GetType().GetMethods())
-        //    {
-        //        if (method.GetCustomAttribute<CallOnPropertyChangedAttribute>() is not CallOnPropertyChangedAttribute callOn)
-        //        {
-        //            continue;
-        //        }
-
-        //        if (!this.TryAssignCallback(method, callOn, out var message))
-        //        {
-        //            throw new InvalidOperationException($"Could not assign call back {message}");
-        //        }
-        //    }
-        //}
-
-        //private bool TryAssignCallback(MethodInfo method, CallOnPropertyChangedAttribute callOn, out string? errorMessage)
-        //{
-        //    var parameters = method.GetParameters();
-
-        //    errorMessage = null;
-        //    string prefix = $"{method.Name}({string.Join(", ", parameters.Select(o => o.ParameterType.Name))})\n";
-
-        //    if (parameters.Length > 0)
-        //    {
-        //        if (parameters.Length != 2)
-        //        {
-        //            errorMessage = prefix + "Only zero or two parameters expected.";
-        //        }
-        //        else if (parameters[0].ParameterType != typeof(object))
-        //        {
-        //            errorMessage = prefix + "First parameter must have type 'object'";
-        //        }
-        //        else if (!typeof(EventArgs).IsAssignableFrom(parameters[1].ParameterType))
-        //        {
-        //            errorMessage = $"{prefix}Second parameter must be assignable to type '{nameof(AdvancedPropertyChangedEventArgs)}'";
-        //        }
-        //    }
-
-        //    if (method.ReturnType != typeof(void))
-        //    {
-        //        errorMessage = $"Return type must be void";
-        //    }
-
-        //    if (errorMessage is not null)
-        //    {
-        //        return false;
-        //    }
-
-        //    if (parameters.Length == 0)
-        //    {
-        //        this[callOn.PropertyNames].RegisterCallback(
-        //            (Action)method.CreateDelegate(typeof(Action), this));
-        //    }
-        //    else
-        //    {
-        //        this[callOn.PropertyNames].RegisterCallback(
-        //            (EventHandler<AdvancedPropertyChangedEventArgs>)method.CreateDelegate(
-        //                typeof(EventHandler<AdvancedPropertyChangedEventArgs>),
-        //                this));
-        //    }
-
-        //    return true;
-        //}
     }
 }

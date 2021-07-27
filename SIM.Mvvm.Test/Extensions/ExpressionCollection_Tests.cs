@@ -40,55 +40,74 @@
         }
 
         [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ListenExpression_Fail()
+        {
+            var monitorCollection = ExpressionCollectionExtensions
+                .Listen(this,() => this.ViewModel.ToString())
+                .ToArray();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ListenExpression_Field()
+        {
+            var monitorCollection = ExpressionCollectionExtensions
+                .Listen(this, () => this.ViewModel.IntField)
+                .ToArray();
+        }
+
+
+        [TestMethod]
         public void CallBack()
         {
-            var callbackRaised = false;
-            Action a = () => callbackRaised = true;
+            var callbackRaised = 0;
+            Action a = () => callbackRaised++;
 
             this.Property = "Alter Wert";
             this.ViewModel.IntProperty = 0;
 
             var monitor = ExpressionCollectionExtensions
                 .Listen(this, () => this.Property, () => this.ViewModel.IntProperty)
-                .Call(a);
+                .Call(a, a);
 
             this.Property = "Neuer Wert";
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Property)));
 
-            Assert.IsTrue(callbackRaised);
+            Assert.AreEqual(2, callbackRaised);
 
-            callbackRaised = false;
+            callbackRaised = 0;
 
             this.ViewModel.IntProperty = 42;
             this.ViewModel.OnPropertyChanged(nameof(this.ViewModel.IntProperty));
 
-            Assert.IsTrue(callbackRaised);
+            Assert.AreEqual(2, callbackRaised);
         }
 
         [TestMethod]
         public void EventHandler()
         {
-            var callbackRaised = false;
-            EventHandler<AdvancedPropertyChangedEventArgs> eventHandler = (s, e) => callbackRaised = true;
+            var callbackRaised = 0;
+            EventHandler<AdvancedPropertyChangedEventArgs> eventHandler = (s, e) => callbackRaised++;
 
             this.Property = "Alter Wert";
             this.ViewModel.IntProperty = -1;
 
             var monitor = ExpressionCollectionExtensions
                 .Listen(this, () => this.Property, () => this.ViewModel.IntProperty)
-                .Call(eventHandler);
+                .Call(eventHandler, eventHandler);
 
             this.Property = "Neuer Wert";
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Property)));
 
-            Assert.IsTrue(callbackRaised);
+            Assert.AreEqual(2, callbackRaised);
 
-            callbackRaised = false;
+            callbackRaised = 0;
 
             this.ViewModel.IntProperty = 42;
             this.ViewModel.OnPropertyChanged(nameof(this.ViewModel.IntProperty));
 
-            Assert.IsTrue(callbackRaised);
+            Assert.AreEqual(2, callbackRaised);
         }
 
         [TestMethod]
@@ -187,8 +206,8 @@
                 this.ViewModel.IntProperty = -1;
 
                 ExpressionCollectionExtensions.Listen(
-                    (INotifyCommand)this.TestCommand, 
-                    () => this.Property, 
+                    (INotifyCommand)this.TestCommand,
+                    () => this.Property,
                     () => this.ViewModel.IntProperty);
 
                 this.Property = "Neuer Wert";
@@ -217,6 +236,8 @@
             public string SubProperty { get; set; } = "initial";
 
             public int IntProperty { get; set; }
+
+            public int IntField;
 
             public Collection<IPropertyMonitor> PropertyMonitors { get; }
                 = new Collection<IPropertyMonitor>();

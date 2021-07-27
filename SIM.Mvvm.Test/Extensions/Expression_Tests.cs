@@ -38,6 +38,22 @@
         }
 
         [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ListenExpression_Fail_Type()
+        {
+            var target = new List<string>();
+
+            var monitor1 = ExpressionExtensions.Listen(this, () => target.Count);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ListenExpression_Fail_Expression()
+        {
+            var monitor1 = ExpressionExtensions.Listen(this, () => 42);
+        }
+
+        [TestMethod]
         public void CallBack()
         {
             var callbackRaised = false;
@@ -87,6 +103,27 @@
             }
         }
 
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void NotifyViewModel_Fail_Type()
+        {
+            var target = new List<string>();
+
+            var monitor = ExpressionExtensions
+                .Listen(this, () => this.Property)
+                .Notify(() => target.Count);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void NotifyViewModel_Fail_Expression()
+        {
+            var monitor = ExpressionExtensions
+                   .Listen(this, () => this.Property)
+                   .Notify(() => 42);
+        }
+
         [TestMethod]
         public void NotifyCommand()
         {
@@ -114,6 +151,16 @@
             {
                 this.TestCommand.CanExecuteChanged -= eventHandler;
             }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void NotifyCommand_Fail()
+        {
+            var cmd = new Mock<ICommand>().Object;
+            ExpressionExtensions
+                .Listen(this, () => this.Property)
+                .Notify(cmd);
         }
 
         [TestMethod]
@@ -145,6 +192,22 @@
         }
 
         [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void NotifyCommandByListen_Fail_Expression()
+        {
+            ExpressionExtensions.Listen((INotifyCommand)this.TestCommand, () => 42);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void NotifyCommandByListen_Fail_Type()
+        {
+            var target = new List<string>();
+
+            ExpressionExtensions.Listen((INotifyCommand)this.TestCommand, () => target.Count);
+        }
+
+        [TestMethod]
         public void EventHandler()
         {
             var callbackRaised = false;
@@ -167,7 +230,7 @@
 
             public string Property { get; set; } = "initial";
 
-            public Collection<IPropertyMonitor> PropertyMonitors { get; } 
+            public Collection<IPropertyMonitor> PropertyMonitors { get; }
                 = new Collection<IPropertyMonitor>();
 
             public void OnPropertyChanged([CallerMemberName] string propertyName = "")

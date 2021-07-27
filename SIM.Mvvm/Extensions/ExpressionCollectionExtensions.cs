@@ -264,8 +264,7 @@ namespace SIM.Mvvm.Expressions
             if (expression.NodeType == ExpressionType.MemberAccess && expression is MemberExpression me)
             {
                 propertyType = me.Member is PropertyInfo pi ? pi.PropertyType
-                             : me.Member is FieldInfo fi ? fi.FieldType
-                             : throw new InvalidOperationException("Expression must show a Property or a Field");
+                             : throw new InvalidOperationException("Expression must show a Property");
 
                 return Expression.Lambda(me);
             }
