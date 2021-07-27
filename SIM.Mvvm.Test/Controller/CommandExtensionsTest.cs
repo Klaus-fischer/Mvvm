@@ -14,12 +14,12 @@
         [TestMethod]
         public void TryInvokeCanExecuteChanged_Test()
         {
-            var cmd = new Mock<ICommandInvokeCanExecuteChangedEvent>();
-            cmd.Setup(o => o.InvokeCanExecuteChanged(cmd.Object, It.IsAny<EventArgs>()));
+            var cmd = new Mock<INotifyCommand>();
+            cmd.Setup(o => o.Notify(cmd.Object, It.IsAny<EventArgs>()));
 
             CommandExtensions.TryInvokeCanExecuteChanged(cmd.Object);
 
-            cmd.Verify(o => o.InvokeCanExecuteChanged(cmd.Object, It.IsAny<EventArgs>()), Times.Once);
+            cmd.Verify(o => o.Notify(cmd.Object, It.IsAny<EventArgs>()), Times.Once);
         }
 
         [TestMethod]
@@ -34,12 +34,12 @@
         [TestMethod]
         public void InvokeCanExecuteChanged_Test()
         {
-            var cmd = new Mock<ICommandInvokeCanExecuteChangedEvent>();
-            cmd.Setup(o => o.InvokeCanExecuteChanged(cmd.Object, It.IsAny<EventArgs>()));
+            var cmd = new Mock<INotifyCommand>();
+            cmd.Setup(o => o.Notify(cmd.Object, It.IsAny<EventArgs>()));
 
             CommandExtensions.InvokeCanExecuteChanged(cmd.Object);
 
-            cmd.Verify(o => o.InvokeCanExecuteChanged(cmd.Object, It.IsAny<EventArgs>()), Times.Once);
+            cmd.Verify(o => o.Notify(cmd.Object, It.IsAny<EventArgs>()), Times.Once);
         }
     }
 }

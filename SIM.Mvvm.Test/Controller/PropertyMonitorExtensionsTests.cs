@@ -43,7 +43,7 @@
         [TestMethod]
         public void RegisterCommands_Test()
         {
-            ICommandInvokeCanExecuteChangedEvent commands = new EventCommand();
+            INotifyCommand commands = new EventCommand();
 
             var monitor = new Mock<IPropertyMonitor>();
             monitor.Setup(o => o.RegisterCommand(commands));

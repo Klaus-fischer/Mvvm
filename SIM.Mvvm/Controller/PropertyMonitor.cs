@@ -22,8 +22,8 @@ namespace SIM.Mvvm
         private readonly Func<T> getValue;
         private readonly WeakReference<INotifyPropertyChanged> viewModelReference;
 
-        private readonly Collection<ICommandInvokeCanExecuteChangedEvent> commands =
-            new Collection<ICommandInvokeCanExecuteChangedEvent>();
+        private readonly Collection<INotifyCommand> commands =
+            new Collection<INotifyCommand>();
 
         private readonly Collection<ViewModelNotifier> notifiers =
             new Collection<ViewModelNotifier>();
@@ -78,14 +78,14 @@ namespace SIM.Mvvm
 
         /// <inheritdoc/>
         public TCommand RegisterCommand<TCommand>(TCommand command)
-            where TCommand : ICommandInvokeCanExecuteChangedEvent
+            where TCommand : INotifyCommand
         {
             this.commands.Add(command);
             return command;
         }
 
         /// <inheritdoc/>
-        public void UnregisterCommand(ICommandInvokeCanExecuteChangedEvent command)
+        public void UnregisterCommand(INotifyCommand command)
             => this.commands.Remove(command);
 
         /// <inheritdoc/>
@@ -159,7 +159,7 @@ namespace SIM.Mvvm
 
             foreach (var command in this.commands)
             {
-                command.InvokeCanExecuteChanged();
+                command.NotifyCanExecuteChanged();
             }
 
             foreach (var notifier in this.notifiers)

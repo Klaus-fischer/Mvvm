@@ -45,7 +45,7 @@
         [TestMethod]
         public void RegisterCommands_Test()
         {
-            ICommandInvokeCanExecuteChangedEvent[] commands = new ICommandInvokeCanExecuteChangedEvent[]
+            INotifyCommand[] commands = new INotifyCommand[]
             {
                 new EventCommand(),
             };

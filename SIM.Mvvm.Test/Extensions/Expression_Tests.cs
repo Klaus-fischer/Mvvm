@@ -134,7 +134,7 @@
             {
                 this.Property = "Alter Wert";
 
-                ExpressionExtensions.Listen((ICommandInvokeCanExecuteChangedEvent)this.TestCommand, () => this.Property);
+                ExpressionExtensions.Listen((INotifyCommand)this.TestCommand, () => this.Property);
 
                 this.Property = "Neuer Wert";
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Property)));

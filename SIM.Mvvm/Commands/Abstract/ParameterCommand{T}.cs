@@ -15,7 +15,7 @@ namespace SIM.Mvvm
     /// Signature of <see cref="IParameterCommand{T}"/> implemented.
     /// </summary>
     /// <typeparam name="T">Type of the expected command parameter.</typeparam>
-    public abstract class ParameterCommand<T> : IParameterCommand<T>, ICommandInvokeCanExecuteChangedEvent
+    public abstract class ParameterCommand<T> : IParameterCommand<T>, INotifyCommand
     {
         /// <inheritdoc/>
         public event EventHandler CanExecuteChanged;
@@ -60,9 +60,9 @@ namespace SIM.Mvvm
         }
 
         /// <inheritdoc/>
-        void ICommandInvokeCanExecuteChangedEvent.InvokeCanExecuteChanged(object sender, EventArgs e)
+        void INotifyCommand.NotifyCanExecuteChanged()
         {
-            this.CanExecuteChanged?.Invoke(sender, e);
+            this.CanExecuteChanged?.Invoke(this, new EventArgs());
         }
 
         /// <summary>

@@ -39,13 +39,13 @@ namespace SIM.Mvvm
         /// <typeparam name="T">Type of the command.</typeparam>
         /// <returns>The command itself for chaining.</returns>
         T RegisterCommand<T>(T command)
-            where T : ICommandInvokeCanExecuteChangedEvent;
+            where T : INotifyCommand;
 
         /// <summary>
         /// Unregister command dependency.
         /// </summary>
         /// <param name="command">Command to unregister.</param>
-        void UnregisterCommand(ICommandInvokeCanExecuteChangedEvent command);
+        void UnregisterCommand(INotifyCommand command);
 
         /// <summary>
         /// Registers a dependent view model.

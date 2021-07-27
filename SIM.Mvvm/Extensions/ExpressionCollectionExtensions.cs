@@ -171,8 +171,8 @@ namespace SIM.Mvvm.Expressions
         ///
         /// public MyViewModel()
         /// {
-        ///     this.MyCommand = new EventCommand();          // or some other command that implements <see cref="ICommandInvokeCanExecuteChangedEvent"/>.
-        ///     this.MySecondCommand = new EventCommand();    // or some other command that implements <see cref="ICommandInvokeCanExecuteChangedEvent"/>.
+        ///     this.MyCommand = new EventCommand();          // or some other command that implements <see cref="INotifyCommand"/>.
+        ///     this.MySecondCommand = new EventCommand();    // or some other command that implements <see cref="INotifyCommand"/>.
         ///
         ///     this.Listen(() => this.MyProperty, () => this.MySecondProperty)
         ///         .Notify(this.MyCommand, this.MySecondCommand);
@@ -223,7 +223,7 @@ namespace SIM.Mvvm.Expressions
         /// Must be a MemberExpression to a <see cref="INotifyPropertyChanged"/> object.</param>
         /// <returns>The property monitor.</returns>
         public static T Listen<T>(this T command, params Expression<Func<object>>[] expressions)
-            where T : ICommandInvokeCanExecuteChangedEvent
+            where T : INotifyCommand
         {
             foreach (var expression in expressions)
             {

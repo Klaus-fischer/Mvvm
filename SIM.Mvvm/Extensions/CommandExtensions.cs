@@ -8,7 +8,7 @@ namespace SIM.Mvvm
     using System.Windows.Input;
 
     /// <summary>
-    /// Extension class to extend <see cref="ICommand"/> (<see cref="ICommandInvokeCanExecuteChangedEvent"/>).
+    /// Extension class to extend <see cref="ICommand"/> (<see cref="INotifyCommand"/>).
     /// </summary>
     public static class CommandExtensions
     {
@@ -18,22 +18,13 @@ namespace SIM.Mvvm
         /// <param name="command">The command that has changed.</param>
         public static void TryInvokeCanExecuteChanged(this ICommand command)
         {
-            if (command is ICommandInvokeCanExecuteChangedEvent cmd)
+            if (command is INotifyCommand cmd)
             {
-                cmd.InvokeCanExecuteChanged();
+                cmd.NotifyCanExecuteChanged();
                 return;
             }
 
             throw new InvalidOperationException("The event could not be invoked.");
-        }
-
-        /// <summary>
-        /// Tries to invoke the <see cref="ICommand.CanExecuteChanged"/> event.
-        /// </summary>
-        /// <param name="command">The command that has changed.</param>
-        public static void InvokeCanExecuteChanged(this ICommandInvokeCanExecuteChangedEvent command)
-        {
-            command.InvokeCanExecuteChanged(command, new EventArgs());
         }
     }
 }

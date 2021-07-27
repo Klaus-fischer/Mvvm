@@ -148,7 +148,7 @@
         {
             bool eventHandlerInvoked = false;
 
-            ICommandInvokeCanExecuteChangedEvent cmd = new ParameterCommandType<string>();
+            INotifyCommand cmd = new ParameterCommandType<string>();
 
             EventHandler handler = (s, a) => eventHandlerInvoked = true;
 

@@ -175,7 +175,7 @@ namespace SIM.Mvvm.Expressions
         ///
         /// public MyViewModel()
         /// {
-        ///     this.MyCommand = new EventCommand();    // or some other command that implements <see cref="ICommandInvokeCanExecuteChangedEvent"/>.
+        ///     this.MyCommand = new EventCommand();    // or some other command that implements <see cref="INotifyCommand"/>.
         ///     this.Listen(() => this.MyProperty).Notify(this.MyCommand);
         /// }
         /// ...
@@ -186,13 +186,13 @@ namespace SIM.Mvvm.Expressions
         /// <returns>The property monitor.</returns>
         public static IPropertyMonitor Notify(this IPropertyMonitor monitor, ICommand command)
         {
-            if (command is ICommandInvokeCanExecuteChangedEvent cmd)
+            if (command is INotifyCommand cmd)
             {
                 monitor.RegisterCommand(cmd);
                 return monitor;
             }
 
-            throw new InvalidOperationException($"Command must implement {nameof(ICommandInvokeCanExecuteChangedEvent)} interface.");
+            throw new InvalidOperationException($"Command must implement {nameof(INotifyCommand)} interface.");
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace SIM.Mvvm.Expressions
         ///
         /// public MyViewModel()
         /// {
-        ///     this.MyCommand = new EventCommand()    // or some other command that implements <see cref="ICommandInvokeCanExecuteChangedEvent"/>.
+        ///     this.MyCommand = new EventCommand()    // or some other command that implements <see cref="INotifyCommand"/>.
         ///         .Listen(() => this.MyProperty);
         ///     //                  A       A
         ///     //                  |       L Property to listen to
@@ -220,7 +220,7 @@ namespace SIM.Mvvm.Expressions
         /// Must be a MemberExpression to a <see cref="INotifyPropertyChanged"/> object.</param>
         /// <returns>The property monitor.</returns>
         public static T Listen<T>(this T command, Expression<Func<object>> expression)
-            where T : ICommandInvokeCanExecuteChangedEvent
+            where T : INotifyCommand
         {
             if (expression.Body.NodeType == ExpressionType.MemberAccess && expression.Body is MemberExpression me)
             {

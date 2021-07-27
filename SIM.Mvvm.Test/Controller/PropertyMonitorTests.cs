@@ -161,20 +161,20 @@
             var comparer = new Mock<IEqualityComparer<string>>();
             comparer.Setup(o => o.Equals(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
 
-            var command = new Mock<ICommandInvokeCanExecuteChangedEvent>();
-            command.Setup(o => o.InvokeCanExecuteChanged(command.Object, It.IsAny<EventArgs>()));
+            var command = new Mock<INotifyCommand>();
+            command.Setup(o => o.NotifyCanExecuteChanged());
 
             var monitor = new PropertyMonitor<string>(vm.Object, "TestProperty", () => "TestValue", comparer.Object);
 
             monitor.RegisterCommand(command.Object);
             vm.Raise(o => o.PropertyChanged += null, new PropertyChangedEventArgs("TestProperty"));
-            command.Verify(o => o.InvokeCanExecuteChanged(command.Object, It.IsAny<EventArgs>()), Times.Once);
+            command.Verify(o => o.NotifyCanExecuteChanged(), Times.Once);
 
             monitor.UnregisterCommand(command.Object);
 
             // raise should not increment invocations after de-registration
             vm.Raise(o => o.PropertyChanged += null, new PropertyChangedEventArgs("TestProperty"));
-            command.Verify(o => o.InvokeCanExecuteChanged(command.Object, It.IsAny<EventArgs>()), Times.Once);
+            command.Verify(o => o.NotifyCanExecuteChanged(), Times.Once);
         }
 
         [TestMethod]
@@ -205,8 +205,8 @@
         [TestMethod("NotImplemented yet")]
         public void UpdateCommand_Test()
         {
-            var command = new Mock<ICommandInvokeCanExecuteChangedEvent>();
-            command.Setup(o => o.InvokeCanExecuteChanged(command.Object, It.IsAny<EventArgs>()));
+            var command = new Mock<INotifyCommand>();
+            command.Setup(o => o.NotifyCanExecuteChanged());
 
             var pm = new Mock<IPropertyMonitor>();
             pm.Setup(o => o.RegisterCommand(command.Object));
@@ -217,10 +217,10 @@
             var vm = new Mock<IViewModel>();
             //vm.SetupGet(o => o[ViewModel.AllPropertyMontitorsToUnregister]).Returns(pms);
 
-            var comparer = new Mock<IEqualityComparer<ICommandInvokeCanExecuteChangedEvent>>();
-            comparer.Setup(o => o.Equals(It.IsAny<ICommandInvokeCanExecuteChangedEvent>(), It.IsAny<ICommandInvokeCanExecuteChangedEvent>())).Returns(false);
+            var comparer = new Mock<IEqualityComparer<INotifyCommand>>();
+            comparer.Setup(o => o.Equals(It.IsAny<INotifyCommand>(), It.IsAny<INotifyCommand>())).Returns(false);
 
-            var monitor = new PropertyMonitor<ICommandInvokeCanExecuteChangedEvent>(vm.Object, "TestProperty", () => command.Object, comparer.Object);
+            var monitor = new PropertyMonitor<INotifyCommand>(vm.Object, "TestProperty", () => command.Object, comparer.Object);
 
             vm.Raise(o => o.PropertyChanged += null, new PropertyChangedEventArgs("TestProperty"));
 
