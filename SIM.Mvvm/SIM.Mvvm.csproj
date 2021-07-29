@@ -14,7 +14,7 @@ Implements ViewModel base class and many Commands.</Description>
     <FileVersion>1.0.0.0</FileVersion>
     <PackageProjectUrl>https://s-op.verwaltung.sim/gitlab/sim/mvvm/</PackageProjectUrl>
     <RepositoryUrl>https://s-op.verwaltung.sim/gitlab/sim/mvvm/</RepositoryUrl>
-    <Version>0.3.3</Version>
+    <Version>0.5.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
