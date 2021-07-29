@@ -60,7 +60,7 @@ namespace SIM.Mvvm
         }
 
         /// <inheritdoc/>
-        void INotifyCommand.NotifyCanExecuteChanged()
+        public void NotifyCanExecuteChanged()
         {
             this.CanExecuteChanged?.Invoke(this, new EventArgs());
         }
