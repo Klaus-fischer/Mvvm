@@ -14,40 +14,22 @@ namespace SIM.Mvvm
     /// <summary>
     /// Monitor to watch for a single property of a <see cref="IViewModel"/>.
     /// </summary>
-    /// <typeparam name="T">Type of the property to monitor.</typeparam>
     [DebuggerDisplay("PropertyMonitor -> {this.PropertyName}")]
-    internal class PropertyMonitor<T> : IPropertyMonitor
+    internal class PropertyMonitor : IPropertyMonitor
     {
-        private readonly IEqualityComparer<T> equalityComparer;
-        private readonly Func<T> getValue;
         private readonly WeakReference<INotifyPropertyChanged> viewModelReference;
 
-        private readonly Collection<INotifyCommand> commands =
-            new Collection<INotifyCommand>();
-
-        private readonly Collection<ViewModelNotifier> notifiers =
-            new Collection<ViewModelNotifier>();
+        private readonly List<ViewModelNotifier> notifiers
+            = new List<ViewModelNotifier>();
 
         /// <summary>
-        /// Gets or sets a value indicating whether the <see cref="OnPropertyChanged"/> is suppressed.
-        /// </summary>
-        private bool isSuppressed;
-
-        private T oldValue;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PropertyMonitor{T}"/> class.
+        /// Initializes a new instance of the <see cref="PropertyMonitor"/> class.
         /// </summary>
         /// <param name="viewModel">View model to listen to.</param>
         /// <param name="propertyName">The name of the property the monitor listens to.</param>
-        /// <param name="getValue">Request to get the property value.</param>
-        public PropertyMonitor(INotifyPropertyChanged viewModel, string propertyName, Func<T> getValue, IEqualityComparer<T>? equalityComparer = null)
+        public PropertyMonitor(INotifyPropertyChanged viewModel, string propertyName)
         {
             this.PropertyName = propertyName;
-            this.getValue = getValue;
-            this.equalityComparer = equalityComparer ?? EqualityComparer<T>.Default;
-            this.oldValue = getValue();
-
             this.viewModelReference = new WeakReference<INotifyPropertyChanged>(viewModel, false);
 
             viewModel.PropertyChanged += this.OnViewModelPropertyChangedHandler;
@@ -77,21 +59,9 @@ namespace SIM.Mvvm
         }
 
         /// <inheritdoc/>
-        public TCommand RegisterCommand<TCommand>(TCommand command)
-            where TCommand : INotifyCommand
-        {
-            this.commands.Add(command);
-            return command;
-        }
-
-        /// <inheritdoc/>
-        public void UnregisterCommand(INotifyCommand command)
-            => this.commands.Remove(command);
-
-        /// <inheritdoc/>
         void IPropertyMonitor.RegisterViewModelProperty(IViewModel target, string property)
         {
-            var notifier = this.notifiers.FirstOrDefault(o => o.CheckViewModel(target));
+            var notifier = this.notifiers.Find(o => o.CheckViewModel(target));
             if (notifier is null)
             {
                 notifier = new ViewModelNotifier(target);
@@ -104,46 +74,25 @@ namespace SIM.Mvvm
         /// <inheritdoc/>
         void IPropertyMonitor.UnregisterViewModelProperty(IViewModel target, string property)
         {
-            if (this.notifiers.FirstOrDefault(o => o.CheckViewModel(target)) is ViewModelNotifier notifier)
+            if (this.notifiers.Find(o => o.CheckViewModel(target)) is ViewModelNotifier notifier)
             {
                 notifier.RemoveProperty(property);
             }
         }
 
-        /// <inheritdoc/>
-        public void SuspendPropertyChanged()
-        {
-            this.isSuppressed = true;
-        }
-
-        /// <inheritdoc/>
-        public void RestorePropertyChanged()
-        {
-            this.isSuppressed = false;
-
-            this.OnViewModelPropertyChangedHandler(null, new PropertyChangedEventArgs(this.PropertyName));
-        }
-
         private void OnViewModelPropertyChangedHandler(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName != this.PropertyName || this.isSuppressed)
+            if (e.PropertyName != this.PropertyName)
             {
                 return;
             }
 
-            var newValue = this.getValue();
-            var oldValue = this.oldValue;
-
-            this.oldValue = newValue;
-
-            if (this.equalityComparer.Equals(oldValue, newValue))
+            if (e is not AdvancedPropertyChangedEventArgs advancedEventArgs)
             {
-                return;
+                advancedEventArgs = new AdvancedPropertyChangedEventArgs(e.PropertyName, null, null);
             }
 
-            this.InvokeOnViewModelPropertyChanged(
-                sender,
-                new AdvancedPropertyChangedEventArgs(this.PropertyName, oldValue, newValue));
+            this.InvokeOnViewModelPropertyChanged(sender, advancedEventArgs);
         }
 
         /// <summary>
@@ -156,11 +105,6 @@ namespace SIM.Mvvm
             this.OnPropertyChanged?.Invoke(sender, e);
 
             this.OnPropertyChangedCallback?.Invoke();
-
-            foreach (var command in this.commands)
-            {
-                command.NotifyCanExecuteChanged();
-            }
 
             foreach (var notifier in this.notifiers)
             {

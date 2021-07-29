@@ -3,10 +3,6 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
     using SIM.Mvvm.Expressions;
 
     [TestClass]
@@ -38,25 +34,6 @@
 
             var result = ExpressionCollectionExtensions.Call(monitors, a);
             monitor.VerifyAdd(o => o.OnPropertyChanged += a, Times.Once);
-
-            Assert.AreEqual(monitors, result);
-        }
-
-        [TestMethod]
-        public void RegisterCommands_Test()
-        {
-            INotifyCommand[] commands = new INotifyCommand[]
-            {
-                new EventCommand(),
-            };
-
-            var monitor = new Mock<IPropertyMonitor>();
-            var monitors = new IPropertyMonitor[] { monitor.Object };
-
-            monitor.Setup(o => o.RegisterCommand(commands[0]));
-
-            var result = ExpressionCollectionExtensions.Notify(monitors, commands);
-            monitor.Verify(o => o.RegisterCommand(commands[0]), Times.Once);
 
             Assert.AreEqual(monitors, result);
         }

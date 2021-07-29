@@ -2,168 +2,115 @@
 // Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
-namespace SIM.Mvvm
+namespace SIM.Mvvm.Expressions
 {
     using System;
-    using System.Linq;
+    using System.ComponentModel;
     using System.Linq.Expressions;
-    using System.Reflection;
-    using System.Windows.Input;
 
-    internal static class ViewModelExtensions
+    /// <summary>
+    /// Extends <see cref="ViewModel"/> by some Expression calls.
+    /// </summary>
+    public static class ViewModelExtensions
     {
         /// <summary>
-        /// Register all property dependencies marked with the <see cref="DependsOnAttribute"/>.
-        /// Registers all callback methods marked with <see cref="CallOnPropertyChangedAttribute"/>.
+        /// ViewModel will suppress <see cref="INotifyPropertyChanged"/> notifications on the property after calling this method.
         /// </summary>
-        /// <param name="viewModel">The view model to register.</param>
-        public static void RegisterDependencies(this IViewModel viewModel)
+        /// <example>
+        /// ...
+        /// public string MyProperty { get; set; }
+        ///
+        /// public void DoSomoeThing()
+        /// {
+        ///     this.SuppressNotifications(() => this.MyProperty);
+        ///
+        ///     // does the same as:
+        ///     this.SuppressNotifications(nameof(this.MyProperty), this.MyProperty);
+        /// }
+        /// ...
+        /// </example>
+        /// <typeparam name="TProperty">Type of the property.</typeparam>
+        /// <param name="viewModel">The view model to extend.</param>
+        /// <param name="expression">The PropertyExpression to the property to suppress.</param>
+        public static void SuppressNotifications<TProperty>(this ViewModel viewModel, Expression<Func<TProperty>> expression)
         {
-            RegisterDependentProperties(viewModel);
-            RegisterDependentMethods(viewModel);
+            if (expression.Body.NodeType == ExpressionType.MemberAccess && expression.Body is MemberExpression me)
+            {
+                var propertyName = me.Member.Name;
+                var value = expression.Compile().Invoke();
+                viewModel.SuppressNotifications(propertyName, value);
+
+                return;
+            }
+
+            throw new InvalidOperationException($"Expression must point to an Property of the current ViewModel.");
         }
 
-        private static void RegisterDependentProperties(IViewModel viewModel)
+        /// <summary>
+        /// ViewModel will restore the <see cref="INotifyPropertyChanged"/> notifications on the properties.
+        /// </summary>
+        /// <example>
+        /// ...
+        /// public string MyProperty { get; set; }
+        ///
+        /// public void DoSomoeThing()
+        /// {
+        ///     this.RestoreNotifications(() => this.MyProperty);
+        ///
+        ///     // does the same as:
+        ///     this.RestoreNotifications(nameof(this.MyProperty), this.MyProperty);
+        /// }
+        /// ...
+        /// </example>
+        /// <typeparam name="TProperty">Type of the property.</typeparam>
+        /// <param name="viewModel">The view model to extend.</param>
+        /// <param name="expression">The PropertyExpression to the property to restore.</param>
+        public static void RestoreNotifications<TProperty>(this ViewModel viewModel, Expression<Func<TProperty>> expression)
         {
-            foreach (var property in viewModel.GetType().GetProperties())
+            if (expression.Body.NodeType == ExpressionType.MemberAccess && expression.Body is MemberExpression me)
             {
-                if (property.GetCustomAttribute<DependsOnAttribute>() is not DependsOnAttribute dependsOn)
-                {
-                    continue;
-                }
+                var propertyName = me.Member.Name;
+                var value = expression.Compile().Invoke();
+                viewModel.RestoreNotifications(propertyName, value);
 
-                if (typeof(ICommand).IsAssignableFrom(property.PropertyType))
-                {
-                    var propertyMonitor = viewModel.GetPropertyMonitor(property.Name);
-                    propertyMonitor.OnPropertyChanged += UpdateCommandPropertyChanged;
-                }
-
-                foreach (var propertyName in dependsOn.PropertyNames)
-                {
-                    var propertyMonitor = viewModel.GetPropertyMonitor(propertyName);
-                    propertyMonitor.RegisterViewModelProperty(viewModel, property.Name);
-                }
+                return;
             }
+
+            throw new InvalidOperationException($"Expression must point to an Property of the current ViewModel.");
         }
 
-        private static void UpdateCommandPropertyChanged(object sender, AdvancedPropertyChangedEventArgs e)
+        /// <summary>
+        /// ViewModel will suppress <see cref="INotifyPropertyChanged"/> notifications on the property inside the action.
+        /// The notifications will be restored after that.
+        /// </summary>
+        /// <example>
+        /// ...
+        /// public string MyProperty { get; set; }
+        ///
+        /// public void DoSomoeThing()
+        /// {
+        ///     this.SuppressNotificationsInside(() => this.MyProperty, () =>
+        ///     {
+        ///         // do something special in here.
+        ///     });
+        ///
+        ///     // does the same as:
+        ///     // this.SuppressNotifications(nameof(this.MyProperty), this.MyProperty);
+        ///
+        ///     // do something special in here.
+        ///
+        ///     // this.RestoreNotifications(nameof(this.MyProperty), this.MyProperty);
+        /// }
+        /// ...
+        /// </example>
+        /// <typeparam name="TProperty">Type of the property.</typeparam>
+        /// <param name="viewModel">The view model to extend.</param>
+        /// <param name="expression">The PropertyExpression to the property to suppress.</param>
+        public static void SuppressNotificationsInside<TProperty>(this ViewModel viewModel, Expression<Func<TProperty>> expression, Action action)
         {
-            if (sender is IViewModel viewModel)
-            {
-                foreach (var monitor in viewModel.PropertyMonitors)
-                {
-                    if (e.Before is INotifyCommand oldCommand)
-                    {
-                        monitor.UnregisterCommand(oldCommand);
-                    }
-
-                    if (e.After is INotifyCommand newCommand)
-                    {
-                        monitor.RegisterCommand(newCommand);
-                    }
-                }
-            }
-        }
-
-        private static IPropertyMonitor GetPropertyMonitor(this IViewModel viewModel, string propertyName)
-        {
-            if (viewModel.PropertyMonitors.FirstOrDefault(o => o.PropertyName == propertyName) is IPropertyMonitor monitor)
-            {
-                return monitor;
-            }
-
-            monitor = CreatePropertyMonitor(viewModel, propertyName);
-            viewModel.PropertyMonitors.Add(monitor);
-            return monitor;
-        }
-
-        private static IPropertyMonitor CreatePropertyMonitor(IViewModel viewModel, string propertyName)
-        {
-            var property = viewModel.GetType().GetProperty(propertyName);
-
-            var propertyType = property.PropertyType;
-
-            var value = Expression.Property(Expression.Constant(viewModel), propertyName);
-            var lambda = Expression.Lambda(value);
-            var getter = lambda.Compile();
-
-            var propertyMonitorType_T = Type.GetType("SIM.Mvvm.PropertyMonitor`1")
-                                            .MakeGenericType(propertyType);
-
-            return (IPropertyMonitor)Activator.CreateInstance(
-                propertyMonitorType_T,
-                viewModel,
-                propertyName,
-                getter,
-                null);
-        }
-
-        private static void RegisterDependentMethods(IViewModel viewModel)
-        {
-            foreach (var method in viewModel.GetType().GetMethods())
-            {
-                if (method.GetCustomAttribute<CallOnPropertyChangedAttribute>() is not CallOnPropertyChangedAttribute callOn)
-                {
-                    continue;
-                }
-
-                if (!viewModel.TryAssignCallback(method, callOn, out var message))
-                {
-                    throw new InvalidOperationException($"Could not assign call back {message}");
-                }
-            }
-        }
-
-        private static bool TryAssignCallback(this IViewModel viewModel, MethodInfo method, CallOnPropertyChangedAttribute callOn, out string? errorMessage)
-        {
-            var parameters = method.GetParameters();
-
-            errorMessage = null;
-            string prefix = $"{method.Name}({string.Join(", ", parameters.Select(o => o.ParameterType.Name))})\n";
-
-            if (parameters.Length > 0)
-            {
-                if (parameters.Length != 2)
-                {
-                    errorMessage = prefix + "Only zero or two parameters expected.";
-                }
-                else if (parameters[0].ParameterType != typeof(object))
-                {
-                    errorMessage = prefix + "First parameter must have type 'object'";
-                }
-                else if (!typeof(EventArgs).IsAssignableFrom(parameters[1].ParameterType))
-                {
-                    errorMessage = $"{prefix}Second parameter must be assignable to type '{nameof(AdvancedPropertyChangedEventArgs)}'";
-                }
-            }
-
-            if (method.ReturnType != typeof(void))
-            {
-                errorMessage = $"Return type must be void";
-            }
-
-            if (errorMessage is not null)
-            {
-                return false;
-            }
-
-            foreach (var propertyName in callOn.PropertyNames)
-            {
-                if (parameters.Length == 0)
-                {
-                    viewModel.GetPropertyMonitor(propertyName).OnPropertyChangedCallback
-                        += (Action)method.CreateDelegate(typeof(Action), viewModel);
-                }
-                else
-                {
-                    viewModel.GetPropertyMonitor(propertyName).OnPropertyChanged
-                        += (EventHandler<AdvancedPropertyChangedEventArgs>)method.CreateDelegate(
-                            typeof(EventHandler<AdvancedPropertyChangedEventArgs>),
-                            viewModel);
-                }
-            }
-
-            return true;
+            viewModel.SuppressNotifications(expression);
+            action();
+            viewModel.RestoreNotifications(expression);
         }
     }
 }

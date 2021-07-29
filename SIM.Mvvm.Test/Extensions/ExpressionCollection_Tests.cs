@@ -1,16 +1,12 @@
 ﻿namespace SIM.Mvvm.Test.Extensions
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Moq;
     using SIM.Mvvm.Expressions;
     using System;
-    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Linq;
     using System.Runtime.CompilerServices;
-    using System.Text;
-    using System.Threading.Tasks;
     using System.Windows.Input;
 
     [TestClass]
@@ -44,7 +40,7 @@
         public void ListenExpression_Fail()
         {
             var monitorCollection = ExpressionCollectionExtensions
-                .Listen(this,() => this.ViewModel.ToString())
+                .Listen(this, () => this.ViewModel.ToString())
                 .ToArray();
         }
 
@@ -169,7 +165,7 @@
 
                 var monitor = ExpressionCollectionExtensions
                     .Listen(this, () => this.Property, () => this.ViewModel.IntProperty)
-                    .Notify(this.TestCommand);
+                    .Notify(() => this.TestCommand);
 
                 this.Property = "Neuer Wert";
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Property)));
@@ -188,46 +184,6 @@
                 this.TestCommand.CanExecuteChanged -= eventHandler;
             }
         }
-
-        [TestMethod]
-        public void NotifyCommandByListen()
-        {
-            var callbackRaised = false;
-            EventHandler eventHandler = (s, a) =>
-            {
-                callbackRaised = true;
-            };
-
-            this.TestCommand.CanExecuteChanged += eventHandler;
-
-            try
-            {
-                this.Property = "Alter Wert";
-                this.ViewModel.IntProperty = -1;
-
-                ExpressionCollectionExtensions.Listen(
-                    (INotifyCommand)this.TestCommand,
-                    () => this.Property,
-                    () => this.ViewModel.IntProperty);
-
-                this.Property = "Neuer Wert";
-                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Property)));
-
-                Assert.IsTrue(callbackRaised);
-
-                callbackRaised = false;
-
-                this.ViewModel.IntProperty = 42;
-                this.ViewModel.OnPropertyChanged(nameof(this.ViewModel.IntProperty));
-
-                Assert.IsTrue(callbackRaised);
-            }
-            finally
-            {
-                this.TestCommand.CanExecuteChanged -= eventHandler;
-            }
-        }
-
 
         public class TestVm : IViewModel
         {

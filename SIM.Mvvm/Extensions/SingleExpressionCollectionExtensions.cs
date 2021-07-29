@@ -1,12 +1,10 @@
-﻿// <copyright file="ExpressionCollectionExtensions.cs" company="SIM Automation">
+﻿// <copyright file="SingleExpressionCollectionExtensions.cs" company="SIM Automation">
 // Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
 namespace SIM.Mvvm.Expressions
 {
     using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -16,29 +14,8 @@ namespace SIM.Mvvm.Expressions
     /// <summary>
     /// Extends <see cref="ExpressionExtensions"/> by collection calls.
     /// </summary>
-    public static class ExpressionCollectionExtensions
+    public static class SingleExpressionCollectionExtensions
     {
-        /// <summary>
-        /// Returns the result of <see cref="ExpressionExtensions.Listen{TProperty}(INotifyPropertyChanged, Expression{Func{TProperty}})"/> for all expressions..
-        /// </summary>
-        /// <param name="target">This property is only to extend the <see cref="IViewModel"/> class itself.</param>
-        /// <param name="expressions">The collection of expression.</param>
-        /// <returns>The collection of <see cref="IPropertyMonitor"/>.</returns>
-        public static IEnumerable<IPropertyMonitor> Listen(
-            this INotifyPropertyChanged target,
-            params Expression<Func<object>>[] expressions)
-        {
-            foreach (var expression in expressions)
-            {
-                var exp = SingleExpressionCollectionExtensions.ConvertExpression(expression, out var propertyType);
-
-                if (SingleExpressionCollectionExtensions.GetGenericMethodInfo(nameof(ExpressionExtensions.Listen), new Type[] { propertyType }) is MethodInfo methodInfo)
-                {
-                    yield return (IPropertyMonitor)methodInfo.Invoke(null, new object[] { target, exp });
-                }
-            }
-        }
-
         /// <summary>
         /// Adds an parameterless callback for a property changed event.
         /// </summary>
@@ -48,7 +25,7 @@ namespace SIM.Mvvm.Expressions
         ///
         /// public MyViewModel()
         /// {
-        ///     this.Listen(() => this.MyProperty, () => this.MySecondProperty) // all properties to listen to
+        ///     this.Listen(() => this.MyProperty) // single property to listen to
         ///         .Call(MyPropertyChanged, SomethingChanged); // all callbacks to register for each property changed event.
         /// }
         ///
@@ -63,21 +40,23 @@ namespace SIM.Mvvm.Expressions
         /// }
         /// ...
         /// </example>
-        /// <param name="monitors">The collection of property monitors to register the callbacks to.</param>
+        /// <param name="monitor">The collection of property monitors to register the callbacks to.</param>
         /// <param name="action">The callback action.</param>
         /// <param name="additionalActions">Some additional actions to register.</param>
         /// <returns>The property monitor for chaining.</returns>
-        public static IEnumerable<IPropertyMonitor> Call(
-            this IEnumerable<IPropertyMonitor> monitors,
+        public static IPropertyMonitor Call(
+            this IPropertyMonitor monitor,
             Action action,
             params Action[] additionalActions)
         {
-            foreach (var monitor in monitors)
+            monitor.Call(action);
+
+            foreach (var optional in additionalActions)
             {
-                monitor.Call(action, additionalActions);
+                monitor.Call(optional);
             }
 
-            return monitors;
+            return monitor;
         }
 
         /// <summary>
@@ -89,7 +68,7 @@ namespace SIM.Mvvm.Expressions
         ///
         /// public MyViewModel()
         /// {
-        ///     this.Listen(() => this.MyProperty, () => this.MySecondProperty) // all properties to listen to
+        ///     this.Listen(() => this.MyProperty) // single property to listen to
         ///         .Call(this.MyPropertyChanged, this.SomePropertyChanged);    // all callbacks to register for each property changed event.
         /// }
         ///
@@ -104,21 +83,23 @@ namespace SIM.Mvvm.Expressions
         /// }
         /// ...
         /// </example>
-        /// <param name="monitors">The collection of property monitors to register the callbacks to.</param>
+        /// <param name="monitor">The collection of property monitors to register the callbacks to.</param>
         /// <param name="eventHandler">The callback event handler.</param>
         /// <param name="additionalEventHandler">Some additional event handler.</param>
         /// <returns>The property monitor for chaining.</returns>
-        public static IEnumerable<IPropertyMonitor> Call(
-            this IEnumerable<IPropertyMonitor> monitors,
+        public static IPropertyMonitor Call(
+            this IPropertyMonitor monitor,
             EventHandler<AdvancedPropertyChangedEventArgs> eventHandler,
             params EventHandler<AdvancedPropertyChangedEventArgs>[] additionalEventHandler)
         {
-            foreach (var monitor in monitors)
+            monitor.Call(eventHandler);
+
+            foreach (var optional in additionalEventHandler)
             {
-                monitor.Call(eventHandler, additionalEventHandler);
+                monitor.Call(optional);
             }
 
-            return monitors;
+            return monitor;
         }
 
         /// <summary>
@@ -132,25 +113,62 @@ namespace SIM.Mvvm.Expressions
         ///
         /// public MyViewModel()
         /// {
-        ///     this.Listen(() => this.MyProperty, () => this.MySecondProperty)
+        ///     this.Listen(() => this.MyProperty) // single property to listen to
         ///         .Notify(() => this.SomeOtherProperty);
         /// }
         /// ...
         /// </example>
-        /// <param name="monitors">The collection of property monitors to register the callbacks to.</param>
+        /// <param name="monitor">The collection of property monitors to register the callbacks to.</param>
         /// <param name="expressions">The collection of expression to the property to notify.
         /// Must be a MemberExpression to a <see cref="IViewModel"/> object.</param>
         /// <returns>The collection of property monitors.</returns>
-        public static IEnumerable<IPropertyMonitor> Notify(
-            this IEnumerable<IPropertyMonitor> monitors,
+        public static IPropertyMonitor Notify(
+            this IPropertyMonitor monitor,
             params Expression<Func<object>>[] expressions)
         {
-            foreach (var monitor in monitors)
+            foreach (var expression in expressions)
             {
-                monitor.Notify(expressions);
+                var exp = ConvertExpression(expression, out var propertyType);
+
+                if (GetGenericMethodInfo(nameof(ExpressionExtensions.Notify), new Type[] { propertyType }) is MethodInfo methodInfo)
+                {
+                    methodInfo.Invoke(null, new object[] { monitor, exp });
+                }
             }
 
-            return monitors;
+            return monitor;
+        }
+
+        internal static dynamic ConvertExpression(Expression<Func<object>> lambda, out Type propertyType)
+        {
+            var expression = lambda.Body;
+
+            if (expression.NodeType == ExpressionType.Convert && expression is UnaryExpression ue)
+            {
+                expression = ue.Operand;
+            }
+
+            if (expression.NodeType == ExpressionType.MemberAccess && expression is MemberExpression me)
+            {
+                propertyType = me.Member is PropertyInfo pi ? pi.PropertyType
+                             : throw new InvalidOperationException("Expression must show a Property");
+
+                return Expression.Lambda(me);
+            }
+
+            throw new InvalidOperationException();
+        }
+
+        internal static MethodInfo? GetGenericMethodInfo(string methodName, Type[] genericTypes)
+        {
+            var methodInfo = typeof(ExpressionExtensions).GetMethods(BindingFlags.Static | BindingFlags.Public)
+                .Where(o => o.IsGenericMethod && o.Name == methodName)
+                .Where(o => o.GetGenericArguments().Length == genericTypes.Length)
+                .FirstOrDefault();
+
+            methodInfo = methodInfo?.MakeGenericMethod(genericTypes);
+
+            return methodInfo;
         }
     }
 }
