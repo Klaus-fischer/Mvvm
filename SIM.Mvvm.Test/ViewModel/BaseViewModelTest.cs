@@ -21,8 +21,6 @@
 
             var vm = new ViewModelMock();
 
-            vm.OnPropertyChanged();
-
             vm.PropertyChanged += (s, a) =>
             {
                 Assert.AreEqual("Test", a.PropertyName);
@@ -250,7 +248,7 @@
 
         public new void OnPropertyChanged(string propertyName, object before, object after)
         {
-            base.OnPropertyChanged(propertyName);
+            base.OnPropertyChanged(propertyName, before, after);
         }
 
         public new void SetPropertyValue<T>(ref T? oldValue, T? newValue, string propertyName)

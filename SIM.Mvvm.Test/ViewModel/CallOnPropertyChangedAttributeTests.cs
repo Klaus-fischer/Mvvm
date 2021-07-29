@@ -3,11 +3,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using SIM.Mvvm;
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
 
     [TestClass]
     public class CallOnPropertyChangedAttributeTests
@@ -43,6 +39,8 @@
             bool invoked = false;
             var vm = new ValidAdvTestVm();
             Assert.IsNotNull(vm);
+
+            vm.Test = 0;
             vm.OnTestChangedInvoked += (args) =>
             {
                 invoked = true;
@@ -62,6 +60,8 @@
             bool invoked = false;
             var vm = new ValidAdvTestPC();
             Assert.IsNotNull(vm);
+            vm.Test = 0;
+
             vm.OnTestChangedInvoked += (args) =>
             {
                 invoked = true;
@@ -79,6 +79,8 @@
             bool invoked = false;
             var vm = new ValidAdvTestEA();
             Assert.IsNotNull(vm);
+            vm.Test = 0;
+
             vm.OnTestChangedInvoked += (args) =>
             {
                 invoked = true;

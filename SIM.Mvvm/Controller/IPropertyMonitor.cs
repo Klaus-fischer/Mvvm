@@ -33,21 +33,6 @@ namespace SIM.Mvvm
         INotifyPropertyChanged? Target { get; }
 
         /// <summary>
-        /// To register a command dependency.
-        /// </summary>
-        /// <param name="command">Command to register.</param>
-        /// <typeparam name="T">Type of the command.</typeparam>
-        /// <returns>The command itself for chaining.</returns>
-        T RegisterCommand<T>(T command)
-            where T : INotifyCommand;
-
-        /// <summary>
-        /// Unregister command dependency.
-        /// </summary>
-        /// <param name="command">Command to unregister.</param>
-        void UnregisterCommand(INotifyCommand command);
-
-        /// <summary>
         /// Registers a dependent view model.
         /// </summary>
         /// <param name="target">View model to register if property was changed.</param>
@@ -60,16 +45,5 @@ namespace SIM.Mvvm
         /// <param name="target">View model to register if property was changed.</param>
         /// <param name="property">Name of the property that will be effected.</param>
         void UnregisterViewModelProperty(IViewModel target, string property);
-
-        /// <summary>
-        /// Suppresses all property changed notifications.
-        /// </summary>
-        void SuspendPropertyChanged();
-
-        /// <summary>
-        /// Restores all property changed notifications.
-        /// notifications will be raised, if property was changed.
-        /// </summary>
-        void RestorePropertyChanged();
     }
 }

@@ -140,7 +140,7 @@
                 this.Property = "Alter Wert";
 
                 var monitor = ExpressionExtensions.Listen(this, () => this.Property)
-                    .Notify(this.TestCommand);
+                    .Notify(() => this.TestCommand);
 
                 this.Property = "Neuer Wert";
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Property)));
@@ -160,51 +160,7 @@
             var cmd = new Mock<ICommand>().Object;
             ExpressionExtensions
                 .Listen(this, () => this.Property)
-                .Notify(cmd);
-        }
-
-        [TestMethod]
-        public void NotifyCommandByListen()
-        {
-            var callbackRaised = false;
-            EventHandler eventHandler = (s, a) =>
-            {
-                callbackRaised = true;
-            };
-
-            this.TestCommand.CanExecuteChanged += eventHandler;
-
-            try
-            {
-                this.Property = "Alter Wert";
-
-                ExpressionExtensions.Listen((INotifyCommand)this.TestCommand, () => this.Property);
-
-                this.Property = "Neuer Wert";
-                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Property)));
-
-                Assert.IsTrue(callbackRaised);
-            }
-            finally
-            {
-                this.TestCommand.CanExecuteChanged -= eventHandler;
-            }
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void NotifyCommandByListen_Fail_Expression()
-        {
-            ExpressionExtensions.Listen((INotifyCommand)this.TestCommand, () => 42);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void NotifyCommandByListen_Fail_Type()
-        {
-            var target = new List<string>();
-
-            ExpressionExtensions.Listen((INotifyCommand)this.TestCommand, () => target.Count);
+                .Notify(() => cmd);
         }
 
         [TestMethod]
@@ -223,6 +179,7 @@
 
             Assert.IsTrue(callbackRaised);
         }
+
 
         public class TestVm : IViewModel
         {

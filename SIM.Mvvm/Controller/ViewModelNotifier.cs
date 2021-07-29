@@ -26,13 +26,6 @@ namespace SIM.Mvvm
         }
 
         /// <summary>
-        /// Checks if view model is alive.
-        /// </summary>
-        /// <returns>True if view model is alive.</returns>
-        public bool IsAlive()
-            => this.viewModelReference.TryGetTarget(out var _);
-
-        /// <summary>
         /// Handler to validate if the current notifier belongs to the view model.
         /// </summary>
         /// <param name="target">View model to check.</param>
