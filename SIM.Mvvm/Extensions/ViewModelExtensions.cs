@@ -6,9 +6,9 @@ namespace SIM.Mvvm
 {
     using System;
     using System.Linq;
-    using System.Linq.Expressions;
     using System.Reflection;
     using System.Windows.Input;
+    using SIM.Mvvm.Expressions;
 
     internal static class ViewModelExtensions
     {
@@ -32,70 +32,21 @@ namespace SIM.Mvvm
                     continue;
                 }
 
-                if (typeof(ICommand).IsAssignableFrom(property.PropertyType))
-                {
-                    var propertyMonitor = viewModel.GetPropertyMonitor(property.Name);
-                    propertyMonitor.OnPropertyChanged += UpdateCommandPropertyChanged;
-                }
+                var pmFactory = PropertyMonitorFactory.Current;
 
                 foreach (var propertyName in dependsOn.PropertyNames)
                 {
-                    var propertyMonitor = viewModel.GetPropertyMonitor(propertyName);
+                    var propertyMonitor = pmFactory.GetPropertyMonitor(viewModel, propertyName);
                     propertyMonitor.RegisterViewModelProperty(viewModel, property.Name);
-                }
-            }
-        }
 
-        private static void UpdateCommandPropertyChanged(object sender, AdvancedPropertyChangedEventArgs e)
-        {
-            if (sender is IViewModel viewModel)
-            {
-                foreach (var monitor in viewModel.PropertyMonitors)
-                {
-                    if (e.Before is INotifyCommand oldCommand)
+                    if (typeof(ICommand).IsAssignableFrom(property.PropertyType))
                     {
-                        monitor.UnregisterCommand(oldCommand);
-                    }
-
-                    if (e.After is INotifyCommand newCommand)
-                    {
-                        monitor.RegisterCommand(newCommand);
+                        var factory = CommandNotifierFactory.Current;
+                        var cmdNotifier = factory.GetPropertyMonitor(viewModel, property.Name);
+                        propertyMonitor.Call(cmdNotifier.NotifyCommandChanged);
                     }
                 }
             }
-        }
-
-        private static IPropertyMonitor GetPropertyMonitor(this IViewModel viewModel, string propertyName)
-        {
-            if (viewModel.PropertyMonitors.FirstOrDefault(o => o.PropertyName == propertyName) is IPropertyMonitor monitor)
-            {
-                return monitor;
-            }
-
-            monitor = CreatePropertyMonitor(viewModel, propertyName);
-            viewModel.PropertyMonitors.Add(monitor);
-            return monitor;
-        }
-
-        private static IPropertyMonitor CreatePropertyMonitor(IViewModel viewModel, string propertyName)
-        {
-            var property = viewModel.GetType().GetProperty(propertyName);
-
-            var propertyType = property.PropertyType;
-
-            var value = Expression.Property(Expression.Constant(viewModel), propertyName);
-            var lambda = Expression.Lambda(value);
-            var getter = lambda.Compile();
-
-            var propertyMonitorType_T = Type.GetType("SIM.Mvvm.PropertyMonitor`1")
-                                            .MakeGenericType(propertyType);
-
-            return (IPropertyMonitor)Activator.CreateInstance(
-                propertyMonitorType_T,
-                viewModel,
-                propertyName,
-                getter,
-                null);
         }
 
         private static void RegisterDependentMethods(IViewModel viewModel)
@@ -147,19 +98,19 @@ namespace SIM.Mvvm
                 return false;
             }
 
+            var factory = PropertyMonitorFactory.Current;
+
             foreach (var propertyName in callOn.PropertyNames)
             {
                 if (parameters.Length == 0)
                 {
-                    viewModel.GetPropertyMonitor(propertyName).OnPropertyChangedCallback
-                        += (Action)method.CreateDelegate(typeof(Action), viewModel);
+                    factory.GetPropertyMonitor(viewModel, propertyName).Call(
+                        (Action)method.CreateDelegate(typeof(Action), viewModel));
                 }
                 else
                 {
-                    viewModel.GetPropertyMonitor(propertyName).OnPropertyChanged
-                        += (EventHandler<AdvancedPropertyChangedEventArgs>)method.CreateDelegate(
-                            typeof(EventHandler<AdvancedPropertyChangedEventArgs>),
-                            viewModel);
+                    factory.GetPropertyMonitor(viewModel, propertyName).Call(
+                        (Action)method.CreateDelegate(typeof(Action), viewModel));
                 }
             }
 

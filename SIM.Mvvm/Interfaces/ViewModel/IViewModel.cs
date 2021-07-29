@@ -4,7 +4,6 @@
 
 namespace SIM.Mvvm
 {
-    using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
 
@@ -13,11 +12,6 @@ namespace SIM.Mvvm
     /// </summary>
     public interface IViewModel : INotifyPropertyChanged
     {
-        /// <summary>
-        /// Gets the collection of property monitors that listen to this view model properties.
-        /// </summary>
-        Collection<IPropertyMonitor> PropertyMonitors { get; }
-
         /// <summary>
         /// To invoke the <see cref="INotifyPropertyChanged.PropertyChanged"/> event.
         /// </summary>

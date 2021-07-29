@@ -6,7 +6,6 @@ namespace SIM.Mvvm
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Linq.Expressions;
     using System.Runtime.CompilerServices;
@@ -16,6 +15,8 @@ namespace SIM.Mvvm
     /// </summary>
     public abstract class ViewModel : IViewModel
     {
+        private readonly Dictionary<string, object> supressedProperties = new Dictionary<string, object>();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewModel"/> class.
         /// </summary>
@@ -28,13 +29,57 @@ namespace SIM.Mvvm
         public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <inheritdoc/>
-        Collection<IPropertyMonitor> IViewModel.PropertyMonitors { get; }
-            = new Collection<IPropertyMonitor>();
-
-        /// <inheritdoc/>
-        public void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        void IViewModel.OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.OnPropertyChanged(propertyName, null, null);
+        }
+
+        /// <summary>
+        /// ViewModel will suppress <see cref="INotifyPropertyChanged"/> notifications on the property after calling this method.
+        /// </summary>
+        /// <param name="propertyName">Name of the property to suppress notifications.</param>
+        /// <param name="currentValue">The current value of the property.</param>
+        public void SuppressNotifications(string propertyName, object currentValue)
+        {
+            if (!this.supressedProperties.ContainsKey(propertyName))
+            {
+                this.supressedProperties.Add(propertyName, currentValue);
+            }
+        }
+
+        /// <summary>
+        /// ViewModel will restore the <see cref="INotifyPropertyChanged"/> notifications on the properties.
+        /// </summary>
+        /// <param name="propertyName">Name of the property to restore notifications.</param>
+        /// <param name="currentValue">The current value, to invoke <see cref="INotifyPropertyChanged"/> if values changed.</param>
+        public void RestoreNotifications(string propertyName, object currentValue)
+        {
+            if (this.supressedProperties.TryGetValue(propertyName, out var oldValue))
+            {
+                this.supressedProperties.Remove(propertyName);
+
+                if (!Equals(oldValue, currentValue))
+                {
+                    this.OnPropertyChanged(propertyName, oldValue, currentValue);
+                }
+            }
+        }
+
+        /// <summary>
+        /// This call raises the <see cref="PropertyChanged"/> event.
+        /// </summary>
+        /// <param name="propertyName">Name of the property that get changed.</param>
+        /// <param name="before">Old value of the property.</param>
+        /// <param name="after">New value of the property.</param>
+        protected void OnPropertyChanged(string? propertyName, object? before, object? after)
+        {
+            if (propertyName is null || this.supressedProperties.ContainsKey(propertyName))
+            {
+                return;
+            }
+
+            var args = new AdvancedPropertyChangedEventArgs(propertyName, before, after);
+            this.PropertyChanged?.Invoke(this, args);
         }
 
         /// <summary>
@@ -65,8 +110,9 @@ namespace SIM.Mvvm
         {
             if (!Equals(property, newValue, comparer))
             {
+                T? oldValue = property;
                 property = newValue;
-                this.OnPropertyChanged(propertyName);
+                this.OnPropertyChanged(propertyName, oldValue, newValue);
             }
         }
 
@@ -112,7 +158,7 @@ namespace SIM.Mvvm
                     throw new InvalidOperationException("Expression should point direct to target property. '() => this.Data.Property'");
                 }
 
-                this.OnPropertyChanged(propertyName);
+                this.OnPropertyChanged(propertyName, oldValue, newValue);
             }
         }
 

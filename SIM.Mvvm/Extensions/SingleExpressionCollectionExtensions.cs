@@ -175,48 +175,6 @@ namespace SIM.Mvvm.Expressions
             return monitor;
         }
 
-                /// <summary>
-        /// Adds a <see cref="Command.CanExecuteChanged"/> callback to a view model.
-        /// </summary>
-        /// <example>
-        /// public string MyProperty { get; set; }
-        /// public string MySecondProperty { get; set; }
-        ///
-        /// public ICommand MyCommand { get; set; }
-        ///
-        /// public MyViewModel()
-        /// {
-        ///     this.MyCommand = new EventCommand()
-        ///         .Listen(() => this.MyProperty, () => this.MySecondProperty); // collection of properties to listen to.
-        ///     //                  A       A
-        ///     //                  |       L Property to listen to
-        ///     //                  L must implement <see cref="INotifyPropertyChanged"/>.
-        /// }
-        /// ...
-        /// </example>
-        /// <typeparam name="T">Type of the command.</typeparam>
-        /// <param name="command">The command to notify.</param>
-        /// <param name="expressions">The collection of Expressions to the property.
-        /// Must be a MemberExpression to a <see cref="INotifyPropertyChanged"/> object.</param>
-        /// <returns>The property monitor.</returns>
-        public static T Listen<T>(this T command, params Expression<Func<object>>[] expressions)
-            where T : INotifyCommand
-        {
-            foreach (var expression in expressions)
-            {
-                var exp = ConvertExpression(expression, out var propertyType);
-
-                var genericTypes = new Type[] { typeof(T), propertyType };
-
-                if (GetGenericMethodInfo(nameof(ExpressionExtensions.Listen), genericTypes) is MethodInfo methodInfo)
-                {
-                    methodInfo.Invoke(null, new object[] { command, exp });
-                }
-            }
-
-            return command;
-        }
-
         internal static dynamic ConvertExpression(Expression<Func<object>> lambda, out Type propertyType)
         {
             var expression = lambda.Body;
