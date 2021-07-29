@@ -5,6 +5,7 @@
 namespace SIM.Mvvm
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Diagnostics;
@@ -18,8 +19,8 @@ namespace SIM.Mvvm
     {
         private readonly WeakReference<INotifyPropertyChanged> viewModelReference;
 
-        private readonly Collection<ViewModelNotifier> notifiers
-            = new Collection<ViewModelNotifier>();
+        private readonly List<ViewModelNotifier> notifiers
+            = new List<ViewModelNotifier>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PropertyMonitor"/> class.
@@ -60,7 +61,7 @@ namespace SIM.Mvvm
         /// <inheritdoc/>
         void IPropertyMonitor.RegisterViewModelProperty(IViewModel target, string property)
         {
-            var notifier = this.notifiers.FirstOrDefault(o => o.CheckViewModel(target));
+            var notifier = this.notifiers.Find(o => o.CheckViewModel(target));
             if (notifier is null)
             {
                 notifier = new ViewModelNotifier(target);
@@ -73,7 +74,7 @@ namespace SIM.Mvvm
         /// <inheritdoc/>
         void IPropertyMonitor.UnregisterViewModelProperty(IViewModel target, string property)
         {
-            if (this.notifiers.FirstOrDefault(o => o.CheckViewModel(target)) is ViewModelNotifier notifier)
+            if (this.notifiers.Find(o => o.CheckViewModel(target)) is ViewModelNotifier notifier)
             {
                 notifier.RemoveProperty(property);
             }

@@ -15,7 +15,7 @@ namespace SIM.Mvvm
     /// </summary>
     public abstract class ViewModel : IViewModel
     {
-        private readonly Dictionary<string, object> supressedProperties = new Dictionary<string, object>();
+        private readonly Dictionary<string, object?> supressedProperties = new Dictionary<string, object?>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewModel"/> class.
@@ -39,7 +39,7 @@ namespace SIM.Mvvm
         /// </summary>
         /// <param name="propertyName">Name of the property to suppress notifications.</param>
         /// <param name="currentValue">The current value of the property.</param>
-        public void SuppressNotifications(string propertyName, object currentValue)
+        public void SuppressNotifications(string propertyName, object? currentValue = null)
         {
             if (!this.supressedProperties.ContainsKey(propertyName))
             {
@@ -52,7 +52,7 @@ namespace SIM.Mvvm
         /// </summary>
         /// <param name="propertyName">Name of the property to restore notifications.</param>
         /// <param name="currentValue">The current value, to invoke <see cref="INotifyPropertyChanged"/> if values changed.</param>
-        public void RestoreNotifications(string propertyName, object currentValue)
+        public void RestoreNotifications(string propertyName, object? currentValue = null)
         {
             if (this.supressedProperties.TryGetValue(propertyName, out var oldValue))
             {
