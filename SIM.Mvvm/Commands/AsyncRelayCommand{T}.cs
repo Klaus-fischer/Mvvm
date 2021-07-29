@@ -34,7 +34,7 @@ namespace SIM.Mvvm
             this.executeHandler = onExecute ?? throw new ArgumentNullException(nameof(onExecute));
             this.canExecuteHandler = onCanExecute;
 
-            this.context.Listen(() => this.context.IsBusy).Notify(this);
+            this.context.Listen(() => this.context.IsBusy).Call(this.NotifyCanExecuteChanged);
         }
 
         /// <summary>

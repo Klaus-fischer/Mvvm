@@ -21,10 +21,10 @@ namespace SIM.Mvvm
         /// </summary>
         public AsyncExecutionContext()
         {
-            this.Cancel = new RelayCommand(this.OnCancel, this.CanCancel)
-                .Listen(() => this.IsBusy);
+            this.Cancel = new RelayCommand(this.OnCancel, this.CanCancel);
 
-            this.Listen(() => this.IsBusy).Notify(() => this.CancellationTokenSource);
+            this.Listen(() => this.IsBusy)
+                .Notify(() => this.CancellationTokenSource, () => this.Cancel);
         }
 
         /// <inheritdoc/>
