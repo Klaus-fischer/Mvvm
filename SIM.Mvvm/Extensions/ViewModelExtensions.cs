@@ -42,7 +42,7 @@ namespace SIM.Mvvm
                     if (typeof(ICommand).IsAssignableFrom(property.PropertyType))
                     {
                         var factory = CommandNotifierFactory.Current;
-                        var cmdNotifier = factory.GetPropertyMonitor(viewModel, property.Name);
+                        var cmdNotifier = factory.GetCommandNotifier(viewModel, property.Name);
                         propertyMonitor.Call(cmdNotifier.NotifyCommandChanged);
                     }
                 }
@@ -110,7 +110,7 @@ namespace SIM.Mvvm
                 else
                 {
                     factory.GetPropertyMonitor(viewModel, propertyName).Call(
-                        (Action)method.CreateDelegate(typeof(Action), viewModel));
+                        (EventHandler<AdvancedPropertyChangedEventArgs>)method.CreateDelegate(typeof(EventHandler<AdvancedPropertyChangedEventArgs>), viewModel));
                 }
             }
 

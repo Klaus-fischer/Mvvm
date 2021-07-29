@@ -118,8 +118,10 @@
         public ExpressionViewModelMock()
         {
             // Registers command dependencies
-            this.command = new RelayCommand(() => CommandExecutedCount++, () => this.CommandCanExecute)
-                .Listen(() => this.CommandCanExecute, () => this.model.FirstValue);
+            this.command = new RelayCommand(() => CommandExecutedCount++, () => this.CommandCanExecute);
+
+            this.Listen(() => this.CommandCanExecute, () => this.model.FirstValue)
+                .Notify(() => this.Command);
 
             // Aged Name depends on name and age.
             this.Listen(() => this.Name, () => this.Age)

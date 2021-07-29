@@ -137,18 +137,33 @@ namespace SIM.Mvvm.Expressions
                     // check if is command
                     if (typeof(ICommand).IsAssignableFrom(typeof(TProperty)))
                     {
-                        var factory = CommandNotifierFactory.Current;
-                        var notifier = factory.GetPropertyMonitor(viewModel, propertyName);
-
-                        // set callback if property changed.
-                        monitor.Call(notifier.NotifyCommandChanged);
+                        monitor.RegisterCommandNotifier(propertyName, viewModel);
                     }
 
                     return monitor;
                 }
+
+                if (obj is INotifyPropertyChanged viewModelLight)
+                {
+                    // check if is command
+                    if (typeof(ICommand).IsAssignableFrom(typeof(TProperty)))
+                    {
+                        monitor.RegisterCommandNotifier(propertyName, viewModelLight);
+                        return monitor;
+                    }
+                }
             }
 
             throw new InvalidOperationException($"Expression must point to an Property of an view model of type {nameof(IViewModel)}.");
+        }
+
+        private static void RegisterCommandNotifier(this IPropertyMonitor monitor, string propertyName, INotifyPropertyChanged viewModelLight)
+        {
+            var factory = CommandNotifierFactory.Current;
+            var notifier = factory.GetCommandNotifier(viewModelLight, propertyName);
+
+            // set callback if property changed.
+            monitor.Call(notifier.NotifyCommandChanged);
         }
     }
 }

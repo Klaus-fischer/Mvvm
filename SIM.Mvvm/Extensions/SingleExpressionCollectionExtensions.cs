@@ -139,42 +139,6 @@ namespace SIM.Mvvm.Expressions
             return monitor;
         }
 
-        /// <summary>
-        /// Adds a <see cref="Command.CanExecuteChanged"/> callback to a view model.
-        /// </summary>
-        /// <example>
-        /// public string MyProperty { get; set; }
-        /// public string MySecondProperty { get; set; }
-        ///
-        /// public ICommand MyCommand { get; set; }
-        /// public ICommand MySecondCommand { get; set; }
-        ///
-        /// public MyViewModel()
-        /// {
-        ///     this.MyCommand = new EventCommand();          // or some other command that implements <see cref="INotifyCommand"/>.
-        ///     this.MySecondCommand = new EventCommand();    // or some other command that implements <see cref="INotifyCommand"/>.
-        ///
-        ///     this.Listen(() => this.MyProperty) // single property to listen to
-        ///         .Notify(this.MyCommand, this.MySecondCommand);
-        /// }
-        /// ...
-        /// </example>
-        /// <param name="monitor">The collection of property monitors to register the callbacks to.</param>
-        /// <param name="commands">The collection of commands to notify.
-        /// Must be a MemberExpression to a <see cref="IViewModel"/> object.</param>
-        /// <returns>The property monitor.</returns>
-        public static IPropertyMonitor Notify(
-            this IPropertyMonitor monitor,
-            params Expression<Func<ICommand>>[] commands)
-        {
-            foreach (var command in commands)
-            {
-                monitor.Notify(command);
-            }
-
-            return monitor;
-        }
-
         internal static dynamic ConvertExpression(Expression<Func<object>> lambda, out Type propertyType)
         {
             var expression = lambda.Body;

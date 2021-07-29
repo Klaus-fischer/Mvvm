@@ -30,7 +30,7 @@ namespace SIM.Mvvm
         /// <param name="target">The target view model.</param>
         /// <param name="commandName">The name of the property to monitor.</param>
         /// <returns>The property monitor.</returns>
-        public ICommandNotifier GetPropertyMonitor(INotifyPropertyChanged target, string commandName)
+        public ICommandNotifier GetCommandNotifier(INotifyPropertyChanged target, string commandName)
         {
             // cleanup monitor collection
             this.weakCommandNotifiers.RemoveAll(o => !o.TryGetTarget(out var _));

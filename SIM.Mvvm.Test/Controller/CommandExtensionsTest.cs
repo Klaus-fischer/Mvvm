@@ -2,10 +2,8 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
-    using Mvvm.Test.ViewModel;
     using SIM.Mvvm;
     using System;
-    using System.ComponentModel;
     using System.Windows.Input;
 
     [TestClass]
