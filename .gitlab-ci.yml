@@ -45,5 +45,5 @@ deploy-job:      # This job runs in the deploy stage.
   script:
     - echo "Deploying application..."
     - "dotnet pack SIM.Mvvm --configuration Release"
-    - "dotnet push SIM.Mvvm --source gitlab"
+    - "dotnet nuget push SIM.Mvvm/bin/Release/*.nupkg --source gitlab"
     - echo "Application successfully deployed."
