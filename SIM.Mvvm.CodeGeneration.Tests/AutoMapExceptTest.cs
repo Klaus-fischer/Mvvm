@@ -27,8 +27,8 @@ namespace SIM.Mvvm.CodeGeneration.Tests
         {
             var vm = new AutoMapExceptViewModel();
 
-            Assert.AreEqual(vm.Data.Name, vm.Name);
-            Assert.AreEqual(vm.Data.IsAdmin, vm.IsAdmin);
+            Assert.AreEqual(vm.Data.Name, vm.GetValue("Name"));
+            Assert.AreEqual(vm.Data.IsAdmin, vm.GetValue("IsAdmin"));
         }
 
         [TestMethod]
@@ -39,8 +39,8 @@ namespace SIM.Mvvm.CodeGeneration.Tests
 
             vm.PropertyChanged += (s, a) => propertyChangedEventCount++;
 
-            vm.Name = "TestOfficer";
-            vm.IsAdmin = false;
+            vm.SetValue("Name", "TestOfficer");
+            vm.SetValue("IsAdmin", false);
 
             Assert.AreEqual(2, propertyChangedEventCount);
             Assert.AreEqual("TestOfficer", vm.Data.Name);

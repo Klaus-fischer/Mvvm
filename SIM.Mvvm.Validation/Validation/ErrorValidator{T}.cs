@@ -200,7 +200,7 @@ namespace Sim.Mvvm.Validation
             // notify if property was changed.
             if (viewModelHadErrors != this.HasErrors)
             {
-                this.Model.InvokeOnPropertyChanged(nameof(this.HasErrors));
+                this.Model.OnPropertyChanged(nameof(this.HasErrors));
             }
         }
     }
