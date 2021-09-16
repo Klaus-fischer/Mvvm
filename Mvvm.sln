@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIM.Mvvm.CodeGenerator.Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIM.Mvvm.Validation", "SIM.Mvvm.Validation\SIM.Mvvm.Validation.csproj", "{6F96368D-6D2B-4C62-8499-3733EFE59010}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SIM.Mvvm.Tree", "SIM.MVVM.Tree\SIM.Mvvm.Tree.csproj", "{A2B04DFC-FD18-4F23-8090-0F78338D3714}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{6F96368D-6D2B-4C62-8499-3733EFE59010}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F96368D-6D2B-4C62-8499-3733EFE59010}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F96368D-6D2B-4C62-8499-3733EFE59010}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2B04DFC-FD18-4F23-8090-0F78338D3714}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2B04DFC-FD18-4F23-8090-0F78338D3714}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2B04DFC-FD18-4F23-8090-0F78338D3714}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2B04DFC-FD18-4F23-8090-0F78338D3714}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
