@@ -106,6 +106,7 @@ namespace SIM.Mvvm.Expressions
         /// <typeparam name="TProperty">Type of the property.</typeparam>
         /// <param name="viewModel">The view model to extend.</param>
         /// <param name="expression">The PropertyExpression to the property to suppress.</param>
+        /// <param name="action">The action to run while notifications are suppressed.</param>
         public static void SuppressNotificationsInside<TProperty>(this ViewModel viewModel, Expression<Func<TProperty>> expression, Action action)
         {
             viewModel.SuppressNotifications(expression);

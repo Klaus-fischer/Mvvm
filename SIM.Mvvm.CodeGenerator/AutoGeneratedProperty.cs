@@ -5,16 +5,16 @@
     {
         public bool IsValid => string.IsNullOrWhiteSpace(this.ExcludeMessage);
 
-        public string ExcludeMessage { get; set; }
+        public string ExcludeMessage { get; set; } = string.Empty;
 
-        public string PropertyTypeNamespace { get; set; }
+        public string PropertyTypeNamespace { get; set; } = string.Empty;
 
-        public string PropertyType { get; set; }
+        public string PropertyType { get; set; } = string.Empty;
 
-        public string PropertyName { get; set; }
+        public string PropertyName { get; set; } = string.Empty;
 
-        public string ModelType { get; set; }
+        public string ModelType { get; set; } = string.Empty;
 
-        public string ModelName { get; set; }
+        public string ModelName { get; set; } = string.Empty;
     }
 }

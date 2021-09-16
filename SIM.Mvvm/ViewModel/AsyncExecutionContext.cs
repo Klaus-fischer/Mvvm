@@ -23,8 +23,10 @@ namespace SIM.Mvvm
         {
             this.Cancel = new RelayCommand(this.OnCancel, this.CanCancel);
 
+#nullable disable
             this.Listen(() => this.IsBusy)
                 .Notify(() => this.CancellationTokenSource, () => this.Cancel);
+#nullable enable
         }
 
         /// <inheritdoc/>
