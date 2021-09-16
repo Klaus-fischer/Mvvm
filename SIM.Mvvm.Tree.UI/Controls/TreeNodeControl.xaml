@@ -1,0 +1,71 @@
+﻿<UserControl x:Class="SIM.Mvvm.Tree.UI.TreeNodeControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SIM.Mvvm.Tree.UI"
+             d:DataContext="{x:Static local:DesignTimeFactory.DesignTree}"
+             mc:Ignorable="d" >
+    <UserControl.Resources>
+        <ControlTemplate x:Key="ExpandBtn" TargetType="{x:Type ToggleButton}">
+            <Grid Width="20" Height="20" Background="#01000000">
+                <Border x:Name="Border"
+                        Width="14"
+                        Height="14"
+                        Background="White"
+                        HorizontalAlignment="Center" 
+                        VerticalAlignment="Center"
+                        BorderBrush="{TemplateBinding Foreground}"
+                        BorderThickness="1"
+                        CornerRadius="1">
+
+                    <Path x:Name="Path" 
+                          Stroke="{TemplateBinding Foreground}"
+                          StrokeThickness="1"
+                          StrokeLineJoin="Round"
+                          Fill="White"
+                          VerticalAlignment="Center"
+                          HorizontalAlignment="Center" 
+                          Data="M 0,4 L 8,4 M 4,0 L 4,8 "/>
+                </Border>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter TargetName="Path" Property="Data" Value="M0,0 L 8,0"/>
+                </Trigger>
+
+                <Trigger Property="IsEnabled" Value="False" >
+                    <Setter TargetName="Border" Property="BorderBrush" Value="LightGray"/>
+                    <Setter TargetName="Path" Property="Stroke" Value="White"/>
+                </Trigger>
+
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <Style TargetType="{x:Type ToggleButton}" x:Name="ExpanderStyle">
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Template" Value="{StaticResource ExpandBtn}"/>
+            <Style.Triggers>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding HasChildren}" Value="False"/>
+                        <Condition Binding="{Binding IsExpanded}" Value="False"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Command" Value="{Binding Expand}"/>
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding HasChildren}" Value="False"/>
+                        <Condition Binding="{Binding IsExpanded}" Value="False"/>
+                        <Condition Binding="{Binding Expand}" Value="{x:Null}"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="IsEnabled" Value="False"/>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    <Grid HorizontalAlignment="Left" UseLayoutRounding="True" SnapsToDevicePixels="True" Margin="0,-1">
+        <local:NodeControl Indent="20" Foreground="Gray" />
+        <ToggleButton IsChecked="{Binding IsExpanded, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+    </Grid>
+</UserControl>

@@ -1,19 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <LangVersion>9.0</LangVersion>
     <Version>0.3.1</Version>
     <Authors>Klaus Fischer</Authors>
     <Company>SIM Automation</Company>
-    <Description>A Tree implementation for the MVVM library.</Description>
-    <PackageProjectUrl>https://s-op.verwaltung.sim/gitlab/sim/mvvm/</PackageProjectUrl>
-    <RepositoryUrl>https://s-op.verwaltung.sim/gitlab/sim/mvvm/</RepositoryUrl>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>.\SIM.Mvvm.Tree.xml</DocumentationFile>
+    <Description>WPF UI utilities for SIM.Mvvm.Tree library</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,8 +22,9 @@
     </PackageReference>
   </ItemGroup>
 
+
   <ItemGroup>
-    <ProjectReference Include="..\SIM.Mvvm\SIM.Mvvm.csproj" />
+    <ProjectReference Include="..\SIM.MVVM.Tree\SIM.Mvvm.Tree.csproj" />
   </ItemGroup>
 
 </Project>
