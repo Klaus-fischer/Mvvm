@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>9.0</LangVersion>
-    <Version>0.6.0</Version>
+    <Version>0.6.1</Version>
     <Authors>Klaus Fischer</Authors>
     <Company>SIM Automation</Company>
     <Description>A Tree implementation for the MVVM library.</Description>
