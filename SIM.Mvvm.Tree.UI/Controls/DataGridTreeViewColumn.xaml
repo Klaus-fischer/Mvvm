@@ -1,6 +1,6 @@
 ﻿<DataGridTemplateColumn xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                        x:Class="SIM.Core.UI.DataGridTreeViewColumn"
+                        x:Class=" SIM.Mvvm.Tree.UI.DataGridTreeViewColumn"
                         xmlns:local="clr-namespace:SIM.Mvvm.Tree.UI">
     <DataGridTemplateColumn.CellTemplate>
         <DataTemplate>

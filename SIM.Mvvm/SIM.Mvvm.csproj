@@ -14,7 +14,7 @@ Implements ViewModel base class and many Commands.</Description>
     <FileVersion>1.0.0.0</FileVersion>
     <PackageProjectUrl>https://s-op.verwaltung.sim/gitlab/sim/mvvm/</PackageProjectUrl>
     <RepositoryUrl>https://s-op.verwaltung.sim/gitlab/sim/mvvm/</RepositoryUrl>
-    <Version>0.5.1</Version>
+    <Version>0.6.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -30,6 +30,10 @@ Implements ViewModel base class and many Commands.</Description>
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SIM.Mvvm.Abstractions\SIM.Mvvm.Abstraction.csproj" />
   </ItemGroup>
 
 </Project>

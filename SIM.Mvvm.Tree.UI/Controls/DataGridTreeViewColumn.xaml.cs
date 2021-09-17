@@ -1,8 +1,8 @@
 ﻿// <copyright file="DataGridTreeViewColumn.xaml.cs" company="SIM Automation">
-// Copyright (c) 2020 SIM Automation. All rights reserved.
+// Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
-namespace SIM.Core.UI
+namespace SIM.Mvvm.Tree.UI
 {
     using System.Windows.Controls;
 

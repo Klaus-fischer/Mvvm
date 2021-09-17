@@ -5,14 +5,14 @@
     <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <LangVersion>9.0</LangVersion>
-    <Version>0.3.1</Version>
+    <Version>0.6.0</Version>
     <Authors>Klaus Fischer</Authors>
     <Company>SIM Automation</Company>
     <Description>WPF UI utilities for SIM.Mvvm.Tree library</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="..\SIM.Mvvm\stylecop.json" Link="stylecop.json" />
+    <AdditionalFiles Include="..\SIM.Mvvm\stylecop.json" Link="stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>

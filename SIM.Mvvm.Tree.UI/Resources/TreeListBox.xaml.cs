@@ -1,13 +1,12 @@
 ﻿// <copyright file="TreeListBox.xaml.cs" company="SIM Automation">
-// Copyright (c) 2020 SIM Automation. All rights reserved.
+// Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
-namespace SIM.Core.UI
+namespace SIM.Mvvm.Tree.UI
 {
     using System.Collections.Generic;
     using System.Windows;
     using System.Windows.Controls;
-    using System.Windows.Media;
 
     /// <summary>
     ///  Code behind file of TreeListBox.xaml.

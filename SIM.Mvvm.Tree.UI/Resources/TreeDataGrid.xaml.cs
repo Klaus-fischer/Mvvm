@@ -1,15 +1,11 @@
-﻿// <copyright file="TreeListBox.xaml.cs" company="SIM Automation">
-// Copyright (c) 2020 SIM Automation. All rights reserved.
+﻿// <copyright file="TreeDataGrid.xaml.cs" company="SIM Automation">
+// Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
-namespace SIM.Core.UI
+namespace SIM.Mvvm.Tree.UI
 {
-    using System;
-    using System.Collections.Generic;
     using System.Windows;
     using System.Windows.Controls;
-    using System.Windows.Data;
-    using System.Windows.Media;
 
     /// <summary>
     ///  Code behind file of TreeListBox.xaml.
@@ -30,7 +26,7 @@ namespace SIM.Core.UI
                     return;
                 }
 
-                int firstItem = (int)e.VerticalOffset;
+                var firstItem = (int)e.VerticalOffset;
 
                 dynamic item = dg.ItemContainerGenerator.Items[firstItem];
 

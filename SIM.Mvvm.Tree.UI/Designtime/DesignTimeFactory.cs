@@ -1,5 +1,5 @@
-﻿// <copyright file="DesignTimeFactory.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="DesignTimeFactory.cs" company="SIM Automation">
+// Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
 namespace SIM.Mvvm.Tree.UI

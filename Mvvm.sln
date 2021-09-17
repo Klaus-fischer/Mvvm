@@ -13,9 +13,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIM.Mvvm.CodeGenerator.Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIM.Mvvm.Validation", "SIM.Mvvm.Validation\SIM.Mvvm.Validation.csproj", "{6F96368D-6D2B-4C62-8499-3733EFE59010}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SIM.Mvvm.Tree", "SIM.MVVM.Tree\SIM.Mvvm.Tree.csproj", "{A2B04DFC-FD18-4F23-8090-0F78338D3714}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIM.Mvvm.Tree", "SIM.MVVM.Tree\SIM.Mvvm.Tree.csproj", "{A2B04DFC-FD18-4F23-8090-0F78338D3714}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SIM.Mvvm.Tree.UI", "SIM.Mvvm.Tree.UI\SIM.Mvvm.Tree.UI.csproj", "{9DC9AA0D-357F-47AA-9B33-2ED10DD6843E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIM.Mvvm.Tree.UI", "SIM.Mvvm.Tree.UI\SIM.Mvvm.Tree.UI.csproj", "{9DC9AA0D-357F-47AA-9B33-2ED10DD6843E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIM.Mvvm.Abstraction", "SIM.Mvvm.Abstractions\SIM.Mvvm.Abstraction.csproj", "{52FD1852-1686-4624-AA55-FB88393DE357}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{9DC9AA0D-357F-47AA-9B33-2ED10DD6843E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DC9AA0D-357F-47AA-9B33-2ED10DD6843E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DC9AA0D-357F-47AA-9B33-2ED10DD6843E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52FD1852-1686-4624-AA55-FB88393DE357}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52FD1852-1686-4624-AA55-FB88393DE357}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52FD1852-1686-4624-AA55-FB88393DE357}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52FD1852-1686-4624-AA55-FB88393DE357}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

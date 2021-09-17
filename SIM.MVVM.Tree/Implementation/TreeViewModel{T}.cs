@@ -21,11 +21,6 @@ namespace SIM.Mvvm.Tree
         where T : TreeViewModel<T>
     {
         /// <summary>
-        /// Gets or sets a list of sub nodes.
-        /// </summary>
-        private readonly List<T> children = new List<T>();
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="TreeViewModel{T}"/> class.
         /// </summary>
         protected TreeViewModel()
@@ -50,7 +45,7 @@ namespace SIM.Mvvm.Tree
         ITreeViewModel? ITreeViewModel.Parent => this.Parent;
 
         /// <inheritdoc/>
-        IEnumerable<ITreeViewModel> ITreeViewModel.Children => this.children;
+        IEnumerable<ITreeViewModel> ITreeViewModel.Children => this.Children;
 
         /// <summary>
         /// Gets or sets a value indicating whether children should be collapsed or not.
@@ -65,13 +60,13 @@ namespace SIM.Mvvm.Tree
         /// <summary>
         /// Gets a value indicating whether child is last of parents child list.
         /// </summary>
-        public virtual bool IsLastItem => this.Parent?.children.LastOrDefault() == this;
+        public virtual bool IsLastItem => this.Parent?.Children.LastOrDefault() == this;
 
         /// <summary>
         /// Gets a value indicating whether this item has child items.
         /// </summary>
-        [DependsOn(nameof(children))]
-        public virtual bool HasChildren => this.children.Any();
+        [DependsOn(nameof(Children))]
+        public virtual bool HasChildren => this.Children.Any();
 
         /// <summary>
         /// Gets a value indicating whether this item is a root item.
@@ -94,6 +89,11 @@ namespace SIM.Mvvm.Tree
         public ICommand? Expand { get; protected set; }
 
         /// <summary>
+        /// Gets a list of sub nodes.
+        /// </summary>
+        protected List<T> Children { get; } = new List<T>();
+
+        /// <summary>
         /// Gets the child with the requested index.
         /// </summary>
         /// <param name="index">Index of the child.</param>
@@ -102,10 +102,10 @@ namespace SIM.Mvvm.Tree
         {
             get
             {
-                var i = index.GetOffset(this.children.Count);
-                if (i >= 0 && i < this.children.Count)
+                var i = index.GetOffset(this.Children.Count);
+                if (i >= 0 && i < this.Children.Count)
                 {
-                    return this.children[i];
+                    return this.Children[i];
                 }
                 else
                 {
@@ -123,15 +123,15 @@ namespace SIM.Mvvm.Tree
         {
             get
             {
-                var (offset, length) = range.GetOffsetAndLength(this.children.Count);
+                var (offset, length) = range.GetOffsetAndLength(this.Children.Count);
 
                 for (int i = 0; i < length; i++)
                 {
                     var index = offset + i;
 
-                    if (index < this.children.Count)
+                    if (index < this.Children.Count)
                     {
-                        yield return this.children[index];
+                        yield return this.Children[index];
                     }
                 }
             }
@@ -147,7 +147,7 @@ namespace SIM.Mvvm.Tree
             foreach (var item in collection)
             {
                 item.Parent = (T)this;
-                this.children.Add(item);
+                this.Children.Add(item);
             }
 
             this.BubbleInvokeCollectionChanged();
@@ -167,7 +167,7 @@ namespace SIM.Mvvm.Tree
                 item.Parent = (T)this;
             }
 
-            this.children.InsertRange(index, items);
+            this.Children.InsertRange(index, items);
 
             this.BubbleInvokeCollectionChanged();
         }
@@ -214,7 +214,7 @@ namespace SIM.Mvvm.Tree
                 return;
             }
 
-            this.children.ForEach(o => o.IsVisiblePropertyChanged());
+            this.Children.ForEach(o => o.IsVisiblePropertyChanged());
 
             this.BubbleInvokeCollectionChanged();
         }
