@@ -29,11 +29,11 @@ namespace SIM.Mvvm.Tree.UI
 
                 int firstItem = (int)e.VerticalOffset;
 
-                dynamic item = listBox.ItemContainerGenerator.Items[firstItem];
+                ITreeViewModel item = (ITreeViewModel)listBox.ItemContainerGenerator.Items[firstItem];
 
                 var parentCollection = new List<object>();
 
-                while (item.Parent != null)
+                while (item.Parent is not null)
                 {
                     item = item.Parent;
                     parentCollection.Insert(0, item);

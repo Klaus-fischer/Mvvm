@@ -39,7 +39,7 @@ namespace SIM.Mvvm.Tree
         public override bool IsVisible => base.IsVisible && (this.isVisible ?? true);
 
         /// <inheritdoc/>
-        public override bool IsLastItem => this.Parent?[..].LastOrDefault(o => o.IsVisible) == this;
+        public override bool IsLastItem => (this.Parent as ITreeViewModel)?.Children.LastOrDefault(o => o.IsVisible) == this;
 
         private void ApplyFilter(ITreeNodeFilter<T>? value)
         {
@@ -55,7 +55,7 @@ namespace SIM.Mvvm.Tree
             }
             else
             {
-                this.hasChildren = this[..].Any(o => o.IsVisible);
+                this.hasChildren = ((ITreeViewModel)this).Children.Any(o => o.IsVisible);
                 this.isVisible = (this.hasChildren == true) || value.Filter((T)this);
                 this.IsExpanded = this.hasChildren == true;
             }
@@ -84,7 +84,7 @@ namespace SIM.Mvvm.Tree
         private void AssignFilterRecursive(ITreeNodeFilter<T>? value)
         {
             // apply filter recursive.
-            foreach (var item in this[..])
+            foreach (var item in ((ITreeViewModel)this).Children.OfType<T>())
             {
                 item.Filter = value;
             }

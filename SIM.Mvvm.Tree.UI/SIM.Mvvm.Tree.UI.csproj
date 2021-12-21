@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFrameworks>net5.0-windows;net4.8</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <LangVersion>9.0</LangVersion>
-    <Version>0.6.2</Version>
+    <Version>0.6.3</Version>
     <Authors>Klaus Fischer</Authors>
     <Company>SIM Automation</Company>
     <Description>WPF UI utilities for SIM.Mvvm.Tree library</Description>

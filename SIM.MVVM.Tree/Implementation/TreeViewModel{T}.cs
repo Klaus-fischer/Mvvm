@@ -93,6 +93,7 @@ namespace SIM.Mvvm.Tree
         /// </summary>
         protected List<T> Children { get; } = new List<T>();
 
+#if NETSTANDARD2_1_OR_GREATER
         /// <summary>
         /// Gets the child with the requested index.
         /// </summary>
@@ -136,6 +137,7 @@ namespace SIM.Mvvm.Tree
                 }
             }
         }
+#endif
 
         /// <summary>
         /// Adds a range of items to the children collection.

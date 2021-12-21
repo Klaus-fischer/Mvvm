@@ -135,24 +135,24 @@ namespace SIM.Mvvm.Tree
         /// <param name="test">Condition to check.</param>
         /// <param name="parentOnly">Flag that indicates if only the parents of the current item will be checked.</param>
         /// <returns>True if condition matches.</returns>
-        public static TreeViewModel<T>? FindRoot<T>(
+        public static T? FindRoot<T>(
             this T model,
             Predicate<T> test,
             bool parentOnly = false)
-            where T : TreeViewModel<T>
+            where T : ITreeViewModel
         {
             if (!parentOnly && test(model))
             {
                 return model;
             }
 
-            if (model.Parent == null)
+            if (model.Parent is T parent)
             {
-                return null;
+                return FindRoot(parent, test, false);
             }
             else
             {
-                return model.Parent.FindRoot(test, false);
+                return default;
             }
         }
 
@@ -162,11 +162,11 @@ namespace SIM.Mvvm.Tree
         /// <typeparam name="T">Type of the node.</typeparam>
         /// <param name="model">Model to expand recursive.</param>
         public static void ExpandAll<T>(this T model)
-            where T : TreeViewModel<T>
+            where T : ITreeViewModel
         {
             model.IsExpanded = true;
 
-            foreach (var child in model[..])
+            foreach (var child in model.Children)
             {
                 child.ExpandAll();
             }
@@ -178,10 +178,10 @@ namespace SIM.Mvvm.Tree
         /// <typeparam name="T">Type of the node.</typeparam>
         /// <param name="model">Model to expand.</param>
         public static void ExpandFirstLevel<T>(this T model)
-            where T : TreeViewModel<T>
+            where T : ITreeViewModel
         {
             model.IsExpanded = true;
-            foreach (var child in model[..])
+            foreach (var child in model.Children)
             {
                 child.IsExpanded = true;
             }

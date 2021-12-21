@@ -27,14 +27,14 @@ namespace SIM.Mvvm.Tree
                     return this.isChecked;
                 }
 
-                var allChecked = this[..].All(o => o.IsChecked == true);
+                var allChecked = ((ITreeViewModel)this).Children.OfType<T>().All(o => o.IsChecked == true);
 
                 if (allChecked)
                 {
                     return true;
                 }
 
-                var allUnChecked = this[..].All(o => o.IsChecked == false);
+                var allUnChecked = ((ITreeViewModel)this).Children.OfType<T>().All(o => o.IsChecked == false);
 
                 if (allUnChecked)
                 {
@@ -55,7 +55,7 @@ namespace SIM.Mvvm.Tree
                 }
                 else
                 {
-                    foreach (var child in this[..])
+                    foreach (var child in ((ITreeViewModel)this).Children.OfType<T>())
                     {
                         child.IsChecked = newValue;
                     }
