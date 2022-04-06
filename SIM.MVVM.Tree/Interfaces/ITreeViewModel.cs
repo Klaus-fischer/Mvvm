@@ -67,6 +67,6 @@ namespace SIM.Mvvm.Tree
         /// <summary>
         /// Gets all children of the current tree view item.
         /// </summary>
-        IEnumerable<ITreeViewModel> Children { get; }
+        IReadOnlyCollection<ITreeViewModel> Children { get; }
     }
 }

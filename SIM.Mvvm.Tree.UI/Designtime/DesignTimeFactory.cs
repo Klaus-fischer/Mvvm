@@ -101,7 +101,7 @@ namespace SIM.Mvvm.Tree.UI
 
             public ITreeViewModel? Parent { get; set; }
 
-            public IEnumerable<ITreeViewModel> Children { get; set; }
+            public IReadOnlyCollection<ITreeViewModel> Children { get; set; }
         }
     }
 

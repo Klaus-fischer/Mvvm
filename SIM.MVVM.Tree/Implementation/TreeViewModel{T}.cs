@@ -20,6 +20,9 @@ namespace SIM.Mvvm.Tree
     public abstract class TreeViewModel<T> : ViewModel, ITreeViewModel
         where T : TreeViewModel<T>
     {
+        private bool isExpanded;
+        private T? parent;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TreeViewModel{T}"/> class.
         /// </summary>
@@ -39,48 +42,61 @@ namespace SIM.Mvvm.Tree
         /// <summary>
         /// Gets or sets the parent node.
         /// </summary>
-        public T? Parent { get; protected set; }
+        public T? Parent
+        {
+            get => this.parent;
+            protected set => this.SetPropertyValue(() => this.parent, value);
+        }
 
         /// <inheritdoc/>
         ITreeViewModel? ITreeViewModel.Parent => this.Parent;
 
         /// <inheritdoc/>
-        IEnumerable<ITreeViewModel> ITreeViewModel.Children => this.Children;
+        public IReadOnlyCollection<ITreeViewModel> Children => this.ChildrenList;
 
         /// <summary>
         /// Gets or sets a value indicating whether children should be collapsed or not.
         /// </summary>
-        public bool IsExpanded { get; set; }
+        public bool IsExpanded
+        {
+            get => this.isExpanded;
+            set => this.SetPropertyValue(() => this.isExpanded, value);
+        }
 
         /// <summary>
         /// Gets a value indicating whether item is visible or not.
         /// </summary>
+        [DependsOn(nameof(Parent))]
         public virtual bool IsVisible => this.Parent?.IsExpanded ?? true;
 
         /// <summary>
         /// Gets a value indicating whether child is last of parents child list.
         /// </summary>
-        public virtual bool IsLastItem => this.Parent?.Children.LastOrDefault() == this;
+        [DependsOn(nameof(Parent))]
+        public virtual bool IsLastItem => this.Parent?.ChildrenList.LastOrDefault() == this;
 
         /// <summary>
         /// Gets a value indicating whether this item has child items.
         /// </summary>
         [DependsOn(nameof(Children))]
-        public virtual bool HasChildren => this.Children.Any();
+        public virtual bool HasChildren => this.ChildrenList.Any();
 
         /// <summary>
         /// Gets a value indicating whether this item is a root item.
         /// </summary>
+        [DependsOn(nameof(Parent))]
         public bool IsRoot => this.Parent == null;
 
         /// <summary>
         /// Gets the rank of the item.
         /// </summary>
+        [DependsOn(nameof(Parent))]
         public int Rank => this.Parent?.Rank + 1 ?? 0;
 
         /// <summary>
         /// Gets the level of the item (adding 1 to rank).
         /// </summary>
+        [DependsOn(nameof(Parent))]
         public int Level => this.Rank + 1;
 
         /// <summary>
@@ -91,7 +107,7 @@ namespace SIM.Mvvm.Tree
         /// <summary>
         /// Gets a list of sub nodes.
         /// </summary>
-        protected List<T> Children { get; } = new List<T>();
+        protected List<T> ChildrenList { get; } = new List<T>();
 
 #if NETSTANDARD2_1_OR_GREATER
         /// <summary>
@@ -106,7 +122,7 @@ namespace SIM.Mvvm.Tree
                 var i = index.GetOffset(this.Children.Count);
                 if (i >= 0 && i < this.Children.Count)
                 {
-                    return this.Children[i];
+                    return this.ChildrenList[i];
                 }
                 else
                 {
@@ -132,7 +148,7 @@ namespace SIM.Mvvm.Tree
 
                     if (index < this.Children.Count)
                     {
-                        yield return this.Children[index];
+                        yield return this.ChildrenList[index];
                     }
                 }
             }
@@ -149,7 +165,7 @@ namespace SIM.Mvvm.Tree
             foreach (var item in collection)
             {
                 item.Parent = (T)this;
-                this.Children.Add(item);
+                this.ChildrenList.Add(item);
             }
 
             this.BubbleInvokeCollectionChanged();
@@ -169,7 +185,7 @@ namespace SIM.Mvvm.Tree
                 item.Parent = (T)this;
             }
 
-            this.Children.InsertRange(index, items);
+            this.ChildrenList.InsertRange(index, items);
 
             this.BubbleInvokeCollectionChanged();
         }
@@ -208,15 +224,12 @@ namespace SIM.Mvvm.Tree
         {
             if (this.IsExpanded && !this.HasChildren)
             {
-                this.SuppressNotificationsInside(() => this.IsExpanded, () =>
-                {
-                    this.IsExpanded = false;
-                });
+                this.isExpanded = false;
 
                 return;
             }
 
-            this.Children.ForEach(o => o.IsVisiblePropertyChanged());
+            this.ChildrenList.ForEach(o => o.IsVisiblePropertyChanged());
 
             this.BubbleInvokeCollectionChanged();
         }
