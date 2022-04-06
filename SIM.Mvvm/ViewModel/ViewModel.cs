@@ -164,7 +164,7 @@ namespace SIM.Mvvm
 
         private static bool Equals<T>(T property, T newValue, IEqualityComparer<T>? comparer)
         {
-            // true if property and newValue is null
+            // also true if property and newValue is null
             if (ReferenceEquals(property, newValue))
             {
                 return true;
@@ -180,6 +180,11 @@ namespace SIM.Mvvm
             if (comparer?.Equals(property, newValue) ?? false)
             {
                 return true;
+            }
+
+            if (property is IEquatable<T> origin)
+            {
+                return origin.Equals(newValue);
             }
 
             // true if both values are equal.
