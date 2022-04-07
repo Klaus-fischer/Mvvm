@@ -21,7 +21,6 @@ namespace SIM.Mvvm.Tree
         where T : TreeViewModel<T>
     {
         private bool isExpanded;
-        private T? parent;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TreeViewModel{T}"/> class.
@@ -40,11 +39,7 @@ namespace SIM.Mvvm.Tree
         /// <summary>
         /// Gets or sets the parent node.
         /// </summary>
-        public T? Parent
-        {
-            get => this.parent;
-            protected set => this.SetPropertyValue(() => this.parent, value);
-        }
+        public T? Parent { get; set; }
 
         /// <inheritdoc/>
         ITreeViewModel? ITreeViewModel.Parent => this.Parent;
@@ -58,37 +53,32 @@ namespace SIM.Mvvm.Tree
         public bool IsExpanded
         {
             get => this.isExpanded;
-            set => this.SetPropertyValue(() => this.isExpanded, value);
+            set => this.SetPropertyValue(ref this.isExpanded, value);
         }
 
         /// <summary>
         /// Gets a value indicating whether item is visible or not.
         /// </summary>
-        [DependsOn(nameof(Parent))]
         public virtual bool IsVisible => this.Parent?.IsExpanded ?? true;
 
         /// <summary>
         /// Gets a value indicating whether child is last of parents child list.
         /// </summary>
-        [DependsOn(nameof(Parent))]
         public virtual bool IsLastItem => this.Parent?.ChildrenList.LastOrDefault() == this;
 
         /// <summary>
         /// Gets a value indicating whether this item has child items.
         /// </summary>
-        [DependsOn(nameof(Children))]
         public virtual bool HasChildren => this.ChildrenList.Any();
 
         /// <summary>
         /// Gets a value indicating whether this item is a root item.
         /// </summary>
-        [DependsOn(nameof(Parent))]
         public bool IsRoot => this.Parent == null;
 
         /// <summary>
         /// Gets the rank of the item.
         /// </summary>
-        [DependsOn(nameof(Parent))]
         public int Rank => this.Parent?.Rank + 1 ?? 0;
 
         /// <summary>
@@ -207,7 +197,7 @@ namespace SIM.Mvvm.Tree
 
         private void NotifyParentOnPropertyChanged(object? sender, PropertyChangedEventArgs args)
         {
-            if (args.PropertyName == nameof(this.isExpanded))
+            if (args.PropertyName == nameof(this.IsExpanded))
             {
                 this.HandleIsExpandedChanged();
             }
