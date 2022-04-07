@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>9.0</LangVersion>
-    <Version>0.6.2</Version>
+    <Version>0.6.4</Version>
     <Authors>Klaus Fischer</Authors>
     <Company>SIM Automation</Company>
     <Description>Contains abstraction of SIM.Mvvm package</Description>
