@@ -8,6 +8,7 @@ namespace SIM.Mvvm
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
+    using System.Linq.Expressions;
 
     /// <summary>
     /// Monitor to watch for a single property of a <see cref="IViewModel"/>.
@@ -40,7 +41,7 @@ namespace SIM.Mvvm
         public string PropertyName { get; }
 
         /// <inheritdoc/>
-        public INotifyPropertyChanged? Target { get; }
+        public INotifyPropertyChanged Target { get; }
 
         /// <inheritdoc/>
         void IPropertyMonitor.RegisterViewModelProperty(IViewModel target, string property)
@@ -64,9 +65,20 @@ namespace SIM.Mvvm
             }
         }
 
+        /// <summary>
+        /// To prevent the monitor from notifying the event listeners.
+        /// </summary>
+        /// <returns>False by default. True to block.</returns>
+        protected virtual bool BlockPropertyChangedInvocation() => false;
+
         private void OnViewModelPropertyChangedHandler(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName != this.PropertyName)
+            {
+                return;
+            }
+
+            if (this.BlockPropertyChangedInvocation())
             {
                 return;
             }

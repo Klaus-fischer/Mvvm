@@ -30,7 +30,7 @@ namespace SIM.Mvvm
         /// <summary>
         /// Gets the reference to the target to observe.
         /// </summary>
-        INotifyPropertyChanged? Target { get; }
+        INotifyPropertyChanged Target { get; }
 
         /// <summary>
         /// Registers a dependent view model.

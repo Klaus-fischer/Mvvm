@@ -28,7 +28,6 @@ namespace SIM.Mvvm
         public IPropertyMonitor GetPropertyMonitor(INotifyPropertyChanged target, string propertyName)
         {
             var monitor = new PropertyMonitor(target, propertyName);
-
             return monitor;
         }
     }

@@ -51,6 +51,43 @@ namespace SIM.Mvvm.Expressions
         }
 
         /// <summary>
+        /// Creates an <see cref="ITargetDescriptor{TTarget, TProperty}"/> for the property inside the expression.
+        /// </summary>
+        /// <example>
+        /// public string MyProperty { get; set; }
+        ///
+        /// public MyViewModel()
+        /// {
+        ///     this.If(t => t.MyProperty).HasChangedTo("HalloWelt")
+        ///         .Call(MyPropertyChanged);
+        /// }
+        /// ...
+        /// </example>
+        /// <typeparam name="TTarget">Type of the view model.</typeparam>
+        /// <typeparam name="TProperty">Type of the property.</typeparam>
+        /// <param name="target">This property is only to extend the <see cref="IViewModel"/> class itself.</param>
+        /// <param name="expression">The Expression to the property.
+        /// Must be a MemberExpression to a <see cref="INotifyPropertyChanged"/> object.</param>
+        /// <returns>The property monitor.</returns>
+        public static ITargetDescriptor<TTarget, TProperty> If<TTarget, TProperty>(this TTarget target, Expression<Func<TTarget, TProperty>> expression)
+            where TTarget : INotifyPropertyChanged
+        {
+            if (expression.Body.NodeType == ExpressionType.MemberAccess && expression.Body is MemberExpression me)
+            {
+                var propertyName = me.Member.Name;
+                return new TargetDescriptor<TTarget, TProperty>(target, propertyName, expression.Compile());
+            }
+
+            throw new InvalidOperationException($"Expression must point to an Property of an view model of type {nameof(INotifyPropertyChanged)}.");
+        }
+
+        public static IPropertyMonitor HasChangedTo<TTarget, TProperty>(this ITargetDescriptor<TTarget, TProperty> target, TProperty expectedValue)
+            where TTarget : INotifyPropertyChanged
+        {
+            return new ExpectedValuePropertyMonitor<TTarget, TProperty>(target, expectedValue);
+        }
+
+        /// <summary>
         /// Adds an parameterless callback for a property changed event.
         /// </summary>
         /// <example>
