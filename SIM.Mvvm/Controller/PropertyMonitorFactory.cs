@@ -5,11 +5,7 @@
 namespace SIM.Mvvm
 {
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Reflection;
 
     /// <summary>
     /// Factory class for <see cref="IPropertyMonitor"/> creation.
@@ -17,9 +13,6 @@ namespace SIM.Mvvm
     public class PropertyMonitorFactory
     {
         private static Lazy<PropertyMonitorFactory> current = new Lazy<PropertyMonitorFactory>();
-
-        private readonly List<WeakReference<IPropertyMonitor>> weakPropertyMonitors
-            = new List<WeakReference<IPropertyMonitor>>();
 
         /// <summary>
         /// Gets access to a singleton <see cref="PropertyMonitorFactory"/>.
@@ -34,23 +27,7 @@ namespace SIM.Mvvm
         /// <returns>The property monitor.</returns>
         public IPropertyMonitor GetPropertyMonitor(INotifyPropertyChanged target, string propertyName)
         {
-            // cleanup monitor collection
-            this.weakPropertyMonitors.RemoveAll(o => !o.TryGetTarget(out var _));
-
-            var monitor = this.weakPropertyMonitors
-                .Select(o =>
-                {
-                    o.TryGetTarget(out var t);
-                    return t;
-                })
-                .FirstOrDefault(m => m.PropertyName == propertyName &&
-                                     m.Target == target);
-
-            if (monitor is null)
-            {
-                monitor = new PropertyMonitor(target, propertyName);
-                this.weakPropertyMonitors.Add(new WeakReference<IPropertyMonitor>(monitor));
-            }
+            var monitor = new PropertyMonitor(target, propertyName);
 
             return monitor;
         }

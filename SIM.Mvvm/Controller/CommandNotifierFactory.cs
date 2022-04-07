@@ -16,9 +16,6 @@ namespace SIM.Mvvm
     {
         private static Lazy<CommandNotifierFactory> current = new Lazy<CommandNotifierFactory>();
 
-        private readonly List<WeakReference<ICommandNotifier>> weakCommandNotifiers
-            = new List<WeakReference<ICommandNotifier>>();
-
         /// <summary>
         /// Gets access to a singleton <see cref="PropertyMonitorFactory"/>.
         /// </summary>
@@ -32,24 +29,7 @@ namespace SIM.Mvvm
         /// <returns>The property monitor.</returns>
         public ICommandNotifier GetCommandNotifier(INotifyPropertyChanged target, string commandName)
         {
-            // cleanup monitor collection
-            this.weakCommandNotifiers.RemoveAll(o => !o.TryGetTarget(out var _));
-
-            var notifier = this.weakCommandNotifiers
-                .Select(o =>
-                {
-                    o.TryGetTarget(out var t);
-                    return t;
-                })
-                .FirstOrDefault(m => m.CommandName == commandName &&
-                                     m.Target == target);
-
-            if (notifier is null)
-            {
-                notifier = new CommandNotifier(target, commandName);
-                this.weakCommandNotifiers.Add(new WeakReference<ICommandNotifier>(notifier));
-            }
-
+            var notifier = new CommandNotifier(target, commandName);
             return notifier;
         }
     }

@@ -30,9 +30,6 @@
             Assert.AreEqual(3, monitorCollection.Length);
             Assert.AreEqual(nameof(this.Property), monitorCollection[0].PropertyName);
             Assert.AreEqual(nameof(this.ViewModel.IntProperty), monitorCollection[1].PropertyName);
-
-            // same property --> same monitor.
-            Assert.AreSame(monitorCollection[0], monitorCollection[2]);
         }
 
         [TestMethod]

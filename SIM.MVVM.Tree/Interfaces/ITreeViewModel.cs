@@ -50,11 +50,6 @@ namespace SIM.Mvvm.Tree
         int Rank { get; }
 
         /// <summary>
-        /// Gets the level of the item (adding 1 to rank).
-        /// </summary>
-        int Level { get; }
-
-        /// <summary>
         /// Gets command to search for sub items.
         /// </summary>
         ICommand? Expand { get; }

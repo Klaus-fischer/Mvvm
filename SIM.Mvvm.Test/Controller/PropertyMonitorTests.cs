@@ -103,27 +103,5 @@
             vm.Raise(o => o.PropertyChanged += null, new PropertyChangedEventArgs("TestProperty"));
             vm.Verify(o => o.OnPropertyChanged("TargetProperty"), Times.Once);
         }
-
-        [TestMethod]
-        public void FinalizerTest()
-        {
-            List<IPropertyMonitor> monitors = new();
-
-            for (int i = 0; i < 1_000; i++)
-            {
-                var target = new TestVm();
-
-                monitors.Add(new PropertyMonitor(target, nameof(target.Property)));
-
-                target = null;
-            }
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.WaitForFullGCComplete();
-            GC.Collect();
-
-            Assert.IsTrue(monitors.Any(o => o.Target is null));
-        }
     }
 }

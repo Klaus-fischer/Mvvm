@@ -12,7 +12,7 @@ namespace SIM.Mvvm
     /// </summary>
     internal class ViewModelNotifier
     {
-        private readonly WeakReference<IViewModel> viewModelReference;
+        private readonly IViewModel targetViewModel;
 
         private readonly Collection<string> properties = new Collection<string>();
 
@@ -22,7 +22,7 @@ namespace SIM.Mvvm
         /// <param name="viewModel">View model to notify.</param>
         public ViewModelNotifier(IViewModel viewModel)
         {
-            this.viewModelReference = new WeakReference<IViewModel>(viewModel);
+            this.targetViewModel = viewModel;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace SIM.Mvvm
         /// <param name="target">View model to check.</param>
         /// <returns>True if view model is alive and the reference equals.</returns>
         public bool CheckViewModel(IViewModel target)
-            => this.viewModelReference.TryGetTarget(out var vm) && ReferenceEquals(vm, target);
+            => ReferenceEquals(this.targetViewModel, target);
 
         /// <summary>
         /// Adds a property to notification list.
@@ -59,12 +59,9 @@ namespace SIM.Mvvm
         /// </summary>
         public void InvokePropertyChanged()
         {
-            if (this.viewModelReference.TryGetTarget(out var viewModel))
+            foreach (var property in this.properties)
             {
-                foreach (var property in this.properties)
-                {
-                    viewModel.OnPropertyChanged(property);
-                }
+                this.targetViewModel.OnPropertyChanged(property);
             }
         }
     }

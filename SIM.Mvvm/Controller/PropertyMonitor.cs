@@ -6,10 +6,8 @@ namespace SIM.Mvvm
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Diagnostics;
-    using System.Linq;
 
     /// <summary>
     /// Monitor to watch for a single property of a <see cref="IViewModel"/>.
@@ -17,8 +15,6 @@ namespace SIM.Mvvm
     [DebuggerDisplay("PropertyMonitor -> {this.PropertyName}")]
     internal class PropertyMonitor : IPropertyMonitor
     {
-        private readonly WeakReference<INotifyPropertyChanged> viewModelReference;
-
         private readonly List<ViewModelNotifier> notifiers
             = new List<ViewModelNotifier>();
 
@@ -29,9 +25,8 @@ namespace SIM.Mvvm
         /// <param name="propertyName">The name of the property the monitor listens to.</param>
         public PropertyMonitor(INotifyPropertyChanged viewModel, string propertyName)
         {
+            this.Target = viewModel;
             this.PropertyName = propertyName;
-            this.viewModelReference = new WeakReference<INotifyPropertyChanged>(viewModel, false);
-
             viewModel.PropertyChanged += this.OnViewModelPropertyChangedHandler;
         }
 
@@ -45,18 +40,7 @@ namespace SIM.Mvvm
         public string PropertyName { get; }
 
         /// <inheritdoc/>
-        public INotifyPropertyChanged? Target
-        {
-            get
-            {
-                if (this.viewModelReference.TryGetTarget(out var value))
-                {
-                    return value;
-                }
-
-                return null;
-            }
-        }
+        public INotifyPropertyChanged? Target { get; }
 
         /// <inheritdoc/>
         void IPropertyMonitor.RegisterViewModelProperty(IViewModel target, string property)

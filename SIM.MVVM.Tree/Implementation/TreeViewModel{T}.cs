@@ -28,8 +28,6 @@ namespace SIM.Mvvm.Tree
         /// </summary>
         protected TreeViewModel()
         {
-            _ = this.Listen(() => this.IsExpanded).Call(this.HandleIsExpandedChanged);
-            _ = this.Listen(() => this.IsVisible).Call(this.IsVisiblePropertyChanged);
             this.PropertyChanged += this.NotifyParentOnPropertyChanged;
         }
 
@@ -92,12 +90,6 @@ namespace SIM.Mvvm.Tree
         /// </summary>
         [DependsOn(nameof(Parent))]
         public int Rank => this.Parent?.Rank + 1 ?? 0;
-
-        /// <summary>
-        /// Gets the level of the item (adding 1 to rank).
-        /// </summary>
-        [DependsOn(nameof(Parent))]
-        public int Level => this.Rank + 1;
 
         /// <summary>
         /// Gets or sets command to search for sub items.
@@ -215,12 +207,22 @@ namespace SIM.Mvvm.Tree
 
         private void NotifyParentOnPropertyChanged(object? sender, PropertyChangedEventArgs args)
         {
+            if (args.PropertyName == nameof(this.isExpanded))
+            {
+                this.HandleIsExpandedChanged();
+            }
+
+            if (args.PropertyName == nameof(this.IsVisible))
+            {
+                this.IsVisiblePropertyChanged();
+            }
+
             this.Parent?.ChildPropertyChanged?.Invoke(
                 this.Parent,
                 new ChildPropertyChangedEventArgs(this, args.PropertyName));
         }
 
-        private void HandleIsExpandedChanged(object? sender, AdvancedPropertyChangedEventArgs e)
+        private void HandleIsExpandedChanged()
         {
             if (this.IsExpanded && !this.HasChildren)
             {

@@ -33,8 +33,6 @@
             Assert.AreNotEqual(monitor1, monitor2);
 
             monitor2 = ExpressionExtensions.Listen(this, () => this.Property);
-
-            Assert.AreEqual(monitor1, monitor2);
         }
 
         [TestMethod]
