@@ -7,7 +7,6 @@ namespace SIM.Mvvm
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Linq.Expressions;
     using System.Runtime.CompilerServices;
 
     /// <summary>
@@ -29,7 +28,7 @@ namespace SIM.Mvvm
         public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <inheritdoc/>
-        void IViewModel.OnPropertyChanged([CallerMemberName] string propertyName = "")
+        void IViewModel.OnPropertyChanged(string propertyName)
         {
             this.OnPropertyChanged(propertyName, null, null);
         }
@@ -58,7 +57,7 @@ namespace SIM.Mvvm
             {
                 this.supressedProperties.Remove(propertyName);
 
-                if (!Equals(oldValue, currentValue))
+                if (!this.Equals(oldValue, currentValue))
                 {
                     this.OnPropertyChanged(propertyName, oldValue, currentValue);
                 }
@@ -90,7 +89,6 @@ namespace SIM.Mvvm
         /// <typeparam name="T">Type of the Property.</typeparam>
         /// <param name="property">The reference to the current value.</param>
         /// <param name="newValue">The value from the setter.</param>
-        /// <param name="comparer">Optional comparer to validate was changed.</param>
         /// <param name="propertyName">The name of the property that was changed.</param>
         /// <example>
         /// private int _property;
@@ -105,10 +103,9 @@ namespace SIM.Mvvm
         protected void SetPropertyValue<T>(
             ref T property,
             T newValue,
-            IEqualityComparer<T>? comparer = null,
             [CallerMemberName] string propertyName = "")
         {
-            if (!Equals(property, newValue, comparer))
+            if (!this.Equals(property, newValue))
             {
                 T? oldValue = property;
                 property = newValue;
@@ -117,52 +114,13 @@ namespace SIM.Mvvm
         }
 
         /// <summary>
-        /// Compares the new and the old value.
-        /// If values are different, the <see cref="OnPropertyChanged"/> method will be called.
-        /// The return value is always the new property.
+        /// Checks properties for equality.
         /// </summary>
-        /// <typeparam name="T">Type of the Property.</typeparam>
-        /// <param name="expression">The expression that maps to the current value.</param>
-        /// <param name="newValue">The value from the setter.</param>
-        /// <param name="comparer">Optional comparer to validate was changed.</param>
-        /// <param name="propertyName">The name of the property that was changed.</param>
-        /// <example>
-        /// private Model _propertyModel;
-        /// public int Property
-        /// {
-        ///     get => this._propertyModel.Property;
-        ///     set => this.SetPropertyValue(() => this._propertyModel.Property, value);
-        /// }
-        /// ...
-        /// </example>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void SetPropertyValue<T>(
-            Expression<Func<T>> expression,
-            T newValue,
-            IEqualityComparer<T>? comparer = null,
-            [CallerMemberName] string propertyName = "")
-        {
-            T oldValue = expression.Compile().Invoke();
-
-            if (!Equals(oldValue, newValue, comparer))
-            {
-                if (expression.Body is MemberExpression me)
-                {
-                    var value = Expression.Constant(newValue);
-                    var assign = Expression.Assign(me, value);
-                    var lambda = Expression.Lambda<Action>(assign);
-                    lambda.Compile().Invoke();
-                }
-                else
-                {
-                    throw new InvalidOperationException("Expression should point direct to target property. '() => this.Data.Property'");
-                }
-
-                this.OnPropertyChanged(propertyName, oldValue, newValue);
-            }
-        }
-
-        private static bool Equals<T>(T property, T newValue, IEqualityComparer<T>? comparer)
+        /// <typeparam name="T">Type of the property to compare.</typeparam>
+        /// <param name="property">The current value of the property.</param>
+        /// <param name="newValue">The new value of the property.</param>
+        /// <returns>True if both are equal.</returns>
+        protected virtual bool Equals<T>(T property, T newValue)
         {
             // also true if property and newValue is null
             if (ReferenceEquals(property, newValue))
@@ -174,12 +132,6 @@ namespace SIM.Mvvm
             if (property is null || newValue is null)
             {
                 return false;
-            }
-
-            // try to use the comparer to validate equality.
-            if (comparer?.Equals(property, newValue) ?? false)
-            {
-                return true;
             }
 
             if (property is IEquatable<T> origin)

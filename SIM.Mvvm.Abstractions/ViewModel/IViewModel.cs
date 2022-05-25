@@ -16,6 +16,6 @@ namespace SIM.Mvvm
         /// To invoke the <see cref="INotifyPropertyChanged.PropertyChanged"/> event.
         /// </summary>
         /// <param name="propertyName">Name of the property that was changed.</param>
-        void OnPropertyChanged([CallerMemberName] string propertyName = "");
+        void OnPropertyChanged(string propertyName = "");
     }
 }
