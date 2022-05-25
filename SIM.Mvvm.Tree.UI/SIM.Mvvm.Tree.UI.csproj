@@ -24,7 +24,9 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\SIM.Mvvm.Abstractions\SIM.Mvvm.Abstraction.csproj" />
     <ProjectReference Include="..\SIM.MVVM.Tree\SIM.Mvvm.Tree.csproj" />
+    <ProjectReference Include="..\SIM.Mvvm\SIM.Mvvm.csproj" />
   </ItemGroup>
 
 </Project>

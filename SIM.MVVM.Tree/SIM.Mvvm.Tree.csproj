@@ -28,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SIM.Mvvm.Abstractions\SIM.Mvvm.Abstraction.csproj" />
     <ProjectReference Include="..\SIM.Mvvm\SIM.Mvvm.csproj" />
   </ItemGroup>
 
