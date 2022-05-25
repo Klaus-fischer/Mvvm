@@ -178,8 +178,32 @@
             Assert.IsTrue(callbackRaised);
         }
 
+        [TestMethod]
+        public void Listener()
+        {
+            var callbackRaised = false;
+            EventHandler<OnPropertyChangedEventArgs<string>> a = (s, e) =>
+            {
+                Assert.AreSame(this.ViewModel, s);
+                Assert.AreEqual("Alter Wert", e.Before);
+                Assert.AreEqual("Neuer Wert", e.After);
+                Assert.AreEqual("Property", e.PropertyName);
+                callbackRaised = true;
+            };
 
-        public class TestVm : IViewModel
+            this.ViewModel.Property = "Alter Wert";
+
+            var monitor = this.ViewModel.Listen(p => p.Property);
+            monitor.Call(a);
+
+            this.ViewModel.Property = "Neuer Wert";
+            this.ViewModel.OnPropertyChanged(nameof(this.Property));
+
+            Assert.IsTrue(callbackRaised);
+        }
+
+
+        public class TestVm : IViewModel, IListenerHost
         {
             public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -192,6 +216,13 @@
             {
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
+
+            public void AddListener(IPropertyListener listener)
+            {
+                this.AddListenerRaised?.Invoke(this, listener);
+            }
+
+            public event EventHandler<IPropertyListener>? AddListenerRaised;
         }
     }
 }

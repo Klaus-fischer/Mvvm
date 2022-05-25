@@ -253,7 +253,7 @@
 
         public new void SetPropertyValue<T>(ref T? oldValue, T? newValue, string propertyName)
         {
-            base.SetPropertyValue<T>(ref oldValue, newValue, null, propertyName);
+            base.SetPropertyValue<T>(ref oldValue, newValue, propertyName);
         }
 
         internal Model model = new Model();
@@ -274,8 +274,20 @@
         public string InvariantCaseString
         {
             get => this.invariantCaseString;
-            set => this.SetPropertyValue(() => this.invariantCaseString, value, InvariantCaseStringComparer.Current);
+            set => this.SetPropertyValue(() => this.invariantCaseString, value);
+        }
 
+        protected override bool Equals<T>(string propertyName, T property, T newValue)
+        {
+            if (propertyName == nameof(this.InvariantCaseString) &&
+                property is string oldString &&
+                newValue is string newString)
+            {
+                var comparer = new InvariantCaseStringComparer();
+                return comparer.Equals(oldString, newString);
+            }
+
+            return base.Equals(propertyName, property, newValue);
         }
 
         private int age;
