@@ -11,7 +11,6 @@ namespace SIM.Mvvm.Tree
     using System.Linq;
     using System.Windows.Input;
     using SIM.Mvvm;
-    using SIM.Mvvm.Expressions;
 
     /// <summary>
     /// Extends view model by tree structure.

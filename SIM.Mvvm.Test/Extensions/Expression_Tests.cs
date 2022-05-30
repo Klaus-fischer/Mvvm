@@ -2,7 +2,6 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
-    using SIM.Mvvm.Expressions;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -11,9 +10,10 @@
     using System.Windows.Input;
 
     [TestClass]
-    public class Expression_Tests : INotifyPropertyChanged
+    public class Expression_Tests : INotifyPropertyChanged, IListenerHost
     {
         public string Property { get; set; } = "initial";
+        public string SecondProperty { get; set; } = "initial";
 
         public TestVm ViewModel { get; set; } = new TestVm();
 
@@ -24,31 +24,20 @@
         [TestMethod]
         public void ListenExpression()
         {
-            var monitor1 = ExpressionExtensions.Listen(this, () => this.Property);
+            var monitor1 = IListenerHostExtensions.Listen(this, v => v.Property);
             Assert.IsNotNull(monitor1);
 
-            var monitor2 = ExpressionExtensions.Listen(this, () => this.ViewModel.Property);
+            var monitor2 = IListenerHostExtensions.Listen(this, this.ViewModel, v => v.Property);
             Assert.IsNotNull(monitor2);
 
             Assert.AreNotEqual(monitor1, monitor2);
-
-            monitor2 = ExpressionExtensions.Listen(this, () => this.Property);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void ListenExpression_Fail_Type()
-        {
-            var target = new List<string>();
-
-            var monitor1 = ExpressionExtensions.Listen(this, () => target.Count);
         }
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         public void ListenExpression_Fail_Expression()
         {
-            var monitor1 = ExpressionExtensions.Listen(this, () => 42);
+            var monitor1 = IListenerHostExtensions.Listen(this, v => 42);
         }
 
         [TestMethod]
@@ -59,10 +48,12 @@
 
             this.Property = "Alter Wert";
 
-            var monitor = ExpressionExtensions.Listen(this, () => this.Property)
+            var monitor = IListenerHostExtensions.Listen(this, v => v.Property)
                 .Call(a);
 
             this.Property = "Neuer Wert";
+
+            Assert.IsFalse(callbackRaised);
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Property)));
 
             Assert.IsTrue(callbackRaised);
@@ -84,13 +75,14 @@
             this.ViewModel.PropertyChanged += eventHandler;
             try
             {
-
                 this.Property = "Alter Wert";
 
-                var monitor = ExpressionExtensions.Listen(this, () => this.Property)
+                var monitor = IListenerHostExtensions.Listen(this, v => v.Property)
                     .Notify(() => this.ViewModel.Property);
 
                 this.Property = "Neuer Wert";
+
+                Assert.IsFalse(callbackRaised);
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Property)));
 
                 Assert.IsTrue(callbackRaised);
@@ -108,8 +100,8 @@
         {
             var target = new List<string>();
 
-            var monitor = ExpressionExtensions
-                .Listen(this, () => this.Property)
+            var monitor = IListenerHostExtensions
+                .Listen(this, v => v.Property)
                 .Notify(() => target.Count);
         }
 
@@ -117,8 +109,8 @@
         [ExpectedException(typeof(InvalidOperationException))]
         public void NotifyViewModel_Fail_Expression()
         {
-            var monitor = ExpressionExtensions
-                   .Listen(this, () => this.Property)
+            var monitor = IListenerHostExtensions
+                   .Listen(this,v => v.Property)
                    .Notify(() => 42);
         }
 
@@ -137,7 +129,7 @@
             {
                 this.Property = "Alter Wert";
 
-                var monitor = ExpressionExtensions.Listen(this, () => this.Property)
+                var monitor = IListenerHostExtensions.Listen(this, v => v.Property)
                     .Notify(() => this.TestCommand);
 
                 this.Property = "Neuer Wert";
@@ -149,33 +141,6 @@
             {
                 this.TestCommand.CanExecuteChanged -= eventHandler;
             }
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void NotifyCommand_Fail()
-        {
-            var cmd = new Mock<ICommand>().Object;
-            ExpressionExtensions
-                .Listen(this, () => this.Property)
-                .Notify(() => cmd);
-        }
-
-        [TestMethod]
-        public void EventHandler()
-        {
-            var callbackRaised = false;
-            EventHandler<AdvancedPropertyChangedEventArgs> a = (s, e) => callbackRaised = true;
-
-            this.Property = "Alter Wert";
-
-            var monitor = ExpressionExtensions.Listen(null, () => this.Property)
-                .Call(a);
-
-            this.Property = "Neuer Wert";
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Property)));
-
-            Assert.IsTrue(callbackRaised);
         }
 
         [TestMethod]
@@ -202,15 +167,15 @@
             Assert.IsTrue(callbackRaised);
         }
 
+        public void AddListener(IPropertyListener listener)
+        {
+        }
 
         public class TestVm : IViewModel, IListenerHost
         {
             public event PropertyChangedEventHandler? PropertyChanged;
 
             public string Property { get; set; } = "initial";
-
-            public Collection<IPropertyMonitor> PropertyMonitors { get; }
-                = new Collection<IPropertyMonitor>();
 
             public void OnPropertyChanged([CallerMemberName] string propertyName = "")
             {

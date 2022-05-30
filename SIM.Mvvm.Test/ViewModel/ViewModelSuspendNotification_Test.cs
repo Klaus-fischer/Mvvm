@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
-    using SIM.Mvvm.Expressions;
+    using SIM.Mvvm;
 
     [TestClass]
     public class ViewModelSuspendNotification_Test

@@ -7,7 +7,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Windows.Input;
-    using SIM.Mvvm.Expressions;
     using System.Diagnostics.CodeAnalysis;
 
     [TestClass]
@@ -196,28 +195,6 @@
         }
 
         [TestMethod]
-        public void GetPropertyMonitorTest()
-        {
-            var vm = new ViewModelMock();
-            var monitor = vm.Listen(() => vm.FirstValue);
-            Assert.AreEqual(nameof(ViewModelMock.FirstValue), monitor.PropertyName);
-
-            // get from collection
-            string[] collection = new string[] { nameof(ViewModelMock.FirstValue), nameof(ViewModelMock.Command) };
-
-            var monitors = vm.Listen(() => vm.FirstValue, () => vm.Command).ToArray();
-            Assert.AreEqual(2, monitors.Length);
-            Assert.IsTrue(collection.SequenceEqual(monitors.Select(o => o.PropertyName)));
-
-            // get from empty collection
-            collection = Array.Empty<string>();
-            monitors = vm.Listen().ToArray();
-            Assert.AreEqual(0, monitors.Length);
-
-            // get from remove all collection
-        }
-
-        [TestMethod]
         public void InvokeEqualNotifier()
         {
             bool invoked = false;
@@ -237,6 +214,14 @@
 
     public class ViewModelMock : ViewModel
     {
+        public ViewModelMock()
+        {
+            this.Listen(v => v.Name).Notify(() => this.Command);
+
+            this.Listen(v => v.Name).Notify(() => this.AgedName);
+            this.Listen(v => v.Age).Notify(() => this.AgedName);
+        }
+
         public ViewModelMock RegisterCounter()
         {
             base.PropertyChanged += (s, a) => this.PropertyChangedRaisedCount++;
@@ -298,7 +283,6 @@
             set => this.SetPropertyValue(ref this.age, value);
         }
 
-        [DependsOn(nameof(Name))]
         public ICommand Command
         {
             get => command;
@@ -314,7 +298,6 @@
             set => this.SetPropertyValue(ref this.name, value);
         }
 
-        [DependsOn(nameof(Name), nameof(Age))]
         public string AgedName => $"{this.Name} ({this.Age})";
 
 

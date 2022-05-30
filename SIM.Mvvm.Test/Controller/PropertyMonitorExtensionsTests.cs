@@ -4,7 +4,6 @@
     using Moq;
     using System;
     using System.ComponentModel;
-    using SIM.Mvvm.Expressions;
 
     [TestClass]
     public class PropertyMonitorExtensionsTests
@@ -12,46 +11,34 @@
         [TestMethod]
         public void RegisterCallback_Test()
         {
-            Action a = new Action(() => { });
-            var monitor = new Mock<IPropertyMonitor>();
-            monitor.SetupAdd(o => o.OnPropertyChangedCallback += a).Verifiable();
+            bool raised = false;
+            Action a = new Action(() => { raised = true; });
 
-            var result = ExpressionExtensions.Call(monitor.Object, a);
-            monitor.VerifyAdd(o => o.OnPropertyChangedCallback += a, Times.Once);
+            var monitor = new Mock<IPropertyListener>();
 
-            Assert.AreEqual(monitor.Object, result);
+            var result = IPropertyListenerExtensions.Call(monitor.Object, a);
+
+            Assert.AreSame(monitor.Object, result);
+
+            monitor.Raise(o => o.PropertyChanged += (s, a) => { }, EventArgs.Empty);
+
+            Assert.IsTrue(raised);
         }
 
 
         [TestMethod]
         public void RegisterCallback_Adv_Test()
         {
-            EventHandler<AdvancedPropertyChangedEventArgs> a = (s, e) => { };
-            var monitor = new Mock<IPropertyMonitor>();
-            monitor.SetupAdd(o => o.OnPropertyChanged += a).Verifiable();
+            EventHandler<OnPropertyChangedEventArgs<string>> h = (s, e) => { };
+            var monitor = new Mock<IPropertyListener<string>>();
+            monitor.SetupAdd(o => o.PropertyChanged += h).Verifiable();
 
-            var result = ExpressionExtensions.Call(monitor.Object, a);
-            monitor.VerifyAdd(o => o.OnPropertyChanged += a, Times.Once);
-
-            Assert.AreEqual(monitor.Object, result);
-        }
-
-        [TestMethod]
-        public void RegisterViewModelProperties_Test()
-        {
-            var viewModel = new Mock<IViewModelMockTest>();
-
-            string[] propertyNames = new string[] { nameof(IViewModelMockTest.MyProperty) };
-
-            var monitor = new Mock<IPropertyMonitor>();
-            monitor.Setup(o => o.RegisterViewModelProperty(viewModel.Object, propertyNames[0]));
-
-            var result = ExpressionExtensions.Notify(monitor.Object, () => viewModel.Object.MyProperty);
-
-            monitor.Verify(o => o.RegisterViewModelProperty(viewModel.Object, propertyNames[0]), Times.Once);
+            var result = IPropertyListenerExtensions.Call(monitor.Object, h);
+            monitor.VerifyAdd(o => o.PropertyChanged += h, Times.Once);
 
             Assert.AreEqual(monitor.Object, result);
         }
+
 
         [TestMethod]
         public void ExpressionTest()
@@ -144,7 +131,7 @@
 
             public ExpressionVm()
             {
-                this.Listen(()=>this.Test)
+                this.Listen(v => v.Test)
                     .Notify(() => this.TestString);
             }
         }
@@ -156,7 +143,7 @@
             public MasterExpressionVm()
             {
                 this.expressionVm = new ExpressionVm();
-                this.expressionVm.Listen(()=> this.expressionVm.Test).Notify(() => this.TestString);
+                this.expressionVm.Listen(expressionVm, m => m.Test).Notify(() => this.TestString);
             }
 
             public string TestString => $"{expressionVm.Test} String";
@@ -174,8 +161,8 @@
                 this.nestedVmLight = new NestedVmLight();
 
 
-                this.Listen(() => this.nestedVm.Test).Notify(() => this.NestedVmText);
-                this.Listen(() => this.nestedVmLight.Text).Notify(() => this.NestedVmLightText);
+                this.Listen(nestedVm, v => v.Test).Notify(() => this.NestedVmText);
+                this.Listen(nestedVmLight, v => v.Text).Notify(() => this.NestedVmLightText);
             }
 
             public string NestedVmText => $"{nestedVm.Test} NestedVmText";

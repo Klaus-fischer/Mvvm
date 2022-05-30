@@ -3,8 +3,6 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using SIM.Mvvm;
     using System.Windows.Input;
-    using SIM.Mvvm.Expressions;
-    using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
 
@@ -120,15 +118,21 @@
             // Registers command dependencies
             this.command = new RelayCommand(() => CommandExecutedCount++, () => this.CommandCanExecute);
 
-            this.Listen(() => this.CommandCanExecute, () => this.model.FirstValue)
+            this.Listen(vm => vm.CommandCanExecute)
+                .Notify(() => this.Command);
+
+            this.Listen(model, m => m.FirstValue)
                 .Notify(() => this.Command);
 
             // Aged Name depends on name and age.
-            this.Listen(() => this.Name, () => this.Age)
+            this.Listen(vm => vm.Name)
+                .Notify(() => this.AgedName);
+
+            this.Listen(vm => vm.Age)
                 .Notify(() => this.AgedName);
 
             // forward property changed event.
-            this.Listen(() => this.model.FirstValue)
+            this.Listen(model, m => m.FirstValue)
                 .Notify(() => this.FirstValue);
         }
 
@@ -192,9 +196,6 @@
                     this.OnPropertyChanged();
                 }
             }
-
-            public Collection<IPropertyMonitor> PropertyMonitors { get; }
-                = new Collection<IPropertyMonitor>();
 
             public event PropertyChangedEventHandler? PropertyChanged;
 

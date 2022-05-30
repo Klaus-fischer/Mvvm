@@ -60,7 +60,7 @@
             }
 
             public void BaseInvokeCanExecuteChanged()
-                => base.InvokeCanExecuteChanged();
+                => base.NotifyCanExecuteChanged();
         }
     }
 }
