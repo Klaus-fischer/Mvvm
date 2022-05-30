@@ -26,7 +26,7 @@ namespace SIM.Mvvm
             this.targetCommand = targetCommand ?? throw new ArgumentNullException(nameof(targetCommand));
             this.getParameter = parameterCallback ?? throw new ArgumentNullException(nameof(parameterCallback));
 
-            this.targetCommand.CanExecuteChanged += (s, a) => this.InvokeCanExecuteChanged();
+            this.targetCommand.CanExecuteChanged += (s, a) => this.NotifyCanExecuteChanged();
         }
 
         /// <summary>

@@ -5,9 +5,9 @@
 namespace SIM.Mvvm
 {
     using System;
+    using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
-    using SIM.Mvvm.Expressions;
 
     /// <summary>
     /// Relay command to implement asynchron command behavior.
@@ -33,7 +33,7 @@ namespace SIM.Mvvm
             this.executeHandler = onExecute ?? throw new ArgumentNullException(nameof(onExecute));
             this.canExecuteHandler = onCanExecute;
 
-            this.context.Listen(() => this.context.IsBusy).Call(this.InvokeCanExecuteChanged);
+            this.context.PropertyChanged += this.NotifyCommandIfIsBusyChanged;
         }
 
         /// <summary>
@@ -99,6 +99,14 @@ namespace SIM.Mvvm
             finally
             {
                 this.context.FinalizeExecution();
+            }
+        }
+
+        private void NotifyCommandIfIsBusyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(IAsyncExecutionContext.IsBusy))
+            {
+                this.NotifyCanExecuteChanged();
             }
         }
     }

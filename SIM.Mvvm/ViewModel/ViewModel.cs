@@ -21,14 +21,6 @@ namespace SIM.Mvvm
 
         private bool isDisposed;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ViewModel"/> class.
-        /// </summary>
-        public ViewModel()
-        {
-            this.RegisterDependencies();
-        }
-
         /// <inheritdoc/>
         public event PropertyChangedEventHandler? PropertyChanged;
 

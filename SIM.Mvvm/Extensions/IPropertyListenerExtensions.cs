@@ -30,6 +30,8 @@ namespace SIM.Mvvm
 
             var propertyName = me.Member.Name;
             var obj = Expression.Lambda(me.Expression).Compile().DynamicInvoke();
+            bool success = false;
+
 
             if (obj is IViewModel viewModel)
             {
@@ -37,6 +39,7 @@ namespace SIM.Mvvm
                 {
                     viewModel.OnPropertyChanged(propertyName);
                 };
+                success = true;
             }
 
             if (typeof(ICommand).IsAssignableFrom(typeof(T)))
@@ -49,6 +52,12 @@ namespace SIM.Mvvm
                         command.NotifyCanExecuteChanged();
                     }
                 };
+                success = true;
+            }
+
+            if (!success)
+            {
+                throw new InvalidOperationException("Property does not belong to an IViewModel and is not a ICommand");
             }
 
             return listener;

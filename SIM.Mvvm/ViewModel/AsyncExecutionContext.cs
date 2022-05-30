@@ -7,7 +7,6 @@ namespace SIM.Mvvm
     using System;
     using System.Threading;
     using System.Windows.Input;
-    using SIM.Mvvm.Expressions;
 
     /// <summary>
     /// Execution context for asynchron commands.
@@ -24,8 +23,9 @@ namespace SIM.Mvvm
             this.Cancel = new RelayCommand(this.OnCancel, this.CanCancel);
 
 #nullable disable
-            this.Listen(() => this.IsBusy)
-                .Notify(() => this.CancellationTokenSource, () => this.Cancel);
+            this.Listen(p => p.IsBusy)
+                .Notify(() => this.CancellationTokenSource)
+                .Notify(() => this.Cancel);
 #nullable enable
         }
 

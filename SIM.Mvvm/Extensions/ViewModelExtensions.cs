@@ -2,7 +2,7 @@
 // Copyright (c) SIM Automation. All rights reserved.
 // </copyright>
 
-namespace SIM.Mvvm.Expressions
+namespace SIM.Mvvm
 {
     using System;
     using System.ComponentModel;

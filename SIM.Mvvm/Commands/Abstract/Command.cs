@@ -25,7 +25,7 @@ namespace SIM.Mvvm
              => this.Execute();
 
         /// <inheritdoc/>
-        void INotifyCommand.NotifyCanExecuteChanged()
+        public void NotifyCanExecuteChanged()
         {
             this.CanExecuteChanged?.Invoke(this, new EventArgs());
         }
@@ -54,13 +54,5 @@ namespace SIM.Mvvm
         /// The <see cref="CanExecute"/> call was already checked.
         /// </summary>
         protected abstract void OnExecute();
-
-        /// <summary>
-        /// Invokes the <see cref="InvokeCanExecuteChanged"/> event.
-        /// </summary>
-        protected void InvokeCanExecuteChanged()
-        {
-            this.CanExecuteChanged?.Invoke(this, new EventArgs());
-        }
     }
 }
