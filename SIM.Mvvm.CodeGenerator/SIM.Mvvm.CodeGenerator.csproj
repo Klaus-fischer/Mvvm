@@ -10,6 +10,9 @@
     <PackageProjectUrl>https://s-op.verwaltung.sim/gitlab/sim/mvvm/</PackageProjectUrl>
     <RepositoryUrl>https://s-op.verwaltung.sim/gitlab/sim/mvvm/</RepositoryUrl>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Version>0.7.2</Version>
+    <RootNamespace>SIM.Mvvm.CodeGeneration</RootNamespace>
+    <IsRoslynComponent>true</IsRoslynComponent>
   </PropertyGroup>
 
   <ItemGroup>

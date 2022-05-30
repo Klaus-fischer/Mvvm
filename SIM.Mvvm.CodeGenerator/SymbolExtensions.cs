@@ -1,4 +1,4 @@
-﻿namespace SIM.Mvvm.CodeGenerator
+﻿namespace SIM.Mvvm.CodeGeneration
 {
     using Microsoft.CodeAnalysis;
     using System.Text;

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SIM.Mvvm.CodeGenerator": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\SIM.Mvvm.CodeGeneration.Tests\\SIM.Mvvm.CodeGenerator.Tests.csproj"
+    }
+  }
+}
