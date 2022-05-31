@@ -30,10 +30,10 @@
         public void RegisterCallback_Adv_Test()
         {
             EventHandler<OnPropertyChangedEventArgs<string>> h = (s, e) => { };
-            var monitor = new Mock<IPropertyListener<string>>();
+            var monitor = new Mock<IPropertyMonitor<string>>();
             monitor.SetupAdd(o => o.PropertyChanged += h).Verifiable();
 
-            var result = IPropertyListenerExtensions.Call(monitor.Object, h);
+            var result = IPropertyMonitorExtensions.Call(monitor.Object, h);
             monitor.VerifyAdd(o => o.PropertyChanged += h, Times.Once);
 
             Assert.AreEqual(monitor.Object, result);
@@ -143,7 +143,7 @@
             public MasterExpressionVm()
             {
                 this.expressionVm = new ExpressionVm();
-                this.expressionVm.Listen(expressionVm, m => m.Test).Notify(() => this.TestString);
+                this.expressionVm.Monitor(expressionVm, m => m.Test).Notify(() => this.TestString);
             }
 
             public string TestString => $"{expressionVm.Test} String";
@@ -161,8 +161,8 @@
                 this.nestedVmLight = new NestedVmLight();
 
 
-                this.Listen(nestedVm, v => v.Test).Notify(() => this.NestedVmText);
-                this.Listen(nestedVmLight, v => v.Text).Notify(() => this.NestedVmLightText);
+                this.Monitor(nestedVm, v => v.Test).Notify(() => this.NestedVmText);
+                this.Monitor(nestedVmLight, v => v.Text).Notify(() => this.NestedVmLightText);
             }
 
             public string NestedVmText => $"{nestedVm.Test} NestedVmText";

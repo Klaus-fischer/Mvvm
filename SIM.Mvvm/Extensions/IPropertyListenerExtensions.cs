@@ -32,7 +32,6 @@ namespace SIM.Mvvm
             var obj = Expression.Lambda(me.Expression).Compile().DynamicInvoke();
             bool success = false;
 
-
             if (obj is IViewModel viewModel)
             {
                 listener.PropertyChanged += (s, a) =>
@@ -73,33 +72,6 @@ namespace SIM.Mvvm
         {
             listener.PropertyChanged += (s, a) => action();
             return listener;
-        }
-
-        /// <summary>
-        /// Adds an callback to an listener.
-        /// </summary>
-        /// <typeparam name="T">Type of the observed propert</typeparam>
-        /// <param name="listener">Listener to extend.</param>
-        /// <param name="eventHandler">The event handler to register to the listener.</param>
-        /// <returns>The listener itself for chaining.</returns>
-        public static IPropertyListener Call<T>(
-            this IPropertyListener<T> listener,
-            EventHandler<OnPropertyChangedEventArgs<T>> eventHandler)
-        {
-            listener.PropertyChanged += eventHandler;
-            return listener;
-        }
-
-        /// <summary>
-        /// Adds an condition to the listener, to filter all notifications.
-        /// </summary>
-        /// <typeparam name="T">Type of the property to notify.</typeparam>
-        /// <param name="listener">The listener to filter.</param>
-        /// <param name="predicate">The filter condition.</param>
-        /// <returns>The condition property listener.</returns>
-        public static IPropertyListener<T> If<T>(this IPropertyListener<T> listener, Func<T, bool> predicate)
-        {
-            return new PredicatePropertyListener<T>(listener, predicate);
         }
     }
 }

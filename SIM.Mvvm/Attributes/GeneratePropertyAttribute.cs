@@ -10,13 +10,13 @@ namespace SIM.Mvvm.CodeGeneration
     /// Generates an property getter and setter to this field.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
-    public class GeneratePropertyAttribute : Attribute
+    internal class GenerateProperty1Attribute : Attribute
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="GeneratePropertyAttribute"/> class.
+        /// Initializes a new instance of the <see cref="GenerateProperty1Attribute"/> class.
         /// </summary>
         /// <param name="setterVisibility">Property will have no getter.</param>
-        public GeneratePropertyAttribute(SetterVisibility setterVisibility = SetterVisibility.Public)
+        public GenerateProperty1Attribute(SetterVisibility setterVisibility = SetterVisibility.Public)
         {
             this.SetterVisibility = setterVisibility;
         }
@@ -27,7 +27,7 @@ namespace SIM.Mvvm.CodeGeneration
         public SetterVisibility SetterVisibility { get; }
     }
 
-    public enum SetterVisibility
+    internal enum SetterVisibility
     {
         Private,
         Protected,

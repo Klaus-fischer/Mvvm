@@ -30,7 +30,7 @@ namespace SIM.Mvvm.CodeGeneration
             foreach (var group in receiver.FieldsToAutoMapProperties.GroupBy(f => f.ContainingType))
             {
                 var classSource = this.ProcessClass(group.Key, group.ToList());
-                context.AddSource($"{group.Key.Name}_autoMap.cs", SourceText.From(classSource, Encoding.UTF8));
+                context.AddSource($"{group.Key.Name}_autoMap.cs", classSource);
             }
         }
 

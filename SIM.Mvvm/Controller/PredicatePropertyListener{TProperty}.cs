@@ -11,19 +11,19 @@ namespace SIM.Mvvm
     /// Wraps an <see cref="IPropertyListener"/> and filters events by condition.
     /// </summary>
     /// <typeparam name="TProperty">Type of the property to listen to.</typeparam>
-    internal class PredicatePropertyListener<TProperty> : IPropertyListener<TProperty>, IDisposable
+    internal class PredicatePropertyMonitor<TProperty> : IPropertyMonitor<TProperty>, IDisposable
     {
         private readonly Collection<Delegate> eventHandlers = new();
         private readonly Func<TProperty, bool> predicate;
-        private readonly IPropertyListener<TProperty> listener;
+        private readonly IPropertyMonitor<TProperty> listener;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PredicatePropertyListener{TProperty}"/> class.
+        /// Initializes a new instance of the <see cref="PropertyMonitor{TProperty}"/> class.
         /// </summary>
         /// <param name="listener">Listener to wrap.</param>
         /// <param name="predicate">Predicate to filter events.</param>
-        public PredicatePropertyListener(
-            IPropertyListener<TProperty> listener,
+        public PredicatePropertyMonitor(
+            IPropertyMonitor<TProperty> listener,
             Func<TProperty, bool> predicate)
         {
             this.listener = listener;
@@ -36,7 +36,7 @@ namespace SIM.Mvvm
         public event EventHandler? Disposed;
 
         /// <inheritdoc/>
-        event EventHandler<OnPropertyChangedEventArgs<TProperty>>? IPropertyListener<TProperty>.PropertyChanged
+        event EventHandler<OnPropertyChangedEventArgs<TProperty>>? IPropertyMonitor<TProperty>.PropertyChanged
         {
             add
             {

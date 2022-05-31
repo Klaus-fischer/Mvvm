@@ -2,9 +2,11 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Reflection;
+    using SIM.Mvvm.CodeGeneration;
 
     [TestClass]
-    public class AutoGeneratePropertiesTest
+    [CreateProperty("Name")]
+    public partial class AutoGeneratePropertiesTest
     {
         [TestMethod]
         public void Constructor()

@@ -16,7 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SIM.Mvvm.CodeGenerator\SIM.Mvvm.CodeGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\SIM.Mvvm.CodeGenerator\SIM.Mvvm.CodeGenerator.csproj"
+                      OutputItemType="Analyzer" 
+                      ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\SIM.Mvvm\SIM.Mvvm.csproj" />
   </ItemGroup>
 

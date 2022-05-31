@@ -4,33 +4,79 @@
 
 namespace SIM.Mvvm.CodeGeneration
 {
-    using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using System.Text;
     using Microsoft.CodeAnalysis;
-    using Microsoft.CodeAnalysis.Text;
+    using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-    internal class GeneratePropertiesGenerator
+    internal class GeneratePropertiesGenerator : IContentGenerator
     {
-        private readonly SyntaxReceiver receiver;
-        private readonly string ViewModelFullName = typeof(ViewModel).FullName;
-        private readonly string? AttributeFullName = SyntaxReceiver.GeneratePropertyAttributeFullName;
+        const string attributeFullName = "SIM.Mvvm.CodeGeneration.GeneratePropertyAttribute";
+        const string attributeContent = @"
+namespace SIM.Mvvm.CodeGeneration
+{
+    using System;
 
-        public GeneratePropertiesGenerator(SyntaxReceiver receiver)
+    /// <summary>
+    /// Generates an property getter and setter to this field.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
+    public class GeneratePropertyAttribute : Attribute
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref=""GeneratePropertyAttribute""/> class.
+        /// </summary>
+        /// <param name=""setterVisibility"">Property will have no getter.</param>
+        public SIM.Mvvm.CodeGeneration(SetterVisibility setterVisibility = SetterVisibility.Public)
         {
-            this.receiver = receiver;
+            this.SetterVisibility = setterVisibility;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether property should be read-only.
+        /// </summary>
+        public SetterVisibility SetterVisibility { get; }
+    }
+}
+";
+
+        private readonly string ViewModelFullName = typeof(ViewModel).FullName;
+        private readonly List<IFieldSymbol> fieldsToGeneratePropertiesFrom = new();
+
+        public void PostInititialize(GeneratorPostInitializationContext context)
+        {
+            context.AddSource($"GeneratePropertyAttribute.g.cs", attributeContent);
+        }
+
+        public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
+        {
+            // any field with at least one attribute is a candidate for property generation
+            if (context.Node is FieldDeclarationSyntax fieldDeclarationSyntax
+                && fieldDeclarationSyntax.AttributeLists.Count > 0)
+            {
+                foreach (var variable in fieldDeclarationSyntax.Declaration.Variables)
+                {
+                    // Get the symbol being declared by the field, and keep it if its annotated
+                    if (context.SemanticModel.GetDeclaredSymbol(variable) is IFieldSymbol fieldSymbol)
+                    {
+                        if (fieldSymbol.GetAttributes().Any(ad => ad.AttributeClass?.ToDisplayString() == attributeFullName))
+                        {
+                            this.fieldsToGeneratePropertiesFrom.Add(fieldSymbol);
+                        }
+                    }
+                }
+            }
         }
 
         /// <inheritdoc/>
         public void Execute(GeneratorExecutionContext context)
         {
             // group the fields by class, and generate the source
-            foreach (var group in this.receiver.FieldsToGeneratePropertiesFrom.GroupBy(f => f.ContainingType))
+            foreach (var group in this.fieldsToGeneratePropertiesFrom.GroupBy(f => f.ContainingType))
             {
                 var classSource = this.ProcessClass(group.Key, group.ToList());
-                context.AddSource($"{group.Key.Name}.properties.cs", SourceText.From(classSource, Encoding.UTF8));
+                context.AddSource($"{group.Key.Name}.properties.cs", classSource);
             }
         }
 
@@ -163,27 +209,20 @@ namespace {namespaceName}
             {
                 type = fieldSymbol.Type;
 
-                if (fieldSymbol.GetAttributes().FirstOrDefault(o => o.AttributeClass?.ToDisplayString() == AttributeFullName) is AttributeData attribute)
+                if (fieldSymbol.GetAttributes().FirstOrDefault(o => o.AttributeClass?.ToDisplayString() == attributeFullName) is AttributeData attribute)
                 {
                     if (attribute.ConstructorArguments.FirstOrDefault() is TypedConstant tc)
                     {
-                        if (tc.Value is not SetterVisibility visibility)
+                        if (tc.Value is int visibility)
                         {
-                            if (tc.Value is not int enumValue)
+                            setterVisibility = visibility switch
                             {
-                                return true;
-                            }
-
-                            visibility = (SetterVisibility)enumValue;
+                                0 => "private ",
+                                1 => "protected ",
+                                2 => "internal ",
+                                _ => "",
+                            };
                         }
-
-                        setterVisibility = visibility switch
-                        {
-                            SetterVisibility.Private => "private ",
-                            SetterVisibility.Internal => "internal ",
-                            SetterVisibility.Protected => "protected ",
-                            _ => "",
-                        };
                     }
                 }
 
@@ -193,7 +232,6 @@ namespace {namespaceName}
             type = symbol.ContainingType;
             return false;
         }
-
 
         private void CheckExclusion(IFieldSymbol fieldSymbol, ICollection<string> knownProperties, out string message)
         {
@@ -206,5 +244,6 @@ namespace {namespaceName}
             knownProperties.Add(fieldSymbol.Name);
             message = string.Empty;
         }
+
     }
 }

@@ -11,7 +11,7 @@ namespace SIM.Mvvm.CodeGeneration
     /// The attribute is only valid if you are using the <see cref="SIM.Mvvm.CodeGeneration"/> project.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
-    public class AutoMapPropertiesAttribute : Attribute
+    public  class AutoMapPropertiesAttribute : Attribute
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AutoMapPropertiesAttribute"/> class.

@@ -13,11 +13,7 @@
             {
                 try
                 {
-                    var propertyGenerator = new GeneratePropertiesGenerator(syntaxReceiver);
-                    propertyGenerator.Execute(context);
-
-                    var autoMapGenerator = new AutoMapPropertiesGenerator(syntaxReceiver);
-                    autoMapGenerator.Execute(context);
+                    syntaxReceiver.Execute(context);
                 }
                 catch (Exception ex)
                 {
@@ -35,7 +31,9 @@
 
         public void Initialize(GeneratorInitializationContext context)
         {
-            context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
+            var receiver = new SyntaxReceiver();
+            context.RegisterForSyntaxNotifications(() => receiver);
+            context.RegisterForPostInitialization(receiver.PostInititialize);
         }
     }
 }

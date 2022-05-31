@@ -27,7 +27,7 @@
             var monitor1 = IListenerHostExtensions.Listen(this, v => v.Property);
             Assert.IsNotNull(monitor1);
 
-            var monitor2 = IListenerHostExtensions.Listen(this, this.ViewModel, v => v.Property);
+            var monitor2 = IListenerHostExtensions.Monitor(this, this.ViewModel, v => v.Property);
             Assert.IsNotNull(monitor2);
 
             Assert.AreNotEqual(monitor1, monitor2);
@@ -158,7 +158,7 @@
 
             this.ViewModel.Property = "Alter Wert";
 
-            var monitor = this.ViewModel.Listen(p => p.Property);
+            var monitor = this.ViewModel.Monitor(p => p.Property);
             monitor.Call(a);
 
             this.ViewModel.Property = "Neuer Wert";

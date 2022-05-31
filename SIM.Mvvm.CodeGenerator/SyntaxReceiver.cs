@@ -5,7 +5,6 @@
 namespace SIM.Mvvm.CodeGeneration
 {
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -16,17 +15,34 @@ namespace SIM.Mvvm.CodeGeneration
     /// </summary>
     internal class SyntaxReceiver : ISyntaxContextReceiver
     {
-        public static readonly string GeneratePropertyAttributeFullName = typeof(GeneratePropertyAttribute).FullName;
         public static readonly string AutoMapPropertiesAttributeFullName = typeof(AutoMapPropertiesAttribute).FullName;
 
-        public List<IFieldSymbol> FieldsToGeneratePropertiesFrom { get; } = new List<IFieldSymbol>();
+        private readonly SetterVisibilityContentGenerator setterVisibilityContentGenerator = new();
+        public readonly GeneratePropertiesGenerator generatePropertiesGenerator = new();
+        public readonly CreatePropertyContentGenerator createPropertyContentGenerator = new();
+
         public List<ISymbol> FieldsToAutoMapProperties { get; } = new List<ISymbol>();
+
+        public void PostInititialize(GeneratorPostInitializationContext context)
+        {
+            setterVisibilityContentGenerator.PostInititialize(context);
+            generatePropertiesGenerator.PostInititialize(context);
+            createPropertyContentGenerator.PostInititialize(context);
+        }
 
         /// <summary>
         /// Called for every syntax node in the compilation, we can inspect the nodes and save any information useful for generation
         /// </summary>
         public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
         {
+            return;
+
+            setterVisibilityContentGenerator.OnVisitSyntaxNode(context);
+
+            generatePropertiesGenerator.OnVisitSyntaxNode(context);
+
+            createPropertyContentGenerator.OnVisitSyntaxNode(context);
+
             // any field with at least one attribute is a candidate for property generation
             if (context.Node is FieldDeclarationSyntax fieldDeclarationSyntax
                 && fieldDeclarationSyntax.AttributeLists.Count > 0)
@@ -36,11 +52,6 @@ namespace SIM.Mvvm.CodeGeneration
                     // Get the symbol being declared by the field, and keep it if its annotated
                     if (context.SemanticModel.GetDeclaredSymbol(variable) is IFieldSymbol fieldSymbol)
                     {
-                        if (fieldSymbol.GetAttributes().Any(ad => ad.AttributeClass?.ToDisplayString() == GeneratePropertyAttributeFullName))
-                        {
-                            this.FieldsToGeneratePropertiesFrom.Add(fieldSymbol);
-                        }
-
                         if (fieldSymbol.GetAttributes().Any(ad => ad.AttributeClass?.ToDisplayString() == AutoMapPropertiesAttributeFullName))
                         {
                             this.FieldsToAutoMapProperties.Add(fieldSymbol);
@@ -60,6 +71,19 @@ namespace SIM.Mvvm.CodeGeneration
                     }
                 }
             }
+        }
+
+
+
+        public void Execute(GeneratorExecutionContext context)
+        {
+            return;
+            setterVisibilityContentGenerator.Execute(context);
+            generatePropertiesGenerator.Execute(context);
+            createPropertyContentGenerator.Execute(context);
+
+            //var autoMapGenerator = new AutoMapPropertiesGenerator(this);
+            //autoMapGenerator.Execute(context);
         }
     }
 }

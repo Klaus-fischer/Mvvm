@@ -121,7 +121,7 @@
             this.Listen(vm => vm.CommandCanExecute)
                 .Notify(() => this.Command);
 
-            this.Listen(model, m => m.FirstValue)
+            this.Monitor(model, m => m.FirstValue)
                 .Notify(() => this.Command);
 
             // Aged Name depends on name and age.
@@ -132,7 +132,7 @@
                 .Notify(() => this.AgedName);
 
             // forward property changed event.
-            this.Listen(model, m => m.FirstValue)
+            this.Monitor(model, m => m.FirstValue)
                 .Notify(() => this.FirstValue);
         }
 

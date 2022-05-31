@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using SIM.Mvvm.CodeGeneration;
 
 namespace SIM.Mvvm.CodeGeneration.Tests
 {

@@ -21,20 +21,4 @@ namespace SIM.Mvvm
         /// </summary>
         string PropertyName { get; }
     }
-
-    /// <summary>
-    /// The property listener declaration for explicit types.
-    /// </summary>
-    public interface IPropertyListener<T> : IPropertyListener
-    {
-        /// <summary>
-        /// Notifies listener on source property changed.
-        /// </summary>
-        new event EventHandler<OnPropertyChangedEventArgs<T>>? PropertyChanged;
-
-        /// <summary>
-        /// Notifies a chaned listener, if instance gets disposed.
-        /// </summary>
-        event EventHandler? Disposed;
-    }
 }
